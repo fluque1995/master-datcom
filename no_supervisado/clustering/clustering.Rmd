@@ -1,0 +1,325 @@
+---
+title: "Clustering"
+subtitle: "Minería de datos: aprendizaje no supervisado y detección de anomalías"
+author: "Francisco Luque Sánchez"
+date: "21/12/2019"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+output:
+pdf_document:
+number_sections: yes
+template: eisvogel
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+library(ggplot2)
+library(stats)
+library(fpc)
+library(cluster)
+library(dplyr)
+library(factoextra)
+```
+
+```{r}
+read.dataset <- function(){
+    dataset <- read.csv("dataset/Absenteeism_at_work.csv", sep = ";")
+
+    ## Eliminamos columnas que no aportan información
+    dataset$ID <- NULL
+    dataset$Body.mass.index <- NULL # Este valor es función del peso y la altura
+    dataset$Seasons <- NULL # Este valor codifica la misma información que el mes
+    dataset$Reason.for.absence <- NULL # A priori no contemplaremos este valor
+
+    ## Renombramos columnas con nombres largos
+    dataset <- dataset %>%
+        rename(
+            Month = Month.of.absence,
+            Day = Day.of.the.week,
+            Transport.exp = Transportation.expense,
+            Distance = Distance.from.Residence.to.Work,
+            Workload = Work.load.Average.day,
+            Absent.time = Absenteeism.time.in.hours
+        )
+    dataset
+}
+
+dataset <- read.dataset()
+
+continuous.vars <- c(
+    "Month", "Day", "Transport.exp", "Distance", "Service.time",
+    "Age", "Workload", "Hit.target", "Education", "Son", "Pet",
+    "Weight", "Height", "Absent.time"
+)
+binary.vars <- c("Disciplinary.failure", "Social.drinker", "Social.smoker")
+```
+
+## K-medias
+
+```{r}
+nclust <- 7
+
+dataset <- read.dataset()
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+continuous.distances <- dist(continuous.data)
+binary.distances <- dist(binary.data, method="binary")
+
+final.distances <- (continuous.distances + binary.distances) / 2
+
+kmeans.result <- kmeans(final.distances, nclust)
+
+idx <- sample(1: dim(dataset)[1], 300)
+
+plotcluster(dataset, kmeans.result$cluster)
+
+d1 <- dist(continuous.data[idx,])
+d2 <- dist(binary.data[idx,], method="binary")
+
+d <- (d1+d2)/2
+sil <- silhouette(kmeans.result$cluster[idx], d)
+plot(sil, col = 1:nclust)
+
+cluster.stats(final.distances, kmeans.result$cluster)
+```
+
+### Normalización de variables
+
+```{r}
+dataset <- read.dataset()
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+## Normalizamos los atributos continuos
+## Esta función nos estandariza los valores del dataframe por columnas
+scaled.data <- scale(continuous.data)
+
+## Comprobamos que en efecto las columnas están normalizadas
+apply(scaled.data, 2, mean) # Los valores son muy cercanos a cero
+apply(scaled.data, 2, sd)
+
+scaled.distances <- dist(scaled.data)
+binary.distances <- dist(binary.data, method="binary")
+
+final.distances <- (scaled.distances + binary.distances) / 2
+
+kmeans.result <- kmeans(final.distances, nclust)
+
+idx <- sample(1: dim(dataset)[1], 300)
+
+plotcluster(dataset[idx,], kmeans.result$cluster[idx])
+
+d1 <- dist(scaled.data[idx,])
+d2 <- dist(binary.data[idx,], method="binary")
+
+d <- (d1+d2)/2
+sil <- silhouette(kmeans.result$cluster[idx], d)
+plot(sil, col = 1:nclust)
+
+cluster.stats(final.distances, kmeans.result$cluster)$avg.silwidth
+```
+
+## DBSCAN
+
+```{r}
+dataset <- read.dataset()
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+scaled.data <- scale(continuous.data)
+
+scaled.distances <- dist(scaled.data)
+binary.distances <- dist(binary.data, method="binary")
+
+final.distances <- (scaled.distances + binary.distances) / 2
+
+## Aplicamos DBSCAN (con el parámetro dist este método acepta una matriz
+## de distancias en lugar de los datos)
+dbscan.res <- dbscan(final.distances, eps=2, MinPts=5, method="dist")
+
+fviz_cluster(dbscan.res, scaled.data)
+
+plotcluster(dataset, dbscan.res$cluster)
+
+sil <- silhouette(dbscan.res$cluster, final.distances)
+
+plot(sil, col=length(unique(dbscan.res$cluster)))
+```
+
+## Clustering jerárquico
+
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+continuous.distances <- dist(continuous.data)
+binary.distances <- dist(binary.data, method="binary")
+final.distances <- (continuous.distances + binary.distances) / 2
+
+hclust <- hclust(final.distances, method="ward.D2")
+
+hclust
+
+plot(hclust)
+
+rect.hclust(hclust, k=nclust)
+
+groups <- cutree(h, k=nclust)
+
+groups
+
+plotcluster(dataset, groups)
+
+sil <- silhouette(groups, final.distances)
+
+plot(sil, col <- nclust)
+
+cluster.stats(final.distances, groups)
+```
+### Normalización de variables
+
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+continuous.distances <- dist(continuous.data)
+binary.distances <- dist(binary.data, method="binary")
+final.distances <- (continuous.distances + binary.distances) / 2
+
+hclust <- hclust(final.distances, method="ward.D2")
+
+hclust <- hclust(final.distances, method="ward.D2")
+
+hclust
+
+plot(hclust)
+
+rect.hclust(hclust, k=nclust)
+
+groups <- cutree(h, k=nclust)
+
+groups
+
+plotcluster(dataset, groups)
+
+sil <- silhouette(groups, final.distances)
+
+plot(sil, col <- nclust)
+
+cluster.stats(final.distances, groups)
+```
+
+## k-medioides
+
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+continuous.distances <- dist(continuous.data)
+binary.distances <- dist(binary.data, method="binary")
+final.distances <- (continuous.distances + binary.distances) / 2
+
+pam.result <- pam(final.distances, 5)
+
+idx <- sample(1:dim(dataset)[1], 200)
+
+clusters <- pam.result$cluster
+
+plotcluster(dataset[idx,], clusters[idx])
+
+scaled.d <- dist(scaled.data[idx,])
+binary.d <- dist(binary.data[idx,], method="binary")
+
+d <- (scaled.d + binary.d) / 2
+sil <- silhouette(clusters[idx], d)
+
+plot(sil, col=1:5)
+
+cluster.stats(final.distances, clusters)$avg.silwidth
+```
+### Resultados con normalización de variables
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+scaled.data <- scale(continuous.data)
+
+scaled.distances <- dist(scaled.data)
+binary.distances <- dist(binary.data, method="binary")
+final.distances <- (scaled.distances + binary.distances) / 2
+
+pam.result <- pam(final.distances, 5)
+
+idx <- sample(1:dim(dataset)[1], 200)
+
+clusters <- pam.result$cluster
+
+plotcluster(dataset[idx,], clusters[idx])
+
+scaled.d <- dist(scaled.data[idx,])
+binary.d <- dist(binary.data[idx,], method="binary")
+
+d <- (scaled.d + binary.d) / 2
+sil <- silhouette(clusters[idx], d)
+
+plot(sil, col=1:5)
+
+cluster.stats(final.distances, clusters)$avg.silwidth
+```
+
+### Búsqueda del valor óptimo de k
+
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+scaled.data <- scale(continuous.data)
+
+scaled.distances <- dist(scaled.data)
+binary.distances <- dist(binary.data, method="binary")
+
+final.distances <- (scaled.distances + binary.distances) / 2
+
+pamk.result <- pamk(scaled.distances)
+
+plot(pamk.results$pamobject)
+
+cluster.stats(final.distances, pamk.result$pamobject$clustering)
+```
+
+## Fuzzy k-means
+
+```{r}
+dataset <- read.dataset()
+
+continuous.data <- dataset %>% select(continuous.vars)
+binary.data <- dataset %>% select(binary.vars)
+
+scaled.data <- scale(continuous.data)
+
+scaled.distances <- dist(scaled.data)
+binary.distances <- dist(binary.data, method="binary")
+final.distances <- (scaled.distances + binary.distances) / 2
+
+fuzzy.result <- fanny(final.distances, nclust, memb.exp=1.3)
+
+plot(fuzzy.result)
+
+str(fuzzy.result)
+
+cluster.stats(final.distances, fuzzy.result$clustering)
+```
