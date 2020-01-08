@@ -1,0 +1,1903 @@
+---
+title: "Trabajo integrador"
+subtitle: "Introducción a la ciencia de datos"
+author: "Francisco Luque Sánchez"
+date: "21/12/2019"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+header-left: "Trabajo integrador - Introducción a la Ciencia de Datos"
+output:
+  pdf_document: 
+    keep_tex: yes
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+set.seed(0)
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
+library(fBasics)
+library(ggplot2)
+library(gridExtra)
+library(GGally)
+library(dplyr)
+library(texreg)
+library(kknn)
+library(caret)
+library(class)
+library(corrplot)
+library(MASS)
+```
+
+# Análisis de los conjuntos de datos
+
+En esta sección van a ser estudiados los dos conjuntos de datos asignados, comenzando por el conjunto de datos para el problema de regresión, y posteriormente el conjunto para el problema de validación. Para ambos conjuntos de datos, se describirán los atributos que conforman los ejemplos, y se sacarán estadísticos de los mismos, para tener una primera idea del problema al que nos enfrentamos. Adicionalmente, se generarán gráficas que nos permitan inspeccionar los datos visualmente. Comenzamos con el conjunto de datos asignado para el problema de regresión.
+
+## Problema de regresión
+
+Nos centraremos en primer lugar en el conjunto asignado para el problema de regresión. Dicho conjunto de datos tiene el nombre de `forestFires`. Lo primero que haremos será cargar dicho conjunto de datos, y asignar los nombres a las columnas:
+
+```{r}
+dataset <- read.csv('forestFires/forestFires.dat', comment.char = "@", header = FALSE)
+cols <- c("X", "Y", "Month", "Day", "FFMC", "DMC", "DC", "ISI", "Temp", "RH", "Wind", "Rain", "Area")
+colnames(dataset) <- cols
+
+# La función kable de la librería knitr nos permite generar directamente tablas en formato LaTeX, para su correcta visualizacion
+kable(head(dataset), booktabs=T, caption="Ejemplo de algunas instancias del conjunto de datos") %>% kable_styling(position="center", latex_options = "hold_position")
+```
+
+En <https://archive.ics.uci.edu/ml/datasets/Forest+Fires> podemos encontrar una descripción del conjunto de datos. Las instancias del dataset corresponden a fuegos registrados en el parque natural de Montesinho, situado en la zona noroeste de Portugal.
+
+### Dimensiones del dataset
+
+Como podemos observar en la tabla, se nos proveen 12 atributos distintos por cada ejemplo, los cuales contienen información sobre localización espacial y temporal, temperatura, humedad, etc. y se nos pide estimar el área afectada por un incendio. En total, el conjunto de datos tiene 517 instancias, con las 13 columnas explicadas anteriormente (12 atributos y la columna a predecir):
+
+```{r}
+# Consulta de las dimensiones del dataset (<nº ejemplos> x <nº atributos>)
+dim(dataset)
+```
+
+### Descripción de las variables
+
+Pasamos a hacer una descripción de los atributos que componen el conjunto de datos. Para cada instancia, los atributos registrados son los siguientes.
+
+- X: Coordenada espacial en el eje X siguiendo el sistema cartográfico del parque (valores del 1 al 9)
+- Y: Coordenada espacial en el eje Y siguiendo el sistema cartográfico del parque (valores del 2 al 9)
+- Month: mes del año (1 a 12)
+- Day: día de la semana (1 a 7)
+- FFMC: Índice FFMC según el Canadian FWI (Fire Weather Index). A grandes rasgos, humedad de las hojas sueltas en la zona del incendio (real, de 18.7 a 96.2)
+- DMC: Índice DMC según el FWI. Humedad del suelo superficial (real, 1.1 a 291.2)
+- DC: Índice DC según el FWI. Humedad del suelo profundo (real, 7.9 a 860.6)
+- ISI: _Initial Spread Index_. Código numérico que agrega el FFMC y la velocidad del viento, para dar una estimación el ratio de propagación del incendio en su inicio (real, 0 a 56.1)
+- Temp: Temperatura medida en grados centígrados (real, 2.2 a 33.3)
+- RH: Humedad relativa en porcentaje (15 a 100)
+- Wind: Velocidad del viento en Km/h (real, 0.4 a 9.4)
+- Rain: Precipitación en $mm/m^2$ (real, 0 a 6.4)
+- Area: Hectáreas de bosque quemadas (real, 0 a 1090.84). Variable a predecir
+
+Para conocer más información sobre el índice FWI, se puede acceder a <https://cwfis.cfs.nrcan.gc.ca/background/summary/fwi>.
+
+Pasamos a estudiar los rangos de las variables implicadas.
+
+```{r}
+# Extraemos la misma información que la función summary, pero usando una función del paquete fBasics que nos permite mostrar esta información como una tabla
+stats <- basicStats(dataset)[c('Minimum', '1. Quartile', 'Median', 'Mean', 'Stdev', '3. Quartile', 'Maximum', 'Skewness', 'Kurtosis'),]
+kable(stats[,1:7], digits = 2, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(stats[,8:13], digits = 2, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+En algunas variables encontramos información interesante en la tabla. Para la columna X, podemos observar que la distribución de los valores es más o menos homogénea (los cuartiles se sitúan, aproximadamente, donde se esperaría si la distribución fuera uniforme). Para la columna Y, sin embargo, el 3º cuartil está en el valor 5, es decir, el 75 % de los incendios se producen en la mitad inferior del parque, más al sur. Para las columnas temporales, el 50 % de los incendios se producen entre el mes 7 y el 9, es decir, los meses de verano, y la mitad superior de los incendios se producen entre el día 5 (valor mediano) y el día 7 de la semana, que se corresponden con el fin de semana. Esto nos podría indicar que los incendios están provocados por el hombre (ya que es más probable que la gente salga al campo durante el fin de semana que entre semana), aunque no tendremos forma de comprobar esta suposición por falta de datos.
+
+Las cuatro variables comentadas hasta el momento son las variables numéricas discretas de las que dispone el problema. El resto de variables que se nos proporcionan son variables numéricas continuas. Se podría discutir si la variable RH, que es un porcentaje de humedad, y que en nuestro conjunto de datos toma sólo valores enteros, puede ser considerada también como una variable numérica discreta. No obstante, como en principio esta columna podría tomar valores decimales, y el número de valores distintos de los que disponemos en ella es suficientemente alto (el conteo de valores únicos es de 75), no la consideraremos como columna discreta, y la analizaremos conjuntamente a las variables numéricas continuas. Otra discusión interesante que conviene hacer es la referente a las dos columnas temporales. Aunque ciertamente estas variables pueden ser consideradas variables numéricas discretas, debido a la componente cíclica que tienen (detrás del mes 12 se repetiría el mes 1, e igualmente con los días), parece más inteligente transformar estos datos de forma que esta información se conserve. Por ejemplo, con la representación con valores enteros que tenemos actualmente, la distancia entre los meses de diciembre y enero es de 11, a pesar de ser meses consecutivos en un calendario. Entre junio y julio, por el contrario, esa distancia es de 1, como sería esperable. Parece deseable eliminar esta problemática de los datos, utilizando una representación distinta de los mismos. Una posibilidad es, para cada una de las columnas de este tipo, calcular dos columnas nuevas, haciendo una transformada con el seno y el coseno (para cada valor $i$, se calculan las funciones seno y coseno de $\frac{2 \pi i}{max - min + 1}$, con $max$ y $min$ el máximo y el mínimo de cada columna). De esta forma, transformas cada valor $i$ a un punto de la circunferencia de radio 1, todos equiespaciados. Más adelante discutiremos si esta representación mejora los resultados a la hora de resolver el problema.
+
+Pasamos a comentar las variables continuas de las que disponemos. En primer lugar nos encontramos con el índice FFMC. Dicho índice está fuertemente sesgado a la izquierda, concentrando una gran cantidad de valores cerca de su valor más alto (el primer cuartil tiene un valor de 90.2, mientras que el máximos es de sólo 96.2). De forma más suave, encontramos sesgadas la columnas DMC y DC, a derecha e izquierda, respectivamente. La columna ISI presenta un fuerte sesgo a la derecha nuevamente. En cuanto a las columnas de temperatura, humedad y viento, el sesgo que nos encontramos es muy bajo, y tendremos que esperar a representaciones gráficas para obtener más información. La columna de lluvia, no obstante, arroja información interesante. En el 75 % de los incendios registrados, la precipitación es nula, información que concuerda con la concentración de incendios en los meses de verano.
+
+Finalmente, queda por comentar la columna objetivo, Area. Una de las principales problemáticas de esta columna es la cantidad de valores bajos que tiene, siendo más de la mitad de los mismos muy cercanos a 0. Además, existen varios valores muy altos, probablemente anómalos, correspondientes a incendios de gran tamaño, que son poco comunes. Probablemente, una transformación de esta columna sea más fácilmente estimable, estudio que realizaremos a posteriori.
+
+### Representaciones gráficas de las variables
+
+A continuación, representaremos gráficamente las variables, primero individualmente, para ver la forma que toma el histograma de las mismas, y posteriormente por pares, para ver si existe correlación entre ellas. Representamos en primer lugar los diagramas de barras correspondientes a las cuatro variables discretas.
+
+```{r, fig.height=1.5}
+# Esta función recibe como parámetro el nombre de una columna del dataset y crea el diagrama de barras asociado a dicha columna. Lo utilizaremos junto con el vector de nombres de columnas para generar los gráficos
+plot.bars <- function(colname) {
+  ggplot(dataset, aes_string(x = colname)) + geom_bar(stat = "count")
+}
+barplots <- lapply(cols[1:4], plot.bars)
+# La función do.call nos permite pasar una lista de elementos (en este caso plots), como argumentos independientes
+do.call(grid.arrange, c(barplots, ncol=4))
+```
+
+Podemos contrastar algunas de las conclusiones que sacamos anteriormente. Como ya advertimos, en el fin de semana se concentran gran cantidad de los incendios, así como en los meses de verano. La variable Y, como ya vimos, tenía gran parte de sus valores en la parte izquierda, lo que corresponde con las zonas más al sur del parque. Con la variable X, sin embargo, habíamos estimado que la distribución iba a ser más o menos uniforme, cosa que no ocurre realmente, siendo la distribución más bien multimodal. Continuamos con las variables continuas (agruparemos las mismas en intervalos, ya que sus rangos son demasiado amplios).
+
+```{r, fig.height=2}
+# Al igual que en el ejemplo anterior, pero utilizando ahora histogramas. Para cada histograma, se agrupan los datos en 20 intervalos de igual amplitud
+plot.hist <- function(colname) {
+  ggplot(dataset, aes_string(x = colname)) + geom_histogram(breaks=seq(
+    min(dataset[,colname]),
+    max(dataset[,colname]),
+    length.out = 20))
+}
+histograms <- lapply(cols[5:7], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+```
+
+Comenzamos comentando las tres primeras gráficas. Podemos observar lo que comentamos al principio, FFMC está fuertemente sesgado a la izquierda, y DMC y DC tienen un sesgo menor, a derecha en el primer caso y a izquierda en el segundo. No parece que ninguna de ellas siga claramente una distribución normal.
+
+```{r, fig.height=2, }
+histograms <- lapply(cols[8:10], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+```
+
+En el caso de la variable ISI,  podemos observar la presenia de algún valor extremo. La gran mayoría de las mediciones se concentran en los valores bajos, a excepción de alguna medida que se ha disparado. Probablemente se trate de una medición ruidosa. La temperatura parece seguir una distribución normal, y la humedad similarmente, pero con cierto sesgo hacia la izquierda. Es posible que una transformación de dicha columna por una función convierta la variable en una variable normal. Finalmente, las últimas tres variables:
+
+```{r, fig.height=2}
+histograms <- lapply(cols[11:13], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+```
+
+De nuevo, observamos que la variable viento podría seguir una distribución similar a la normal, aunque tiene cierto sesgo, mientras que la lluvia y el área del incendio están completamente sesgadas a la izquierda. Pasamos a la representación por pares:
+
+```{r}
+ggpairs(dataset, aes(colour=), axisLabels = 'none', 
+        upper = list(continuous = wrap("cor", size = 2)),
+        lower = list(continuous = wrap("points", alpha = 0.3, colour = "#5555FF", size = 0.3)))
+```
+
+Resulta ligeramente complicado leer la gráfica, debido a la gran cantidad de información que contiene, pero se pueden extraer algunas conclusiones de la misma. En primer lugar, observando la última fila, que representa los gráficos de pares entre la variable a predecir y el resto de variables, así como la última columna, en la que se observa la correlación numérica entre esta variable y el resto, podemos intuir que nos enfrentamos ante un problema con una componente fuertemente no lineal, ya que las correlaciones son muy bajas. En cuanto al resto de variables entre sí, el grado de correlación no es especialmente alto. Sí que existe correlación entre algunas de las variables, como el DMC y el DC, con un grado de correlación cercano a $0.7$, el FMMC y el ISI, con un grado de $0.5$, o entre DC y temperatura, con un grado cercano a $0.5$ también, pero ligreamente inferior. Estas variables, como ya explicamos anteriormente, están fuertemente relacionadas, ya que miden características similares, o son medidas calculadas unas a partir de otras. Podemos encontrar otras correlaciones, como la que existe entre temperatura y humedad, que están correladas negativamente, y con un valor superior a $0.5$ (en valor absoluto). Esta correlación también era esperable, ya que el aumento de temperatura provoca una disminución de la humedad ambiental, usualmente. Una correlación no tan esperada, sin embargo, es la que hay entre la variable DC y el mes, siendo casualmente la correlación más alta entre las variables.
+
+Pasamos a estudiar con más profundidad la normalidad de los datos con los que trabajamos.
+
+### Comprobación de la normalidad: Gráficos Q-Q y tests de Shapiro-Wilk
+
+En este apartado, vamos a cerciorarnos de la normalidad de nuestros atributos. Para ello, utilizaremos dos enfoques distintos. Por un lado, utilizando el gráfico Q-Q, tendremos una aproximación visual, y por otro, con el test de Shapiro-Wilk, podremos contrastar la hipótesis de normalidad de nuestras variables continuas. Comenzamos con los gráficos Q-Q:
+
+```{r, fig.height=2.3}
+qqplotline <- function(colname){
+  qqnorm(dataset[,colname], main = paste("Q-Q plot - ", colname))
+  qqline(dataset[,colname])
+}
+par(mfrow=c(1,3)); foo <- lapply(cols[5:7], qqplotline)
+```
+
+De los tres primeros atributos, el que más se acerca a una distribución normal es el atributo DMC. Los otros están claramente desplazados. Continuamos con los tres atributos siguientes:
+
+```{r, fig.height=2.3}
+par(mfrow=c(1,3)); foo <- lapply(cols[8:10], qqplotline)
+```
+
+En este grupo, tanto la temperatura como la humedad relativa tienen un ajuste bastante bueno a una distribución normal, mientras que el índice ISI está notablemente desplazado. Vamos al último grupo de variables:
+
+```{r, fig.height=2.3}
+par(mfrow=c(1,3)); foo <- lapply(cols[11:13], qqplotline)
+```
+
+En este grupo, sólamente el viento se ajusta aproximadamente a una distribución normal, mientras que el atributo lluvia y la variable a predecir se desvían notablemente. Pasamos a comprobar la condición de normalidad usando el test de Shapiro-Wilk.
+
+```{r}
+# Extracción del valor del estadístico y los p-valores para cada columna
+statistics <- simplify2array(lapply(cols[-(1:4)], function (x) shapiro.test(dataset[, x])[['statistic']]))
+pvals <- simplify2array(lapply(cols[-(1:4)], function (x) shapiro.test(dataset[, x])[['p.value']]))
+# Creación de un dataframe con dicha información, conversión de los valores a cadenas de texto para el display y nombrado de filas y columnas
+tests.mat <- data.frame(rbind(statistics, pvals))
+tests.mat <- tests.mat %>% dplyr::mutate_if(., is.numeric, ~ as.character(signif(., 3)))
+colnames(tests.mat) <- cols[-(1:4)]
+rownames(tests.mat) <- c("W", "p-val")
+# Impresión de la tabla
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+A la vista de los p-valores obtenidos para todas las variables, podemos concluir que se rechaza la hipótesis nula en todos los casos, es decir, ninguna de nuestas variables se comporta siguiendo una distribución normal. Como ya concluimos a la vista de las gráficas, los mejores candidatos eran la variable de temperatura, viento, humedad y el índice DMC, pero incluso en estos casos, que se corresponden con los p-valores más altos, el valor es demasiado bajo y por tanto se rechaza la hipótesis nula.
+
+Pasamos a hacer un estudio similar al anterior, con los datos del problema de clasificación.
+
+## Problema de clasificación
+
+En esta seccion vamos a realizar un estudio similar al anterior, trabajando en este caso con el conjunto de datos del problema de clasificacion. El nombre del conjunto de datos es `heart`. Comenzamos cargando el conjunto de datos en memoria y asignando los nombres correspondientes a cada columna:
+
+```{r}
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+```
+
+En <http://archive.ics.uci.edu/ml/datasets/Statlog+%28Heart%29> se encuentra una descripción del dataset. En este caso, no se ha encontrado la procedencia de los datos.
+
+### Dimensiones del dataset y distribución de clases
+
+```{r}
+dim(dataset)
+```
+
+Como podemos observar con la orden anterior, para este dataset tenemos 13 atributos distintos y una clase a predecir (14 columnas en total), y 270 instancias. Adicionalmente, mostramos a continuación la distribución de clases que tenemos en el problema:
+
+```{r}
+table(dataset$Class)
+```
+
+Como podemos observar, tenemos un problema con un ligero desbalanceo a favor de la clase negativa (el valor 1 indica la ausencia de enfermedad y el valor 2 su presencia), pero dicho desbalanceo probablemente no representará un problema grave, debido a que la diferencia en el número de instancias no es excesivamente grande.
+
+### Descripción de las variables
+
+Pasamos a describir las variables que se nos proporcionan en el conjunto de datos:
+
+- Age: Edad del paciente (numérica)
+- Sex: Sexo del paciente (binaria)
+- ChestPainType: Tipo de dolor en el pecho (nominal, cuatro categorías)
+- RestingBloodPressure: Presión sanguínea del paciente en reposo (numérica)
+- SerumCholestoral: Nivel de colesterol en sangre (numérico)
+- FastingBloodSugar: Presencia de azucar en sangre alta (binaria)
+- ResElectrocardiographic: Resultado del electrocardiograma en reposo (nominal, tres categorías)
+- MaxHeartRate: Valor máximo de frecuencia cardíaca (numérico)
+- ExerciseInduced: Se ha producido angina tras un esfuerzo (binaria)
+- Oldpeak: Depresiones provocadas en el segmento ST debido a un esfuerzo (numérica)
+- Slope: Tamaño de la depresion anterior (numérica)
+- MajorVessels: Número de cavidades grandes coloreadas en una fluoroscopia (numeral, de 0 a 3)
+- Thal: Presencia de talasemia (nominal, tres categorías)
+- Class: Clase a predecir (binaria, indicando presencia o no de enfermedad cardiovascular)
+
+A continuación, estudiaremos los valores que toman nuestras variables. Estudiaremos de forma independiente las variables numéricas, categóricas y binarias. Comenzamos por las variables numéricas:
+
+
+```{r}
+stats <- basicStats(dataset[,c(1,4,5,8,10)])[c('Minimum', '1. Quartile', 'Median', 'Mean', 'Stdev', '3. Quartile', 'Maximum', 'Skewness', 'Kurtosis'),]
+kable(stats, digits = 2, , booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+En este conjunto de datos, los estadísticos calculados sugieren que todas las variables, a excepción de Oldpeak, podrían comportarse como una normal. Esto puede observarse, por un lado, viendo el sesgo de dichas variables, que es relativamente bajo en todos los casos, y comprobando que todos los valores entre el primer y el tercer cuartil están en el intervalo media $\pm$ desv. típica (realmente, son el 68 % de los valores los que se deberían quedar en ese intervalo, y no solo el 50 %, pero puede servir como aproximación). Para la variable Oldpeak, podemos observar la gran diferencia que hay entre el valor medio y el máximo, diferencia que no es tan pronunciada respecto del valor mínimo. Esto nos puede indicar un importante sesgo hacia la derecha, comportamiento que podemos contrastar con el valor del estadístico `Skewness`, cuyo valor es positivo.
+
+Un problema que presentan las variables Oldpeak y SerumCholestoral es el alto valor de curtosis que presentan. Este valor es una medida de lo concentrada que está la información. La distribución normal con desviación típica 1 tiene una curtosis de 0 (realmente, su valor es 3, pero la mayoría de funciones que calculan la curtosis, como es el caso de la que hemos utilizado, directamente resta 3 al resultado final). Valores de curtosis menores indican más dispersión de los datos, lo que se traduce en una mayor cantidad de datos en las colas. Un valor mayor de curtosis se traduce en datos más concentrados cerca de la media, y menos datos en las colas. Una curtosis anormalmente alta se traduce en poca variabilidad para dicha variable, como podremos comprobar en los gráficos de barras siguientes.
+
+Para las variables binarias y categóricas, la información anterior es menos relevante, así que extraeremos información gráfica de las mismas, atendiendo a cómo se reparte la clase a predecir en función de los valores que toman dichas variables. Pasamos a la representación gráfica de los datos. En primer lugar, representaremos individualmente los atributos, y posteriormente los representaremos por pares. Comenzamos representando los atributos numéricos usando histogramas.
+
+```{r}
+# Utilizamos la función implementada en la sección anterior
+histograms <- lapply(cols[c(1,4,5,8,10)], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+```
+Podemos observar que la distribución de la mayoría de las variables recuerda a una distribución normal. La edad, especialmente, parece ajustarse bien a dicha distribución. En el caso de la presión sanguínea en reposo y el colesterol, podemos observar que la mayoría de los valores se concentran alrededor de ciertos valores centrales, pero podemos encontrar algunos valores inusualmente altos, lo cual provoca un ligero sesgo de las variables hacia la derecha. Además, como observamos en la tabla, la variable que mide el colesterol tiene unas colas escasas, y es a lo que se debe su alto coeficiente de curtosis. En el caso de la frecuencia cardiaca máxima, observamos el comportamiento opuesto, con algunos valores anormalmente bajos. En el caso de la variable Oldpeak, como ya pudimos deducir con la tabla de estadísticos, la distribución que se obtiene está claramente sesgada a la derecha. Pasamos a estudiar la variables binarias:
+
+```{r, fig.height=2}
+# Modificamos la función plot.bars para que nos permita colorear las barras en función de la proporción de elementos de cada clase
+plot.bars <- function(colname) {
+  ggplot(dataset, aes_string(x = colname, fill="Class")) + geom_bar(position="stack") + theme(legend.title = element_text(size=8), legend.key.size = unit(.5, "cm"), axis.title.y = element_text("", size=0))
+}
+barplots <- lapply(cols[c(2,6,9)], plot.bars)
+do.call(grid.arrange, c(barplots, ncol=3))
+```
+
+Podemos extraer varias conclusiones de las gráficas anteriores. En primer lugar, tenemos desbalanceos importantes para los tres atributos, especialmente para el nivel alto de glucosa en sangre. En cuanto al reparto de clases para cada atributo, se pueden plantear ciertas hipótesis para la clasificación posterior. En primer lugar, observando el atributo sexo, se aprecia claramente una mayor incidendia de enfermedades coronarias en la población masculina. En cuanto al niver alto de azucar en sangre, a priori no podemos establecer ninguna hipótesis de este tipo, ya que no se aprecian diferencias significativas en la proporción de elementos de un tipo y otro, provocado también por el escaso número de ejemplos positivos de este atributo con los que contamos. Finalmente, la angina inducida por el ejercicio físico parece una característica muy relevante. A pesar de tener menos ejemplos en la clase positiva que en la negativa, cuando tenemos en cuenta la presencia de enfermedad coronaria en el paciente, se invierte esta tendencia. Esto nos puede hacer pensar que esta variable va a ser muy relevante a la hora de predecir si un paciente presenta o no una patología cardiaca.
+
+Pasamos a comentar las variables nominales con más de dos valores posibles.
+
+```{r}
+barplots <- lapply(cols[c(3,7,11,12,13)], plot.bars)
+do.call(grid.arrange, c(barplots, ncol=3))
+```
+
+De nuevo en este grupo de variables podemos extraer conclusiones sobre cómo se distribuyen los ejemplos positivos en función de los valores de los atributos. En el caso del dolor de pecho, podemos concluir que los valores extablecen una jerarquía ordenada en la escala del dolor, probablemente, ya que tenemos más ejemplos cuanto mayor es el valor, lo que concuerda con que cuanto mayor sea el dolor más probable es que el paciente acuda al médico, y una mayor proporción de ejemplos en la clase positiva, lo que concuerda con que la intensidad del dolor aumenta con la gravedad del problema. En el resultado del electrocardiograma, es notable la escasez de ejemplos del valor 1, pero no podemos dar una interpretación a este hecho por falta de conocimiento específico. Nos pasa algo similar con la variable Slope, aunque en esta se puede notar la incidencia de su valor en la clase final del ejemplo, ya que para el valor de `Slope = 1`, la proporción de ejemplos de la clase positiva es mucho más baja que para las otras dos clases. Para la variable MajorVessels, que habla del número de cavidades mostradas en una fluoroscopia, se observa que para un valor mayor que 0, la presencia de la enfermedad aumenta muy considerablemente. Como posible tratamiento de los datos, esta variable se podría convertir en una variable binaria, en la que se agruparan las pruebas en las que aparecen cavidades en esta prueba (`MajorVessels > 0`) frente a cuando no aparecen (`MajorVessels = 0`). Finalmente, para la variable `Thal`, si vamos a la página que dimos como referencia, se explica que esta columna ofrece información sobre la presencia de talasemia, siendo el valor 3 la ausencia de la misma, y los valores 6 y 7 la presencia, reversible o no, de ésta. Esta es otra posible columna que podría resumirse en una variable binaria.
+
+Las conclusiones extraídas tras la visualización de datos nos invitan a discutir si las variables que hemos considerado nominales pueden ser consideradas como ordinales. Muchas de estas variables presentan una fuerte componente de orden, como puede ser el dolor o el número de cavidades, y por tanto tendría sentido considerarlas como numéricas discretas y no sólo como categóricas.
+
+Pasamos a estudiar la distribución por pares de las variables. En primer lugar, estudiaremos las variables numéricas exclusivamente, para ver posibles correlaciones entre las mismas:
+
+```{r}
+ggpairs(dataset[c(1,4,5,8,10,14)], aes(colour=Class),
+        upper = list(continuous = wrap("cor", size = 3)),
+        lower = list(continuous = wrap("points", alpha = 0.5, size = 0.3), combo = wrap("facethist", binwidth=10)))
+```
+
+Podemos observar que la correlación entre todas las variables es baja. La únicas variables para las cuales hay una correlación más o menos significativa son la edad y la frecuencia cardiaca máxima, que tienen una correlación de $-0.4$. Es interesante observar cómo la correlación de las variables cambia si consideramos sólamente los ejemplos de una y otra clase. Por ejemplo, la correlación entre la presión sanguínea y el colesterol es significativamente más alta cuando se consideran sólo pacientes con enfermedad cardiaca, que cuando los considerados son los pacientes sanos.
+
+Vamos ahora a estudiar con más profundidad si las variables numéricas de nuestro problema se ajustan a una distribución normal o no, utilizando diagramas Q-Q y aplicando el test de Shapiro-Wilk:
+
+
+```{r}
+# Extracción del valor del estadístico y los p-valores para cada columna
+statistics <- simplify2array(lapply(cols[c(1,4,5,8,10)], function (x) shapiro.test(dataset[, x])[['statistic']]))
+pvals <- simplify2array(lapply(cols[c(1,4,5,8,10)], function (x) shapiro.test(dataset[, x])[['p.value']]))
+# Creación de un dataframe con dicha información, conversión de los valores a cadenas de texto para el display y nombrado de filas y columnas
+tests.mat <- data.frame(rbind(statistics, pvals))
+tests.mat <- tests.mat %>% dplyr::mutate_if(., is.numeric, ~ as.character(signif(., 3)))
+colnames(tests.mat) <- cols[c(1,4,5,8,10)]
+rownames(tests.mat) <- c("W", "p-val")
+# Impresión de la tabla
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", , booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+A la vista de los resultados en la tabla, podemos rechazar la hipótesis nula para todos los tests con un nivel de significación $\alpha = 0.05$. Esto significa que nuestras variables no se distribuyen según una distribución normal con una probabilidad muy alta. Mostramos a continuación los gráficos Q-Q para estas variables, que nos servirán de nuevo para confirmar que las variables no siguen una distribución normal:
+
+```{r, fig.height=5}
+par(mfrow=c(2,3)); foo <- lapply(cols[c(1,4,5,8,10)], qqplotline)
+```
+
+A la vista de las gráficas, de nuevo podemos concluir que las variables no se distribuyen siguiendo una distribución normal. Nos es más difícil hacer esta conclusión para las variables Age y MaxHeartRate, que son precisamente aquellas para las cuales el p-valor del test de Shapiro-Wilk es más alto.
+
+Una vez hemos estudiado las variables, vamos a tratar de resolver los dos problemas que se nos han propuesto. Comenzamos afrontando el problema de regresión
+
+\pagebreak
+
+# Problema de regresión
+
+En esta sección vamos a tratar de resolver el problema de regresión que se nos ha planteado. Como ya dijimos anteriormente, lo que se nos pide en este problema es estimar el tamaño de un incendio en función de ciertas variables de localización, temperatura, humedad... Comenzaremos leyendo el conjunto de datos y asignando los nombres correspondientes a las variables:
+
+```{r}
+dataset <- read.csv('forestFires/forestFires.dat', comment.char = "@", header = FALSE)
+cols <- c("X", "Y", "Month", "Day", "FFMC", "DMC", "DC", "ISI", "Temp", "RH", "Wind", "Rain", "Area")
+colnames(dataset) <- cols
+```
+
+Haciendo uso de la nomenclatura del problema, tendremos que estimar el valor de la variable Area en función de las demás. 
+
+## Correlación lineal simple
+
+En primer lugar, trataremos de construir modelos lineales simples, es decir, aquellos modelos que utilizan un solo predictor a la hora de predecir la variable objetivo. Comenzamos estudiando gráficamente cómo se relacionan nuestras variables con la variable a estimar, para ver si encontramos alguna correlación lineal entre dicha variable y el resto.
+
+```{r, fig.height=5}
+plot.regr <- function(colname){
+  plot(dataset[,'Area']~dataset[,colname], main=colname, ylab="Area")
+}
+par(mfrow=c(3,4), mar=c(2,2,2,2))
+foo <- lapply(cols[1:12], plot.regr)
+```
+
+Gráficamente no podemos observar ningún tipo de relación lineal entre las variables con las que estamos trabajando y la variable objetivo. Calcularemos por tanto la correlación lineal, concretamente el coeficiente de correlación de Pearson, entre nuestras variables y la variable objetivo:
+
+```{r}
+# Calculamos la correlación de todas las columnas del dataset con la columna Area. Tenemos que transponer el resultado antes de imprimir la tabla para obtener una matriz por filas en lugar de por columnas
+kable(t(apply(dataset[,-(13)], 2, cor, y=dataset$Area)), caption = "Coeficientes de correlación de Pearson de todas las variables frente a la columna a predecir", digits = 3, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Lo primero que podemos observar es que la correlación lineal de todas las variables con la variable objetivo es bajísima. Esto nos hace pensar que los resultados que vamos a obtener con el modelo lineal simple van a ser de bastante poca calidad. No obstante, atendiendo a los valores mostrados en la tabla, sabemos que los modelos lineales simples que mejores resultados van a dar son aquellos que usan las variables Temp, RH, DMC, X y Month. Calculamos dichos ajustes:
+
+```{r}
+simple.lm <- function(col){
+  lm(as.formula(paste("Area", col, sep = "~")),
+     data=dataset)
+}
+best.vars <- c("Temp", "RH", "DMC", "X", "Month")
+fits <- sapply(best.vars, simple.lm, simplify = F, USE.NAMES = T)
+lapply(fits, summary)
+```
+
+Como podemos observar, la bondad de todos los ajustes es bastante baja. A pesar de esto, el error cuadrático medio cometido en todos los ajustes es bastante bajo. Esto se debe a la distribución de datos que tenemos. La mayoría de los valores de la variable a estimar están muy cercanos a 0, y sólo unos pocos ejemplos toman valores realmente grandes. Lo que ocurre con todos los ajustes lineales simples es que ajustan relativamente bien los datos cercanos a 0, pero cometen errores muy amplios con los datos que se alejan de 0. De esta forma, el error medio cometido es bajo (la mayoría de puntos se predicen bastante acertadamente), pero el valor $R^2$, que a grandes rasgos mide cómo de bien explica el ajuste la variabilidad de los datos, es muy bajo, ya que precisamente los valores que tienen variación se predicen muy mal. Podemos observar que los cinco ajustes se corresponen con líneas prácticamente horizontales:
+
+```{r}
+par(mfrow=c(2,3))
+graphs <- lapply(best.vars, function (x) ggplot(dataset, aes_string(x = x, y = 'Area')) + geom_point() + stat_smooth(method='lm') + theme_light())
+do.call(grid.arrange, c(graphs, ncol=3))
+```
+
+## Modelos lineales con más variables
+
+Vamos ahora a intentar construir un modelo lineal más complejo, utilizando más variables. Comenzamos construyendo el modelo con todas las variables
+
+```{r}
+complete.fit <- lm(Area ~ ., data=dataset)
+summary(complete.fit)
+```
+
+Lo primero que podemos observar con este ajuste es que hemos empeorado los resultados respecto a todos los modelos lineales simples, tanto a nivel del $R^2$ ajustado como a nivel de error cuadrático medio. Esto pone de manifiesto que un modelo con más información no tiene por qué arrojar mejores resultados. Dado que el espacio de soluciones aumenta de dimensionalidad cuando se añaden variables, esto se puede traducir en peores ajustes si las variables que se añaden son poco informativas para el problema a resolver. Trataremos de mejorar el ajuste actual, eliminando las variables menos informativas. Decidiremos qué variable quitar utilizando el p-valor asociado al test T (columna `Pr(>|t|)`). Comenzamos quitando la variable FFMC, que es la que ha tenido un valor mayor:
+
+```{r}
+partial.fit1 <- lm(Area ~ . - FFMC, data=dataset)
+summary(partial.fit1)
+```
+
+La eliminación de la variable ha provocado una mejora en el error cuadrático medio, además de simplificar el modelo. Seguimos eliminando variables, ahora quitando la variable `Y`:
+
+```{r}
+partial.fit2 <- lm(Area ~ . - FFMC - Y, data=dataset)
+summary(partial.fit2)
+```
+
+De nuevo se produce una mejora, seguimos eliminando variables siguiendo el mismo criterio:
+
+```{r}
+partial.fit3 <- lm(Area ~ . - FFMC - Y - Rain, data=dataset)
+summary(partial.fit3)
+```
+Quitando ahora la variable `Day`, conseguimos el primer modelo mejor que cualquiera de los modelos simples:
+```{r}
+partial.fit4 <- lm(Area ~ . - FFMC - Y - Rain - Day, data=dataset)
+summary(partial.fit4)
+```
+La siguiente variable que habría que eliminar es la variable `Wind`, lo cual mejora ligeramente el modelo, nuevamente:
+```{r}
+partial.fit5 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind, data=dataset)
+summary(partial.fit5)
+```
+Quitando ahora la variable `RH`:
+```{r}
+partial.fit6 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind - RH, data=dataset)
+summary(partial.fit6)
+```
+Iterando el proceso sobre las variables restantes (omitiremos los resultados de los pasos siguientes, dado que no aportan apenas nueva información), se llega hasta un modelo bastante simple, con sólo dos variables, y ligeramente mejor que los modelos lineales simples:
+
+```{r}
+partial.fit7 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind - RH - ISI - DMC - DC - Month, data=dataset)
+summary(partial.fit7)
+```
+
+Este modelo, que utiliza sólo dos variables de las que se nos proporcionan (la temperatura, que era desde el principio la variable más correlada, y la posición en el eje X del incendio, que también vimos que estaba entre las más relevantes), es un modelo relativamente simple, y que arroja mejores resultados que los modelos que utilizan sólo una variable. Es un modelo suficientemente interpretable como para preferirlo sobre los simples debido a la mejora que produce, aunque la misma no sea demasiado importante. A continuación vamos a emplear transformaciones no lineales de los datos, tratando de mejorar las predicciones obtenidas.
+
+## Modelos con transformaciones no lineales
+
+Vamos a tratar ahora de mejorar el modelo utilizando algunas transformaciones no lineales de los datos. Si recordamos el gráfico que mostraba la temperatura frente al área del incendio, se podía apreciar que a temperaturas bajas no se producen incendios de gran tamaño, y todos los puntos que se separan del valor 0 se encuentran a temperaturas más altas. Se puede apreciar también cierta tendencia curvada hacia arriba en la distribución de puntos. Esta tendencia sugiere que la relación entre estas variables podría ser no lineal. En efecto, si en lugar de estimar con la temperatura utilizamos esta variable al cuadrado en el mejor modelo que habíamos obtenido:
+
+```{r}
+nonlinear.fit1 <- lm(Area ~ I(Temp^2) + X, data=dataset)
+summary(nonlinear.fit1)
+```
+
+Mejoramos de nuevo los resultados. Cabe remarcar que si añadimos ambos términos (el lineal y el cuadrático), en realidad del modelo empeora:
+
+```{r}
+nonlinear.fit2 <- lm(Area ~ Temp + I(Temp^2) + X, data=dataset)
+summary(nonlinear.fit2)
+```
+
+Pero podemos observar fácilmente que la variable no relevante es `Temp` (de nuevo mirando el p-valor) y eliminarla. Además de añadir esta variable no lineal, vamos a probar a añadir una función más compleja. Concretamente, vamos a trabajar con una de las variables temporales del problema. La variable que nos indica el mes del año en el que se ha producido el incendio tiene una problemática con sus valores extremos. Como ya comentamos en la parte de análisis exploratorio de datos, la distancia entre diciembre y enero es de 11, cuando realmente son meses contiguos. Esta problemática se soluciona calculando las funciones `cos(2*pi*Month/12) = cos(pi*Month/6)` y `sin(pi*Month/6)`, que proyecta dichos puntos en la esfera de radio 1, dejándolos equiespaciados y resolviendo la problemática indicada. Para observar cómo este problema puede influir en la predicción final de nuestro modelo, en primer lugar vamos a añadir la variable `Month` sin transformar al mejor modelo de los que tenemos hasta el momento:
+
+```{r}
+temporal.fit1 <- lm(Area ~ I(Temp^2) + X + Month, data=dataset)
+summary(temporal.fit1)
+```
+
+Si en lugar de incluir esta información directamente, realizamos la transformación que hemos sugerido e incluímos ambas variables:
+
+```{r}
+temporal.fit2 <- lm(Area ~ I(Temp^2) + X + cos(pi*Month/6) + sin(pi*Month/6), data=dataset)
+summary(temporal.fit2)
+```
+
+El resultado es ligeramente mejor, indicando que la transformación puede ser interesante. Además, detectamos que la variable generada al aplicar la función seno tiene asociado un p-valor muy alto. Si eliminamos esa variable y nos quedamos únicamente con la transformación coseno, el resultados que obtenemos es el siguiente: 
+
+```{r}
+temporal.fit2 <- lm(Area ~ I(Temp^2) + X + cos(pi*Month/6), data=dataset)
+summary(temporal.fit2)
+```
+
+Y nos encontramos con el mejor modelo obtenido hasta el momento. Esto pone de manifiesto que la transformación que hemos hecho a los datos temporales es beneficiosa, ya que aprovecha mejor el carácter cíclico de los mismos.
+
+A continuación probaremos un enfoque distinto, basado en el modelo kNN para regresión.
+
+## Modelo basado en kNN
+
+Pasamos a probar cómo funciona el modelo de kNN para regresión sobre estos datos. Comenzamos obteniendo el modelo que utiliza todas las variables:
+
+```{r}
+knn.fit1 <- kknn(Area ~ ., dataset, dataset)
+```
+
+Cabe remarcar que para que un modelo basado en distancias funcione correctamente, los datos han de estar normalizados, para evitar que si un atributo se mueve en un rango de valores muy amplio, la distancia entre instancias en ese atributo concreto va a tener mucho más peso a la hora de clasificar un ejemplo que el resto de información. No obstante, dado que el procedimiento estándar al trabajar con modelos basados en distancias es normalizar las variables, el método que hemos utilizado implementa por defecto dicho escalado, y no tenemos que realizarlo nosotros previamente. Tras haber entrenado el regresor basado en kNN, vamos a representar las predicciones obtenidas gráficamente, para hacernos una idea de la bondad del ajuste que hace este modelo. Para ello, representaremos los puntos reales y las predicciones en dos dimensiones, usando Area y Temperatura en los ejes:
+
+```{r}
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit1$fitted.values, col="red", pch=20)
+```
+
+En primer lugar, podemos observar que este ajuste presenta una ventaja clara frente al ajuste lineal, y es la capacidad de estimar valores significativamente mayores a 0. Las regresión lineal, debido al gran número de incendios con un tamaño cercano a 0, todas las predicciones que se hacen son muy bajas. Vamos a calcular el RSME cometido por este modelo. Dado que tendremos que calcular este valor en repetiedas ocasiones, definiremos una función que nos permita calcularlo de forma más concisa:
+
+```{r}
+RMSE <- function(reals, preds){
+  sqrt(sum((reals - preds)^2)/length(reals))
+}
+RMSE(dataset$Area, knn.fit1$fitted.values)
+```
+
+Podemos observar que el modelo de kNN simple nos arroja mejores resultados que cualquiera de los modelos lineales ensayados hasta el momento, en términos del RSME sobre las predicciones al conjunto de entrenamiento. No obstante, esta métrica es poco representativa por varios motivos. En primer lugar, estamos basando nuestra evaluación en una única medida, lo cual hace el resultado estadísticamente poco significativo. Además, estamos calculando el error cometido sobre los datos del conjunto de entrenamiento, así que no estamos midiendo la capacidad del modelo para generalizar el conocimiento extraído. El modelo kNN tiene la particularidad de ajustar muy bien los datos de entrenamiento, lo que suele traducirse en sobreajuste. Para comparar de forma más adecuada los modelos que finalmente propongamos, utilizaremos una estrategia de validación cruzada, que nos permitirá entrenar y validar los modelos con datos distintos, acercándonos más a un escenario real, en el que los datos sobre los que predice el modelo no son conocidos en tiempo de entrenamiento. Previa a esa comparativa, vamos a intentar refinar el modelo basado en kNN. En este caso, no tenemos un valor que nos marque la relevancia de las variables, como podía ser el p-valor del test T que teníamos en la regresión lineal. Esto nos obligará a buscar las variables por ensayo y error, o utilizando posible conocimiento previo que tengamos sobre el problema, pero no podremos hacer una búsqueda guiada por la bondad del modelo. Como punto de partida, cogeremos el mejor modelo lineal (sin transformaciones no lineales) que encontramos en el apartado anterior:
+
+```{r}
+knn.fit2 <- kknn(Area ~ Temp + X, dataset, dataset)
+RMSE(dataset$Area, knn.fit2$fitted.values)
+```
+
+Vemos que los resultados obtenidos por este modelo son ligeramente peores que los obtenidos por  el modelo que utiliza todas las variables. Este hecho pone de manifiesto que las mejores variables para la resolución de un problema utilizando un determinado model no tienen por qué coincidir cuando cambiamos de modelo empleado. Debido a que los resultados obtenidos son peores que los de partida, abandonaremos esta vía y trataremos de seleccionar las variables por medio de nuestro propio conocimiento del problema. En principio, dado que no conocemos la zona en la que se han registrado los eventos, parece sensato suponer que la posición del incendio y el momento en el que se produce no deberían ser relevantes a la hora de predecir su tamaño, y estas variables prodrían estar introduciendo ruido a la hora de calcular las distancias, en lugar de información útil. Quitando estas variables, el modelo que obtenemos es el siguiente:
+
+```{r}
+knn.fit3 <- kknn(Area ~ . - Month - Day - X - Y, dataset, dataset)
+RMSE(dataset$Area, knn.fit3$fitted.values)
+```
+
+En efecto, podemos comprobar que el resultado obtenido es ligeramente mejor al que emplea todas las variables (de nuevo, remarcamos que la métrica que estamos utilizando es poco fiable, pero dado que nos está sirviendo exclusivamente para la selección de variables que utilizar en el modelo, consideraremos que es suficiente). En búsqueda de la interpretabilidad del modelo, trataremos de eliminar también algunos de los índices que se nos proporcionan, ya que su interpretación no es sencilla si no se tiene conocimiento experto en la materia. Comenzamos eliminando todos los índices que se nos proporcionan. Escribiremos la fórmula como una suma, para reducirla:
+
+```{r}
+knn.fit4 <- kknn(Area ~ Temp + RH + Wind + Rain, dataset, dataset)
+RMSE(dataset$Area, knn.fit4$fitted.values)
+```
+
+Podemos observar que el resultado a empeorado ligeramente. Trataremos de corregir este empeoramiento introduciendo uno de los índices. Haciendo una búsqueda exhaustiva sobre los mismos, obtenemos:
+
+```{r}
+check.index.knn <- function(var){
+  formula = paste("Area~Temp+RH+Wind+Rain", var, sep="+")
+  fit <- kknn(as.formula(formula), dataset, dataset)
+  RMSE(dataset$Area, fit$fitted.values)
+}
+
+sapply(c("FFMC", "DMC", "DC", "ISI"), check.index.knn, USE.NAMES=T)
+```
+
+El resultado anterior parece indicar que el índice FFMC (el cual, curiosamente, descartamos en primer lugar a la hora de montar el modelo lineal), produce una notable mejoría en el modelo, así que decidimos mantenerla. No añadiremos más variables para no complicar el modelo en exceso. Conservamos dicho modelo como uno de los posibles:
+
+```{r}
+knn.fit5 <- kknn(Area ~ Temp + RH + Wind + Rain + FFMC, dataset, dataset)
+RMSE(dataset$Area, knn.fit5$fitted.values)
+```
+
+Finalmente, intentaremos diseñar un modelo que haga uso de las posibles interacciones entre variables. En particular, vamos a considerar, no sólo las variables que sabemos interpretar (temperatura, humedad, viento y lluvia), sino que también las posibles interacciones entre parejas de las mismas:
+
+```{r}
+knn.fit6 <- kknn(Area ~ Temp + Wind + Rain + RH + 
+                   Temp*Wind + Temp*Rain + Temp*RH +
+                   Wind*Rain + Wind*RH + Rain*RH, dataset, dataset)
+RMSE(dataset$Area, knn.fit6$fitted.values)
+```
+
+Podemos observar que se ha producido una notable mejoría con la inclusión de relaciones entre variables. No obstante, el modelo se ha complicado significativamente también, lo que tiene dos problemas. Por un lado, el modelo pasa a ser menos interpretable, ya que pasamos de predecir con 4 o 5 variables a hacerlo con 10, las cuales además son agregaciones de las anteriores, que son difícilmente explicables. Por otro lado, esta mejora puede ser fruto simplemente de un sobreajuste, y tendremos que estudiar el modelo con precaución a posteriori. A modo de resumen, los tres modelos de kNN que hemos obtenido finalmente son el modelo que emplea todas las variables, el modelo lineal que emplea FFMC, Temp, RH, Wind y Rain, y el modelo que sólo utiliza las cuatro últimas pero tiene en cuenta las posibles interacciones entre parejas de ellas. Representamos gráficamente los resultados de las tres:
+
+```{r fig.height=3}
+par(mfrow=c(1,3))
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit1$fitted.values, col="red", pch=20)
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit5$fitted.values, col="green", pch=20)
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit6$fitted.values, col="blue", pch=20)
+```
+
+En el siguiente apartado vamos a estimar la capacidad de predicción de nuestros modelos con medidas más fiables. Hasta ahora, el problema lo hemos enfrentado utilizando todos los datos del conjunto simultáneamente, es decir, aprendíamos la distribución de los datos utilizando toda la información y después predecíamos los mismos puntos utilizando nuestros modelos. Este enfoque tiene una problemática, y es que no arroja información sobre la capacidad real del modelo para predecir sobre datos nuevos, sobre los que no ha tenido información durante el entrenamiento. Para paliar esta problemática, se utiliza una estrategia de validación cruzada, que consiste en dividir el conjunto de datos en $k$ subconjuntos, y entrenar el modelo $k$ veces, utilizando cada vez $k-1$ subconjuntos para entrenar y el restante para predecir, y se calculan los resultados sobre este último.
+
+## Comparativas de calidad entre los modelos: 5-FCV
+
+A continuación, vamos a tratar de dar una mejor estimación de la calidad de los algoritmos. Para ello, vamos a aplicar la estrategia de validación cruzada, concretamente 5 fold CV, que consiste en separar el conjunto de entrenamiento en 5 partes, y entrenar nuestros modelos 5 veces. La función siguiente nos permite cargar un conjunto separado en particiones desde ficheros, y nos devuelve una lista en la que cada elemento está compuesto por un conjunto de entrenamiento y su correspondiente test:
+
+```{r}
+load.folds <- function(dataset.name, num.folds, colnames.vec){
+  train.filenames <- sapply(1:num.folds, function(x) paste(dataset.name, "/", dataset.name, "-", num.folds, "-", x, "tra.dat", sep = ""))
+  test.filenames <- sapply(1:num.folds, function(x) paste(dataset.name, "/", dataset.name, "-", num.folds, "-", x, "tst.dat", sep = ""))
+  train.folds <- lapply(train.filenames, read.csv, comment.char="@", header=F, col.names=colnames.vec)
+  test.folds <- lapply(test.filenames, read.csv, comment.char="@", header=F, col.names=colnames.vec)
+  
+  mapply(function(x,y) list(train=x, test=y), train.folds, test.folds, SIMPLIFY = F)
+}
+```
+
+Podemos utilizarlo para cargar en memoria nuestros conjuntos de datos:
+
+```{r}
+folds <- load.folds("forestFires", 5, cols)
+```
+
+```{r}
+dim(folds[[1]]$train)
+dim(folds[[1]]$test)
+```
+
+Una vez tenemos cargados los distintos subconjuntos, vamos a aplicar algunos de los modelos previos utilizando esta técnica. En particular, aplicaremos el modelo lineal simple de mejor precisión, el modelo lineal a dos variables que nos encontramos por eliminación, el modelo con transformaciones no lineales más potente, el modelo basado en kNN sin interacciones y el modelo con interacciones. En primer lugar, creamos una función que nos permita aplicar el modelo lineal a un fold, y nos devuelve el RSME cometido:
+
+```{r}
+classify.lm <- function(fold, form, set = 'test'){
+  train.set <- fold$train
+  
+  # Aunque por defecto se evalúe sobre test, se permite la evaluación sobre train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  model <- lm(form, train.set)
+  res <- predict(model, test.set)
+  RMSE(res, test.set$Area)
+}
+```
+
+Ahora, podemos utilizar este método para aplicar sobre todos nuestros conjuntos de validación el modelo lineal que queramos:
+
+```{r}
+rmse.simple.lm.test <- sapply(folds, classify.lm, form = Area ~ Temp)
+rmse.simple.lm.train <- sapply(folds, classify.lm, form = Area ~ Temp, set = "train")
+kable(rbind(test = rmse.simple.lm.test, train = rmse.simple.lm.train), caption = "RMSE cometido por el modelo lineal sobre los conjunos de entrenamiento y test", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Lo primero que podemos observar es que la distribución de los errores no es homogénea, lo cual nos permite deducir dónde se concentran los outliers del conjunto de datos. Para los tres primeros conjuntos, el error medio cometido en test es significativamente más bajo que el cometido en entrenamiento, comportamiento que resulta curioso. Para los dos últimos, en cambio, se invierte el comportamiento. Probablemente, estos dos subconjuntos aglutinen la mayoría de los ejemplos a predecir de gran tamaño. Una vez que hemos visto cómo podemos aplicar el método, vamos a obtener los resultados de los otros modelos lineales:
+
+```{r}
+rmse.bivariate.lm.test <- sapply(folds, classify.lm, form = Area ~ Temp + X)
+rmse.bivariate.lm.train <- sapply(folds, classify.lm, form = Area ~ Temp + X, set = "train")
+rmse.nonlinear.test <- sapply(folds, classify.lm, form = Area ~ I(Temp^2) + X + cos(pi*Month/6)) 
+rmse.nonlinear.train <- sapply(folds, classify.lm, form = Area ~ I(Temp^2) + X + cos(pi*Month/6), set = "train") 
+```
+
+Realizamos el mismo procedimiento para los modelos basados en kNN:
+
+```{r}
+classify.knn <- function(fold, form, set = "test"){
+  train.set <- fold$train
+  
+  # Aunque por defecto se evalúe sobre test, se permite la evaluación sobre train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  res <- kknn(form, train.set, test.set)
+  RMSE(res$fitted.values, test.set$Area)
+}
+
+rmse.basic.knn.test <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC)
+rmse.basic.knn.train <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC, set = "train")
+
+rmse.interaction.knn.test <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC + Temp*Wind + Temp*Rain + Temp*RH + Wind*Rain + Wind*RH + Rain*RH)
+rmse.interaction.knn.train <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC + Temp*Wind + Temp*Rain + Temp*RH + Wind*Rain + Wind*RH + Rain*RH, set = "train")
+```
+
+Mostramos los resultados obtenidos por los distintos algoritmos (se oculta el código para generar las tablas):
+
+```{r echo=FALSE}
+rmse.matrix <- rbind(
+  simple=rmse.simple.lm.test, 
+  bivariado=rmse.bivariate.lm.test,
+  "no lineal"=rmse.nonlinear.test, 
+  "knn simple"=rmse.basic.knn.test, 
+  "interacciones"=rmse.interaction.knn.test,
+  simple=rmse.simple.lm.train,
+  bivariado=rmse.bivariate.lm.train,
+  "no lineal"=rmse.nonlinear.train,
+  "knn simple"=rmse.basic.knn.train,
+  interacciones=rmse.interaction.knn.train)
+
+rmse.means <- apply(rmse.matrix, 1, mean)
+
+rmse.matrix <- cbind(rmse.matrix, rmse.means)
+
+colnames(rmse.matrix) <- c("1", "2", "3", "4", "5", "Media")
+kable(rmse.matrix, digits = 2, booktabs = T, caption = "Resultados obtenidos por los algoritmos (RMSE)")  %>% kable_styling(position="center", latex_options="hold_position") %>% pack_rows("Test", 1, 5) %>% pack_rows("Train", 6, 10)
+```
+
+Podemos concluir varias cosas a la vista de la tabla. En primer lugar, nos ocurre lo que comentamos sobre los outliers para todos los algoritmos. Los errores cometidos en test en los tres primeros folds son mucho más bajos que los cometidos en los dos últimos, fenómeno que se invierte en train. En cuanto a la comparación de algoritmos entre sí, podemos observar que a pesar de que obteníamos mejores resultados con los modelos basados en kNN, sobre los conjuntos de validación estos modelos cometen un error mayor que los modelos lineales. Esto se debe a que son modelos que tienden al sobreajuste. Una posible forma de evitar el sobreajuste de esta técnica consistiría en seleccionar otro valor de $k$, utilizando una estrategia de selección basada en validación cruzada, por ejemplo.
+
+Dado que no tenemos un número suficientemente alto de muestras del RMSE para cada algoritmo (la estrategia que se ha utilizado ha sido 5-fold, por lo que sólo tenemos 5 valores), no podremos hacer un estudio estadístico profundo de la calidad de los resultados obtenidos, es decir, no podremos garantizar qué modelo de los comparados es mejor. No obstante, a la vista de los resultados medios en test, sí que parece posible aventurarse a decir que los modelos lineales funcionan mejor en este conjunto de datos que los que hemos probado basados en distancias.
+
+En el siguiente apartado, haremos uso de tests estadísticos para contrastar los resultados obtenidos por diversos algoritmos sobre varios conjuntos de datos, para tratar de concluir qué modelo obtiene mejores resultados.
+
+## Tests estadísticos sobre los modelos
+
+Debido a que no podemos establecer comparaciones estadísticas sobre nuestros resultados debido a la falta de muestras, a modo de ejemplo compararemos los resultados de tres algoritmos para tratar de discernir cuál es más potente. Concretamente, compararemos los resultados de un modelo de regresión lineal, un modelo basado en kNN, y un modelo de regresión basado en árboles conocido como M5. Se nos han proporcionado los valores de MSE cometidos por estos algoritmos sobre 20 datasets distintos. Cargamos dicha información en memoria:
+
+```{r}
+regr.test <- read.csv("regr_test_alumnos.csv", row.names = 1)
+regr.train <- read.csv("regr_train_alumnos.csv", row.names = 1)
+```
+
+Haremos dos tests estadísticos, uno sobre los resultados de entrenamiento, y otro sobre los resultados de test. Se deciden hacer dos tests porque el realizado sobre el entrenamiento nos da información sobre qué algoritmo es capaz de ajustar mejor los datos que se le proporcionan, pero es un test poco relevante. La información realmente interesante la proporciona el realizado sobre el test, que da una idea de la capacidad de los modelos de predecir datos nuevos, sobre los que no ha aprendido. 
+
+Dado que tenemos información sobre los resultados de nuestros modelos sobre uno de los conjuntos de entrenamiento, aprovecharemos esa información y sustituiremos la que se nos proporciona en las tablas por los valores calculados por nosotros:
+
+```{r}
+# Necesitamos calcular el MSE, no el RMSE
+MSE <- function(preds, reals){sum((reals - preds)^2)/length(reals)}
+# Modificamos la función de CV para lm y kNN, para que devuelvan el MSE
+classify.lm <- function(fold, form, set = 'test'){
+    train.set <- fold$train
+    if (set == "test"){
+        test.set <- fold$test
+    } else if (set == "train"){
+        test.set <- fold$train
+    }
+    model <- lm(form, train.set)
+    res <- predict(model, test.set)
+    MSE(res, test.set$Area)
+}
+classify.knn <- function(fold, form, set = "test"){
+  train.set <- fold$train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  res <- kknn(form, train.set, test.set)
+  MSE(res$fitted.values, test.set$Area)
+}
+# Calculamos la información necesaria
+mse.test.lm <- mean(sapply(folds, classify.lm, Area ~ .))
+mse.train.lm <- mean(sapply(folds, classify.lm, Area ~ ., set="train"))
+mse.test.knn  <- mean(sapply(folds, classify.knn, Area ~ .))
+mse.train.knn  <- mean(sapply(folds, classify.knn, Area ~ ., set="train"))
+# Y la sustituimos en los dataframes de resultados
+regr.test["forestFires", "out_test_lm"] <- mse.test.lm
+regr.train["forestFires", "out_train_lm"] <- mse.train.lm
+regr.test["forestFires", "out_test_kknn"] <- mse.test.knn
+regr.train["forestFires", "out_train_kknn"] <- mse.train.knn
+```
+
+Comenzamos con el test estadístico sobre el conjunto de entrenamiento.
+
+### Test estadístico sobre los resultados de entrenamiento
+
+Organizaremos el estudio en tres fases distintas. En primer lugar, veremos cómo comparar dos algoritmos individualmente, utilizando el test de Wilcoxon. Después, pondremos un ejemplo de comparación de tres modelos usando el test de Friedman, y finalmente veremos cómo utilizar el test post-hoc de Holm para encontrar las diferencias entre los pares de algoritmos estudiados con el test de Friedman, en caso de que éste devuelva que existen diferencias significativas entre los mismos. Comenzamos con el test de Wilcoxon
+
+__Test de Wilcoxon para comparar dos modelos __
+
+
+Este test estadístico nos permite conocer si hay diferencias significativas entre los resultados obtenidos por dos algoritmos. Compararemos los resultados obtenidos por el modelo lineal y el algoritmo basado en kNN:
+
+```{r}
+difs <- (regr.train[,1] - regr.train[,2]) / regr.train[,1]
+wilc_1_2 <- cbind(ifelse (difs<0, abs(difs)+0.1, 0+0.1), ifelse (difs>0, abs(difs)+0.1, 0+0.1))
+colnames(wilc_1_2) <- c(colnames(regr.train)[1], colnames(regr.train)[2])
+head(wilc_1_2)
+
+LMvsKNNtst <- wilcox.test(wilc_1_2[,1], wilc_1_2[,2], alternative = "two.sided", paired=TRUE)
+KNNvsLMtst <- wilcox.test(wilc_1_2[,2], wilc_1_2[,1], alternative = "two.sided", paired=TRUE)
+kable(cbind("p-val"=LMvsKNNtst$p.value, "R+"=LMvsKNNtst$statistic, "R-"=KNNvsLMtst$statistic), row.names = F, caption="Valores del test LM (R+) vs kNN (R-)", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+El resultado del test nos dice que hay diferencias significativas entre los resultados obtenidos por los algoritmos. Concretamente, nos permite concluir que kNN obtiene mejores resultados que el modelo lineal con una confianza superior al 99 %. Pasamos a comparar los tres algoritmos conjuntamente.
+
+__Test de Friedman y post-hoc de Holm__
+
+Ahora, vamos a aplicar el test de Friedman para ver si existen diferencias significativas entre los tres algoritmos. Este test nos dirá si existen diferencias, pero no nos especificará qué algoritmos son distintos. En caso de que este test de una respuesta positiva, deberemos utilizar un test por pares a continuación para decidir. Comenzamos aplicando el test de Friedman:
+
+```{r}
+friedman.test(as.matrix(regr.train))
+```
+
+El test arroja que existen diferencias significativas entre, al menos, dos de los tres algoritmos estudiados. Este resultado podíamos haberlo intuido por el apartado anterior, ya que sabíamos que existen diferencias entre kNN y el modelo lineal. No obstante. Usaremos el test post-hoc de Holm por pares para ver cuáles son las diferencias que nos encontramos:
+
+```{r}
+tam <- dim(regr.train)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(regr.train), grp, p.adjust = "holm", paired=T)
+```
+
+En vista de los resultados, podemos concluir que en todos los casos existe una diferencia significativa entre cada par de algoritmos comparados. Para decidir qué algoritmo produce unos resultados mejores, lo que haremos será calcular un ranking por filas. Después, haremos una media de cada ranking, y consideraremos que el orden de los algoritmos viene dado por su posición media:
+
+```{r}
+train.ranks <- apply(regr.train, 1, rank)
+kable(t(apply(train.ranks, 1, mean)), row.names=F, booktabs=T, caption="Ranking medio de cada algoritmo") %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Podemos observar que el algoritmo que queda más arriba es el algoritmo kNN, seguido del M5, y finalmente el modelo lineal. Con esta información y los resultados obtenidos en el test post-hoc de Holm, los cuales establecían una diferencia significativa con una probabilidad superior al 99 %, que el algoritmo kNN es el que mejor se ajusta a nuestros datos, seguido por el M5, y finalmente el modelo lineal es el que peores resultados obtiene. Pasamos a repetir el estudio sobre el conjunto de test.
+
+### Test estadístico sobre los resultados de test
+
+Pasamos a calcular los tests estadísticos sobre los resultados obtenidos en los conjuntos de test. Estos tests son más interesantes que los anteriores ya que nos permiten estudiar cómo se comportarán nuestros modelos en un entorno real, a la hora de predecir datos sobre los que no han aprendido. De nuevo, comenzamos haciendo una comparación usando el test de Wilcoxon entre el modelo lineal y el kNN.
+
+__Test de Wilcoxon para comparar dos modelos__
+
+Comparamos en primer lugar los resultados del modelo lineal y el kNN de la misma manera que lo hicimos con los resultados en entrenamiento, pero usando en este caso los resultados en los conjuntos de test:
+
+```{r}
+difs <- (regr.test[,1] - regr.test[,2]) / regr.test[,1]
+wilc_1_2 <- cbind(ifelse (difs<0, abs(difs)+0.1, 0+0.1), ifelse (difs>0, abs(difs)+0.1, 0+0.1))
+colnames(wilc_1_2) <- c(colnames(regr.test)[1], colnames(regr.test)[2])
+LMvsKNNtst <- wilcox.test(wilc_1_2[,1], wilc_1_2[,2], alternative = "two.sided", paired=TRUE)
+KNNvsLMtst <- wilcox.test(wilc_1_2[,2], wilc_1_2[,1], alternative = "two.sided", paired=TRUE)
+kable(cbind("p-val"=LMvsKNNtst$p.value, "R+"=LMvsKNNtst$statistic, "R-"=KNNvsLMtst$statistic), row.names = F, caption="Valores del test LM (R+) vs kNN (R-) sobre los resultados en test", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+En este caso, no podemos rechazar la hipótesis nula por lo que no tenemos evidencia sobre la diferencia significativa de los resultados obtenidos por los dos modelos. La confianza que se obtiene de que estos modelos den unos resultados distintos es de menos del 25 %. Pasamos a comparar los resultados de los tres algoritmos  conjuntamente con el test de Friedman
+
+__Test de Friedman y post-hoc de Holm__
+
+Aplicando este test a los resultados completos, obtenemos el siguiente resultado:
+
+```{r}
+friedman.test(as.matrix(regr.test))
+```
+
+El test, al igual que nos ocurrió sobre el conjunto de entrenamiento, arroja evidencia sobre que existen diferencias en los resultados obtenidos por los distintos modelos. Tendremos que utilizar el test post-hoc de Holm para comprobar dichas diferencias. No obstante, podemos adelantar que, dado el test que aplicamos a priori, entre los dos primeros algoritmos no debería haber diferencia, y las diferencias se deberían encontrar con M5. Comprobamos nuestras suposiciones:
+
+```{r}
+tam <- dim(regr.test)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(regr.test), grp, p.adjust = "holm", paired=T)
+```
+
+Podemos comprobar que nuestras suposiciones eran ciertas. La comparación de los algoritmos 1 (LM) y 2 (kNN) tiene un p-valor de 0.58, es decir, la confianza que se le asigna a que estos dos algoritmos tienen diferencias es de poco más del 40 %. Por el contrario, el algoritmo 3 (M5), es distinto al 1 con una confianza superior al 90 %, y al 2 con confianza también cercana al 90 %. La decisión final dependerá de la significancia que queramos aportar al test (usualmente se utilizan test de significancia $\alpha = 0.05$), es decir, en este caso el test no podría rechazar la hipótesis nula en ningún caso, y no podríamos concluir que existen diferencias entre los algoritmos. A pesar de ello, sí que podemos concluir que es más probable que existan diferencias entre M5 y los otros dos modelos que entre LM y kNN. Nos quedaría comprobar cuál de los modelos se considera mejor. Aplicando la misma técnica que aplicamos sobre los datos de entrenamiento:
+
+```{r}
+test.ranks <- apply(regr.test, 1, rank)
+kable(t(apply(test.ranks, 1, mean)), row.names=F, booktabs=T, caption="Ranking medio de cada algoritmo sobre los resultados de test") %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Podemos observar que la posición que ocupa M5 en media es mucho mejor que la de los otros dos algoritmos, que tienen una clasificación media similar. Esto nos permite concluir que kNN aporta unos resultados similares a los del modelo lineal, mientras que m5 parece arrojar resultados mejores que los otros dos modelos.
+
+A partir de la comparación entre los dos tests estadísticos, sobre entrenamiento y sobre test, podemos sacar algunas conclusiones interesantes. En primer lugar, se pone de manifiesto el sobreaprendizaje de los modelos basados en kNN. A pesar de que era significativamente el mejor modelo sobre los datos de entrenamiento, cuando hablamos del conjunto de test pierde mucha precisión, y se comporta de forma similar al modelo lineal, que era el peor de los modelos en entrenamiento. M5, por otra parte, es un modelo mucho más estable, que sufre menos el sobreaprendizaje, y es por esto que sin ser el modelo que mejor se ajusta a los datos de entrenamiento, después es capaz de realizar las mejores predicciones.
+
+\pagebreak
+
+# Problema de clasificación
+
+En este apartado, vamos a tratar el problema de clasificación que se nos ha asignado. Como ya dijimos en la parte de análisis exploratorio de datos, en este problema se nos pide predecir si un paciente presenta o no una enfermedad cardiaca en función de ciertas variables. 
+
+En primer lugar, trataremos de utilizar un clasificado basado en kNN pra resolver el problema de clasificación:
+
+## Clasificador basado en kNN
+
+Comenzamos cargando el dataset en memoria:
+
+```{r}
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+```
+
+Como hemos dicho anteriormente, intentaremos aplicar el modelo de clasificación k-NN. Lo primero que tendremos que hacer será procesar adecuadamente nuestras variables, y adaptarlas de forma que puedan ser utilizadas en el algoritmo. En primer lugar, normalizaremos las variables numéricas para que tengan media de 0 y desviación típica de 1. Las variables binarias las llevaremos a los valores 0 y 1, y las variables nominales con más valores las estudiaremos para ver si conviene transformarlas en múltiples variables binarias o por el contrario existe una jerarquía entre las etiquetas y conviene darles una numeración. Comenzamos normalizando las variables numéricas:
+
+```{r}
+# La función scale estandariza el vector que se pasa como argumento restando su media y dividiendo por la desviación típica
+dataset$Age <- scale(dataset$Age)
+dataset$RestBloodPressure <- scale(dataset$RestBloodPressure)
+dataset$SerumCholestoral <- scale(dataset$SerumCholestoral)
+dataset$MaxHeartRate <- scale(dataset$MaxHeartRate)
+dataset$Oldpeak <- scale(dataset$Oldpeak)
+```
+
+Pasamos a comentar las variables binarias. Estas variables ya tomaban los valores 0 y 1 en los tres casos, así que no tendremos que preocuparnos de modificarlas. En cuanto a las variables nominales, nos encontramos con distintas problemáticas. En primer lugar, podemos comentar las variables `ChestPainType` y `MajorVessels`. Estas dos variables, a pesar de haber sido estudiadas como categóricas, tienen cierta relación de orden. En el caso del dolor en el pecho, los valores parecen atender a una escala del dolor, debido a que cuanto mayor es su valor, tenemos un mayor número de ejemplos (lo cual casa con que si la intensidad del dolor es mayor, el paciente irá con una probabilidad mayor al hospital, y se tomarán datos del mismo), y además el número de pacientes que presentan la enfermedad crece cuando esta columna aumenta (lo cual casa con que un dolor más intenso suele indicar un problema más grave). Es por esto que se decide mantener esta escala en los datos y no convertir esta columna en varias variables binarias. En el caso de MajorVessels, ocurre algo similar, ya que esta columna marca el número de cavidades del corazón que se han mostrado en una determinada prueba médica, y de nuevo vemos que un aumento en este valor está muy relacionado con un porcentaje mayor de pacientes con problema cardiovascular. De nuevo se mantiene la columna sin modificarla. La variable `ResElectrocardiographic` nos supone cierta problemática. Esta variable toma tres valores distintos, 0, 1 y 2, pero para el valor 1 sólo tenemos dos muestras. Esto nos hace pensar que probablemente este valor sea anómalo. No obstante, como no podemos contrastar esta información por falta de conocimiento experto, no nos queda más remedio que suponer que esta variable puede tomar esos tres valores. Como tampoco tenemos posibilidad de interpretar el significado de los mismos, no podemos saber si existe alguna relación de orden, así que optamos por convertir esta variable en tres columnas distintas:
+
+```{r}
+dataset$DummyEC_0 <- ifelse(dataset$ResElectrocardiographic == 0, 1, 0)
+dataset$DummyEC_1 <- ifelse(dataset$ResElectrocardiographic == 1, 1, 0)
+dataset$DummyEC_2 <- ifelse(dataset$ResElectrocardiographic == 2, 1, 0)
+dataset$ResElectrocardiographic <- NULL
+```
+
+Lo mismo nos ocurre con la variable `Slope`, la cual también convertiremos a variables binarias.
+
+```{r}
+dataset$DummySlope_1 <- ifelse(dataset$Slope == 1, 1, 0)
+dataset$DummySlope_2 <- ifelse(dataset$Slope == 2, 1, 0)
+dataset$DummySlope_3 <- ifelse(dataset$Slope == 3, 1, 0)
+dataset$Slope <- NULL
+```
+
+Finalmente, nos queda por comentar la variable `Thal`. Atendiendo a la descripción que se nos da en la página web de referencia que indicamos en el apartado de análisis exploratorio de datos, los valores de esta columna representan, por un lado, la ausencia de la enfermedad (`Thal == 3`), y por otro dos estadios distintos de la enfermedad, (`Thal == 6,7`). Vimos en la exploración de datos que la proporción de individuos que presentaban problemas cardiacos era muy similar en los dos estadios de la enfermedad, así que decidimos combinar estos dos valores, de forma que en lugar de convertir esta variable en tres variables binarias, la convertimos en una sola, que distinga a los pacientes que presentan la enfermedad de los que no:
+
+```{r}
+dataset$Thal <- ifelse(dataset$Thal == 3, 0, 1)
+```
+
+Una vez hemos procesado el conjunto de datos, nos queda finalmente un conjunto con 17 atributos más la clase:
+
+```{r}
+dim(dataset)
+```
+
+Cabe hacer la apreciación de que estamos asumiendo que conocemos el dominio completo de las variables nominales, es decir, que los valores que hemos escogido para generar las variables binarias son todos los posibles valores que pueden tomar estas columnas. Si para alguna de estas columnas nos llegase un valor distinto a los que conocemos, no podríamos añadir una nueva columna que contemplara dicho valor. Para evitar esta problemática, se pueden tomar dos medidas. Una es despreciar el valor que llega y marcar a 0 todas las columnas binarias correspondientes a la variable nominal en cuestión, y la otra es añadir una columna más que tome el valor 1 para todos aquellos valores de la variable desconocidos a priori. No obstante, nosotros no nos ocuparemos de este problema al suponer que conocemos el dominio completo de las variables. Debido a que para evaluar los algoritmos implementaremos una estrategia de 10 fold cross validation, antes de continuar cargaremos en memoria estos subconjuntos y les aplicaremos el preprocesado anterior. Los modelos que probemos serán evaluados sobre estos conjuntos, entrenando cada vez con 9 de los subconjuntos y evaluando en el restante, de forma que los resultados que obtengamos son más fiables que si se evalúa el algoritmo una única vez. Aprovechando la función para cargar conjuntos de validación cruzada en memoria, cargamos los subconjuntos de validación. Dicha función nos devuelve una lista con $n$ elementos, cada uno de ellos compuesto por el subconjunto de train y su correspondiente test. En nuestro caso, utilizamos $n=10$, así que obtenemos 10 subconjuntos. 
+
+```{r}
+folds <- load.folds("heart", 10, cols)
+dim(folds[[1]]$train)
+dim(folds[[1]]$test)
+```
+
+A continuación, aplicaremos a todos los conjuntos generados la normalización propuesta. Hay que remarcar que para evitar introducir información sobre cada uno de los conjuntos de entrenamiento de su test correspondiente, lo que haremos para normalizar será calcular la media y la desviación típica de las columnas necesarias en el conjunto de train, y utilizar esos dos valores para normalizar también el test. Para esto, nos ayudaremos de la función `preProcess` del paquete `caret` La función que realiza la normalización es la siguiente:
+
+```{r}
+normalize.sets <- function(fold){
+  tra <- fold$train
+  tst <- fold$test
+
+  for (col in c("Age", "RestBloodPressure", "SerumCholestoral", "MaxHeartRate", "Oldpeak")){
+    pp <- preProcess(tra[col])
+    tra[col] <- predict(pp, tra[col])
+    tst[col] <- predict(pp, tst[col])
+  }
+  
+  tra$DummyEC_0 <- ifelse(tra$ResElectrocardiographic == 0, 1, 0)
+  tra$DummyEC_1 <- ifelse(tra$ResElectrocardiographic == 1, 1, 0)
+  tra$DummyEC_2 <- ifelse(tra$ResElectrocardiographic == 2, 1, 0)
+  tra$ResElectrocardiographic <- NULL
+
+  tst$DummyEC_0 <- ifelse(tst$ResElectrocardiographic == 0, 1, 0)
+  tst$DummyEC_1 <- ifelse(tst$ResElectrocardiographic == 1, 1, 0)
+  tst$DummyEC_2 <- ifelse(tst$ResElectrocardiographic == 2, 1, 0)
+  tst$ResElectrocardiographic <- NULL
+  
+  tra$DummySlope_1 <- ifelse(tra$Slope == 1, 1, 0)
+  tra$DummySlope_2 <- ifelse(tra$Slope == 2, 1, 0)
+  tra$DummySlope_3 <- ifelse(tra$Slope == 3, 1, 0)
+  tra$Slope <- NULL 
+  
+  tst$DummySlope_1 <- ifelse(tst$Slope == 1, 1, 0)
+  tst$DummySlope_2 <- ifelse(tst$Slope == 2, 1, 0)
+  tst$DummySlope_3 <- ifelse(tst$Slope == 3, 1, 0)
+  tst$Slope <- NULL
+  
+  tra$Thal <- ifelse(tra$Thal == 3, 0, 1)
+  tst$Thal <- ifelse(tst$Thal == 3, 0, 1)
+  
+  list(train = tra, test = tst)
+}
+```
+
+Aplicamos la función sobre todos los folds para tener los conjuntos preprocesados:
+
+```{r}
+folds <- lapply(folds, normalize.sets)
+```
+
+Ahora, vamos a utilizar el algoritmo kNN para clasificar los conjuntos de test. Vamos a utilizar la implementación del algoritmo kNN que viene en el paquete `class`:
+
+```{r}
+classify.knn <- function(fold, k = 3, set = 'test'){
+  train.labels <- fold$train$Class
+  if (set == 'test'){
+     test.labels <- fold$test$Class 
+     test.set <- fold$test
+  } else if (set == 'train'){
+    test.labels <- fold$train$Class
+    test.set <- fold$train
+  }
+
+  fold$train$Class <- NULL
+  test.set$Class <- NULL
+  
+  preds <- knn(fold$train, test.set, train.labels, k = k)
+  
+  sum(preds == test.labels)/length(test.labels)
+}
+```
+
+Ahora, aplicando la función anterior sobre todos los folds, podemos obtener la precisión del algoritmo sobre los mismos:
+
+```{r}
+accuracy <- sapply(folds, classify.knn)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisión obtenida sobre los distintos folds", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+mean(accuracy)
+```
+
+Un parámetro a ajustar con el algoritmo knn es el número de vecinos que se tienen en cuenta para la clasificación. En el ejemplo anterior, utilizamos `k = 3`, que es el valor que escogimos por defecto. A continuación vamos a tratar de optimizar dicho parámetro. Como sabemos, un valor menor de $k$ produce fronteras de formas más complejas, y el algoritmo tiene a sobreajustar. En cambio, valores muy grandes tienden a generar fronteras simples, produciendo _underfitting_. Para buscar el valor de $k$ óptimo para nuestro conjunto de datos, utilizaremos una búsqueda por fuerza bruta. Haremos una pasada completa sobre los 10 conjuntos de validación para cada $k$, y tomaremos como estadístico de resumen la media de las precisiones sobre los conjuntos de test. Esta forma de comparar la precisión de los modelos no es la más adecuada, y de hecho no la utilizaremos a la hora de comparar entre distintos modelos más adelante, pero sí que nos puede dar una ligera idea de la precisión del algoritmo, así que nos servirá para estimar $k$:
+
+```{r}
+possible.k = seq(from=1, to=240, by=5)
+mean.accs.knn.test <- sapply(possible.k, function(x) mean(sapply(folds, classify.knn, k = x, set = 'test')))
+mean.accs.knn.train <- sapply(possible.k, function(x) mean(sapply(folds, classify.knn, k = x, set = 'train')))
+
+res = data.frame(train=mean.accs.knn.train, test=mean.accs.knn.test)
+
+ggplot(res, aes(x=possible.k)) + geom_line(aes(y=train, colour="red")) + geom_line(aes(y=test, colour="blue")) + xlab("Valor de k") + ylab("Precisión") +     scale_color_discrete(name = "Conjunto de datos", labels = c("Test", "Train"))
+```
+
+Observando la gráfica anterior, podemos observar el comportamiento que hemos descrito anteriormente. Para valores bajos de $k$, se tiene una precisión en test relativamente baja, mientras que en el conjunto de entrenamiento es bastante alta. Este es debido a que se produce _overfitting_. La precisión en test va aumentando paulatinamente junto con el valor de $k$, hasta que a partir de cierto umbral se desploman ambos valores por la aparición de _underfitting_. Es remarcable, no obstante, que el valor de $k$ a partir del cual empieza a decrecer la precisión es sorprendentemente alto. Hasta el valor `k = 100`, el valor de precisión en test no comienza a disminuir. La forma de encontrar el $k$ óptimo para un problema suele ser similar a esta, utilizando una estrategia de validación cruzada hasta encontrar el $k$ que obtiene mejores resultados. No obstante, dado que el conjunto de datos de entrenamiento tiene sólamente 243 instancias en cada fold, normalmente no se habría probado con valores de $k$ tan altos. Usualmente, el valor que se toma por defecto es $k = \sqrt{n}$, donde $n$ es el tamaño del conjunto de entrenamiento, en nuestro caso, $k = \sqrt{243} = 15.588 \approx 15$, lo cual es 10 veces menor al valor óptimo en nuestro conjunto. Además, un valor demasiado alto de $k$ contradice la filosofía del algoritmo, que es el hecho de que puntos que se encuentren cercanos en el espacio pertenecerán a clases similares. Si $k$ es demasiado grande, los puntos que se estarán seleccionando para la clasificación serán cada vez más lejanos al punto nuevo a clasificar. En este guión se ha exagerado la búsqueda del valor $k$ para mostrar la evolución en la precisión. Repetimos esta búsqueda de forma exhaustiva para los valores de k hasta $k=25$, ya que para dicho valor se ha alcanzado ya lo que parece ser el máximo de la precisión:
+
+```{r}
+mean.accs <- sapply(1:25, function(x) mean(sapply(folds, classify.knn, k = x)))
+
+paste("k óptimo: ", which.max(mean.accs), ", precisión: ", mean.accs[which.max(mean.accs)], sep = "")
+```
+
+Podemos observar que el valor de $k$ para el cual hemos encontrado el óptimo es $k = 19$, que arroja una precisión cercana al 84 %. Calcularemos los resultados de este modelo sobre el conjunto de test y de entrenamiento, ya que nos servirá más adelante para el estudio estadístico de los resultados que llevaremos a cabo:
+
+```{r}
+mean.accs.knn.train <- sapply(folds, classify.knn, k = 19, set = "train")
+mean.accs.knn.test <- sapply(folds, classify.knn, k = 19, set = "test")
+
+res.knn <- rbind(train = mean.accs.knn.train, test = mean.accs.knn.test)
+```
+
+
+Tras haber estudiado el problema utilizando como clasificador un modelo basado en kNN, pasamos a resolver el problema de clasificación utilizando un modelo basado en LDA.
+
+## Algoritmo LDA
+
+Vamos a clasificar el conjunto de datos utilizando el algoritmo LDA. Volvemos a cargar el conjunto de datos, dado que hicimos algunas modificaciones sobre el mismo en el apartado anterior:
+
+```{r}
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+```
+
+Lo primero que tenemos que hacer es comprobar si las asunciones que se hacen para construir el modelo se cumplen sobre nuestro conjunto de datos:
+
+- Las observaciones son una muestra aleatoria: No tenemos manera de comprobar esta asunción, pero a priori podemos suponer que cada paciente de los registrados en la base de datos es distinto y no han sido seleccionados, y por tanto estamos ante una muestra aleatoria.
+- Los atributos de los que se dispone siguen una distribución normal para cada una de las clases. En el apartado de análisis exploratorio de datos comprobamos que la variables continuas de las que disponemos no se ajustan a una distribución normal. Además, las variables categóricas, trivialmente, no se ajustan a una normal. Mostramos de nuevo el valor del test de Shapiro-Wilk para las variables numéricas, con el que dedujimos que las mismas no seguían una distribución normal:
+
+```{r, indent="    "}
+# Aprovechamos la tabla que construimos durante el análisis exploratorio de datos
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+- La varianza de las variables predictoras es similar cuando se consideran las clases por separado. Comprobamos esta condición:
+
+```{r, indent="    "}
+negative.examples <- dataset %>% filter(Class==1)
+positive.examples <- dataset %>% filter(Class==2)
+neg.var <- sapply(negative.examples[,-14], var)
+pos.var <- sapply(positive.examples[,-14], var)
+table.var <- rbind(neg.var, pos.var)
+kable(table.var[,1:5], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(table.var[,6:9], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(table.var[,10:13], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Los valores  de varianza que se han calculado no son especialmente relevantes para las variables nominales y binarias. Nos fijaremos especialmente, por tanto, en las variables numéricas continuas. Existe una diferencia significativa en todos los casos entre la varianza de los valores en la clase positiva y negativa. Esto es especialmente notorio sobre la variable Oldpeak, para la cual la varianza sobre el conjunto de ejemplos positivos es el triple que sobre los negativos. Podemos considerar por tanto que esta asunción tampoco se cumple sobre nuestro conjunto de datos.
+
+El hecho de que las variables no sigan una distribución normal no impide la utilización del modelo, pero sí que es probable que arroje peores resultados que si las variables fuesen normales. Especialmente problemático será el uso de variables nominales en este contexto. Además de las asunciones anteriores, existen ciertas propiedades deseables que deben cumplirse, y que también comprobaremos:
+
+- Se deben tener más ejemplos que variables predictoras, a ser posible al menos 5 o 10 veces más ejemplos que predictores. En nuestros conjuntos de entrenamiento hay 243 ejemplos, y 13 variables predictoras, así que se cumple esta propiedad.
+- Se deben eliminar los predictores con varianza cercana a cero y se recomienda escalar y centrar los datos. No tenemos ninguna variable que tenga una varianza cercana a cero, y en el preprocesamiento centraremos y escalaremos los datos.
+- Las variables predictoras tienen que ser independientes. Mostramos la matriz de correlaciones entre nuestras variables:
+
+```{r, indent="    "}
+corrplot(cor(dataset[,-14]))
+```
+
+Se puede observar que, en general, la correlación lineal entre nuestras variables es relativamente baja. La correlación más grande la encontramos entre la edad y el ritmo cardíaco máximo, que tienen una correlación inversa. Es conveniente remarcar que el coeficiente de correlación que estamos utilizando es la correlación lineal de Pearson, que puede carecer de sentido con las variables nominales. En cualquier caso, dado que están expresadas con un valor numérico, este método nos permite averiguar si existe relación entre estas variables y las demás. Una vez comprobadas las asunciones, vamos a tratar de aplicar el método, al igual que hicimos para el kNN, utilizando una estrategia de validación cruzada. Cargamos los subconjuntos en memoria:
+
+```{r}
+folds <- load.folds("heart", 10, cols)
+```
+
+Y pasamos a preprocesar los conjuntos. Dado que sabemos que LDA asume que las variables son continuas y siguen una distribución normal, vamos a probar dos modelos. Uno de ellos, utilizara todas las variables de las que disponemos, y el otro sólamente las variables numéricas continuas. El preprocesamiento que aplicaremos será el normalizado de las variables continuas, de igual forma que lo hicimos para el algoritmo kNN. No tocaremos las variables nominales, ya que no hemos estudiado ninguna técnica específica para el preprocesamiento de estas variables cuando las mismas van a ser usadas en un algoritmo probabilístico, y no basado en distancias. Además, la codificación en variables _dummy_, cuando el grueso de los ejemplos para una variable se concentra en dos categorías (como nos ocurre para las variables ResElectrocardiographic y Slope), produce variables muy correladas, ya que para gran cantidad de ejemplos de esas dos columnas se tiene que un valor igual a 0 en una de ellas implica un 1 en la otra.
+
+```{r}
+normalize.sets <- function(fold){
+  tra <- fold$train
+  tst <- fold$test
+
+  for (col in c("Age", "RestBloodPressure", "SerumCholestoral", "MaxHeartRate", "Oldpeak")){
+    pp <- preProcess(tra[col])
+    tra[col] <- predict(pp, tra[col])
+    tst[col] <- predict(pp, tst[col])
+  }
+
+  list(train = tra, test = tst)
+}
+
+folds <- lapply(folds, normalize.sets)
+```
+
+En primer lugar, definimos una función que nos permite aplicar LDA utilizando las variables que especifiquemos:
+
+```{r}
+classify.lda <- function(fold, form, set = "test"){
+  lda.fit <- lda(form, data=fold$train)
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train") {
+    test.set <- fold$train
+  }
+  preds <- predict(lda.fit, test.set)
+  sum(preds$class == test.set$Class)/length(preds$class)
+}
+```
+
+Y aplicamos dicha función sobre los 10 conjuntos de validación, utilizando la fórmula que utiliza todas las variables en primer lugar:
+
+```{r}
+accuracy <- sapply(folds, classify.lda, form=Class ~ .)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo LDA con todas las variables", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+```
+
+Ahora, vamos a probar el modelo que utiliza sólamente las variables numéricas de nuestro problema, para ver la precisión que alcanza:
+
+```{r}
+accuracy <- sapply(folds, classify.lda, form=Class ~ Age + RestBloodPressure + SerumCholestoral + MaxHeartRate + Oldpeak)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo LDA con variables numéricas", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+```
+
+Para el problema que nos ocupa, podemos ver la importancia de las variables categóricas que se nos proporcionan, las cuales, a pesar de no ser las óptimas para aplicar un modelo basado en LDA, producen una importante mejoría en la capacidad de predicción del mismo cuando son incluídas. Al igual que hicimos con kNN, vamos a calcular la precisión del algoritmo para todos los folds en los conjuntos de entrenamiento y test:
+
+```{r}
+mean.accs.lda.train <- sapply(folds, classify.lda, Class ~ ., set = "train")
+mean.accs.lda.test <- sapply(folds, classify.lda, Class ~ ., set = "test")
+
+res.lda <- rbind(train = mean.accs.lda.train, test = mean.accs.lda.test)
+```
+
+Una vez terminado el estudio utilizando el algoritmo LDA, vamos a afrontar el problema de clasificación utilizando el algoritmo QDA.
+
+## Algoritmo QDA
+
+Como último tipo de modelo, vamos a tratar de clasificar el conjunto utilizando el algoritmo basado en QDA. 
+
+```{r}
+classify.qda <- function(fold, form, set = "test"){
+  qda.fit <- qda(form, data=fold$train)
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  preds <- predict(qda.fit, test.set)
+  sum(preds$class == test.set$Class)/length(preds$class)
+}
+```
+
+```{r}
+accuracy <- sapply(folds, classify.qda, form=Class ~ .)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo QDA con variables numéricas", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+```
+
+Podemos observar que el resultado es ligeramente inferior al conseguido por el algoritmo QDA. No obstante, la diferencia no es significativa, por lo que tendremos que recurrir a tests estadísticos para tratar de decidir qué modelo resuelve de forma más efectiva la tarea de clasificación sobre este conjunto de datos. Finalmente, trataremos de hacer lo mismo que hicimos en el caso de LDA y utilizar sólamente las variables numéricas para construir el modelo:
+
+```{r}
+accuracy <- sapply(folds, classify.qda, form=Class ~ Age + RestBloodPressure + SerumCholestoral + MaxHeartRate + Oldpeak)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo QDA con variables numéricas", booktabs=T) %>% kable_styling()
+mean(accuracy)
+```
+
+Podemos observar que los resultados, de nuevo, son bastante mejorables cuando eliminamos las variables categóricas. No obstante, sí que se puede extraer una conclusión de este ajuste. A pesar de que LDA con todas las variables funciona mejor que QDA, cuando nos restringimos a variables numéricas este comportamiento se invierte. Esto puede deberse, en parte, a las diferencias de las varianzas entre clases para las variables predictoras. Como QDA no supone la igualdad en este caso, es probable que este modelo funcione mejor que el modelo de LDA sobre nuestras variables numéricas, que tenían unas diferencias importantes en las varianzas de sus distribuciones cuando nos restringíamos a las dos clases. De nuevo, guardamos la información de este algoritmo para poder llevar a cabo un estudio estadístico de los resultados:
+
+```{r}
+mean.accs.qda.train <- sapply(folds, classify.qda, Class ~ ., set = "train")
+mean.accs.qda.test <- sapply(folds, classify.qda, Class ~ ., set = "test")
+
+res.qda <- rbind(train = mean.accs.qda.train, test = mean.accs.qda.test)
+```
+
+Finalmente, haremos uso de tests estadísticos para discernir cuál de los tres algoritmos aplicados arroja mejores resultados, o si por el contrario no podemos concluir que ninguno de los tres tiene un comportamiento favorable.
+
+## Estudio estadístico de los resultados
+
+En este apartado, como dijimos anteriormente, vamos a llevar a cabo un estudio estadístico de los resultados, para ver cuál de los modelos ensayados produce mejores resultados, y ver si las diferencias entre los mismos son significativas. Vamos a estudiar los resultados obtenidos en la validación cruzada de los algoritmos más potentes que hemos encontrado en los tres casos. Dichos algoritmos son el basado en kNN con $k=19$, el modelo basado en LDA que utiliza todas las variables, y el modelo basado en QDA que también utiliza todas las variables. A continuación podemos ver los resultados obtenidos por estos algoritmos sobre los conjuntos de validación con los que hemos trabajado:
+
+```{r}
+kable(res.knn, digits = 4, caption = "Resultados para kNN", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(res.lda, digits = 4, caption = "Resultados para LDA", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(res.qda, digits = 4, caption = "Resultados para QDA", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Construimos las matrices de resultados:
+
+```{r}
+train.res <- cbind(res.knn['train',], res.lda['train',], res.qda['train',])
+colnames(train.res) <- c("kNN", "LDA", "QDA")
+test.res <- cbind(res.knn['test',], res.lda['test',], res.qda['test',])
+colnames(test.res) <- c("kNN", "LDA", "QDA")
+```
+
+Y comenzamos estudiando los resultados obtenidos sobre el conjunto de datos de entrenamiento:
+
+```{r}
+friedman.test(train.res)
+```
+
+Dado el valor tan bajo de p-valor que obtenemos, podemos rechazar la hipótesis nula a un 95 % de confianza. Esto nos indica que existen diferencias significativas en nuestros algoritmos sobre el conjunto de entrenamiento. Dado que este test no nos indica cuál o cuáles modelos son distintos, tendremos que aplicar un test post-hoc para obtener esta información. Aplicaremos el test de Holm para comparar los algoritmos por pares:
+
+```{r warning=F}
+tam <- dim(train.res)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(train.res), grp, p.adjust = "holm", paired=T)
+```
+
+A la vista de los resultados de la tabla, tenemos evidencia en contra de las hipótesis nulas en los tres casos, es decir, existen diferencias significativas en los resultados obtenidos por los tres algoritmos. Para establecer un orden entre ellos, nos fijaremos en los valores medios de los resultados obtenidos:
+
+```{r}
+kable(t(apply(train.res, 2, mean)), caption="Precisión media obtenida por los algoritmos", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Y esto nos permite concluir que, sobre el conjunto de entrenamiento, kNN es el algoritmo que peores resultados obtiene, LDA es el algoritmo intermedio y QDA es el mejor de los algoritmos. No obstante, estas conclusiones las hemos sacado sobre el conjunto de entrenamiento, lo cuál nos permite medir cómo de flexible es nuestro modelo, pero no nos da una idea real de la capacidad de predicción del mismo. Para tener una idea de la eficacia del modelo a la hora de predecir nuevos elementos del conjunto de datos, resulta más interesante hacer el estudio previo sobre los resultados obtenidos sobre los conjuntos de test. Repetiremos los tests estadísticos sobre dichos resultados:
+
+```{r}
+friedman.test(test.res)
+```
+
+A la vista del test, no tenemos evidencia de que existan diferencias significativas sobre los resultados obtenidos por los distintos algoritmos. A pesar de que no podemos decir que existan dichas diferencias significativas, vamos a dar también el siguiente paso, y a calcular los tests por pares, para ver si arrojan más información:
+
+```{r warning=F}
+tam <- dim(test.res)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(test.res), grp, p.adjust = "holm", paired=T)
+```
+
+Al hacer las comparaciones por pares, el resultado del test es más fuerte. No existe aquí tampoco evidencia en contra de la hipótesis nula, con un p-valor mucho más alto en todos los casos, además. Por tanto, no podemos concluir que existan diferencias significativas entre la capacidad de predicción de los tres algoritmos. A pesar de este resultado, el cual nos sugiere que podemos seleccionar cualquiera de los modelos como modelo final, podemos guiarnos por la media de las precisiones obtenidas, si queremos utilizar cierta información en la decisión:
+
+```{r}
+accs <- rbind(apply(test.res, 2, mean), apply(test.res, 2, sd))
+rownames(accs) <- c("mean", "sd")
+kable(accs, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+Tenemos que el modelo con mejores resultados en media es LDA, pero también es el menos estable (es el que tiene mayor desviación típica en los resultados). Podemos comprobar también que QDA tiene tendencia al sobreajuste sobre este conjunto, ya que era el modelo que tenía una precisión mayor sobre entrenamiento, pero también es el que obtiene peores resultados sobre test. 
+
+Una apreciación que hay que hacer sobre estos resultados es el tamaño muestral con el que se ha trabajado. Debido a que se ha aplicado una estrategia de 10-fold cross validation, el tamaño muestral del que se disponía al hacer el test era de sólo 10 elementos. Estamos hablando de un número de ejemplos muy bajo, por lo que es probable que los resultados obtenidos no sean excesivamente fiables. Lo idóneo sería contar con una población de mayor tamaño, que permitiese tener un mayor número de folds. Otra posibilidad sería comparar el funcionamiento de los algoritmos sobre varios conjuntos de datos, de forma que se podría dar una estimación de qué algoritmo es más potente.
+
+\pagebreak
+
+__ANEXO 1: Código del apartado de análisis exploratorio de datos__
+
+```{r eval=FALSE}
+## Configuración inicial e imports
+set.seed(0)
+library(knitr)
+library(kableExtra)
+library(fBasics)
+library(ggplot2)
+library(gridExtra)
+library(GGally)
+library(dplyr)
+library(texreg)
+library(kknn)
+library(caret)
+library(class)
+library(corrplot)
+library(MASS)
+
+## ANÁLISIS EXPLORATORIO DE DATOS
+## Carga del dataset de regresión
+dataset <- read.csv('forestFires/forestFires.dat', comment.char = "@", header = FALSE)
+cols <- c("X", "Y", "Month", "Day", "FFMC", "DMC", "DC", "ISI", "Temp", "RH", "Wind", "Rain", "Area")
+colnames(dataset) <- cols
+
+# La función kable de la librería knitr nos permite generar directamente tablas en formato LaTeX, para su correcta visualizacion
+kable(head(dataset), booktabs=T, caption="Ejemplo de algunas instancias del conjunto de datos") %>% kable_styling(position="center", latex_options = "hold_position")
+
+# Consulta de las dimensiones del dataset (<nº ejemplos> x <nº atributos>)
+dim(dataset)
+
+# Extraemos la misma información que la función summary, pero usando una función del paquete fBasics que nos permite mostrar esta información como una tabla
+stats <- basicStats(dataset)[c('Minimum', '1. Quartile', 'Median', 'Mean', 'Stdev', '3. Quartile', 'Maximum', 'Skewness', 'Kurtosis'),]
+kable(stats[,1:7], digits = 2, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(stats[,8:13], digits = 2, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+# Esta función recibe como parámetro el nombre de una columna del dataset y crea el diagrama de barras asociado a dicha columna. Lo utilizaremos junto con el vector de nombres de columnas para generar los gráficos
+plot.bars <- function(colname) {
+  ggplot(dataset, aes_string(x = colname)) + geom_bar(stat = "count")
+}
+barplots <- lapply(cols[1:4], plot.bars)
+# La función do.call nos permite pasar una lista de elementos (en este caso plots), como argumentos independientes
+do.call(grid.arrange, c(barplots, ncol=4))
+
+# Al igual que en el ejemplo anterior, pero utilizando ahora histogramas. Para cada histograma, se agrupan los datos en 20 intervalos de igual amplitud
+plot.hist <- function(colname) {
+  ggplot(dataset, aes_string(x = colname)) + geom_histogram(breaks=seq(
+    min(dataset[,colname]),
+    max(dataset[,colname]),
+    length.out = 20))
+}
+histograms <- lapply(cols[5:7], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+
+histograms <- lapply(cols[8:10], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+
+histograms <- lapply(cols[11:13], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+
+## Gráficos por pares de variables
+ggpairs(dataset, aes(colour=), axisLabels = 'none', 
+        upper = list(continuous = wrap("cor", size = 2)),
+        lower = list(continuous = wrap("points", alpha = 0.3, colour = "#5555FF", size = 0.3)))
+
+## Gráficos QQ
+qqplotline <- function(colname){
+  qqnorm(dataset[,colname], main = paste("Q-Q plot - ", colname))
+  qqline(dataset[,colname])
+}
+par(mfrow=c(1,3)); foo <- lapply(cols[5:7], qqplotline)
+par(mfrow=c(1,3)); foo <- lapply(cols[8:10], qqplotline)
+par(mfrow=c(1,3)); foo <- lapply(cols[11:13], qqplotline)
+
+## Test de Shapiro Wilk para las variables contiunas
+# Extracción del valor del estadístico y los p-valores para cada columna
+statistics <- simplify2array(lapply(cols[-(1:4)], function (x) shapiro.test(dataset[, x])[['statistic']]))
+pvals <- simplify2array(lapply(cols[-(1:4)], function (x) shapiro.test(dataset[, x])[['p.value']]))
+# Creación de un dataframe con dicha información, conversión de los valores a cadenas de texto para el display y nombrado de filas y columnas
+tests.mat <- data.frame(rbind(statistics, pvals))
+tests.mat <- tests.mat %>% dplyr::mutate_if(., is.numeric, ~ as.character(signif(., 3)))
+colnames(tests.mat) <- cols[-(1:4)]
+rownames(tests.mat) <- c("W", "p-val")
+# Impresión de la tabla
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Carga del dataset de clasificación
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+
+## Dimensiones del dataset
+dim(dataset)
+
+##Distribución de clases en el conjunto de datos
+table(dataset$Class)
+
+## Estadísticas básicas de las variables continuas
+stats <- basicStats(dataset[,c(1,4,5,8,10)])[c('Minimum', '1. Quartile', 'Median', 'Mean', 'Stdev', '3. Quartile', 'Maximum', 'Skewness', 'Kurtosis'),]
+kable(stats, digits = 2, , booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Histogramas para las variables continuas
+# Utilizamos la función implementada en la sección anterior
+histograms <- lapply(cols[c(1,4,5,8,10)], plot.hist)
+do.call(grid.arrange, c(histograms, ncol=3))
+
+## Diagramas de barras para las columnas nominales
+# Modificamos la función plot.bars para que nos permita colorear las barras en función de la proporción de elementos de cada clase
+plot.bars <- function(colname) {
+  ggplot(dataset, aes_string(x = colname, fill="Class")) + geom_bar(position="stack") + theme(legend.title = element_text(size=8), legend.key.size = unit(.5, "cm"), axis.title.y = element_text("", size=0))
+}
+barplots <- lapply(cols[c(2,6,9)], plot.bars)
+do.call(grid.arrange, c(barplots, ncol=3))
+barplots <- lapply(cols[c(3,7,11,12,13)], plot.bars)
+do.call(grid.arrange, c(barplots, ncol=3))
+
+## Gráficos por pares de variables para las variables continuas
+ggpairs(dataset[c(1,4,5,8,10,14)], aes(colour=Class),
+        upper = list(continuous = wrap("cor", size = 3)),
+        lower = list(continuous = wrap("points", alpha = 0.5, size = 0.3), combo = wrap("facethist", binwidth=10)))
+
+## Test de Shapiro Wilk para las variables continuas
+# Extracción del valor del estadístico y los p-valores para cada columna
+statistics <- simplify2array(lapply(cols[c(1,4,5,8,10)], function (x) shapiro.test(dataset[, x])[['statistic']]))
+pvals <- simplify2array(lapply(cols[c(1,4,5,8,10)], function (x) shapiro.test(dataset[, x])[['p.value']]))
+# Creación de un dataframe con dicha información, conversión de los valores a cadenas de texto para el display y nombrado de filas y columnas
+tests.mat <- data.frame(rbind(statistics, pvals))
+tests.mat <- tests.mat %>% dplyr::mutate_if(., is.numeric, ~ as.character(signif(., 3)))
+colnames(tests.mat) <- cols[c(1,4,5,8,10)]
+rownames(tests.mat) <- c("W", "p-val")
+# Impresión de la tabla
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", , booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Gráficos QQ
+par(mfrow=c(2,3)); foo <- lapply(cols[c(1,4,5,8,10)], qqplotline)
+```
+
+\pagebreak
+
+__ANEXO 2: Código del apartado de regresión__
+
+```{r eval=FALSE}
+## PROBLEMA DE REGRESIÓN
+dataset <- read.csv('forestFires/forestFires.dat', comment.char = "@", header = FALSE)
+cols <- c("X", "Y", "Month", "Day", "FFMC", "DMC", "DC", "ISI", "Temp", "RH", "Wind", "Rain", "Area")
+colnames(dataset) <- cols
+
+## Gráficos de puntos de todas las variables frente a la variable a estimar, para encontrar relaciones lineales
+plot.regr <- function(colname){
+  plot(dataset[,'Area']~dataset[,colname], main=colname, ylab="Area")
+}
+par(mfrow=c(3,4), mar=c(2,2,2,2))
+foo <- lapply(cols[1:12], plot.regr)
+
+# Calculamos la correlación de todas las columnas del dataset con la columna Area. Tenemos que transponer el resultado antes de imprimir la tabla para obtener una matriz por filas en lugar de por columnas
+kable(t(apply(dataset[,-(13)], 2, cor, y=dataset$Area)), caption = "Coeficientes de correlación de Pearson de todas las variables frente a la columna a predecir", digits = 3, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Regresiones lineales simples para las cinco variables más correladas
+simple.lm <- function(col){
+  lm(as.formula(paste("Area", col, sep = "~")),
+     data=dataset)
+}
+best.vars <- c("Temp", "RH", "DMC", "X", "Month")
+fits <- sapply(best.vars, simple.lm, simplify = F, USE.NAMES = T)
+lapply(fits, summary)
+
+## Gráficos con las rectas de regresión calculadas
+par(mfrow=c(2,3))
+graphs <- lapply(best.vars, function (x) ggplot(dataset, aes_string(x = x, y = 'Area')) + geom_point() + stat_smooth(method='lm') + theme_light())
+do.call(grid.arrange, c(graphs, ncol=3))
+
+## Regresión lineal con todas las variables
+complete.fit <- lm(Area ~ ., data=dataset)
+summary(complete.fit)
+
+## Vamos eliminando las variables menos explicativas del ajuste
+partial.fit1 <- lm(Area ~ . - FFMC, data=dataset)
+summary(partial.fit1)
+
+partial.fit2 <- lm(Area ~ . - FFMC - Y, data=dataset)
+summary(partial.fit2)
+
+partial.fit3 <- lm(Area ~ . - FFMC - Y - Rain, data=dataset)
+summary(partial.fit3)
+
+partial.fit4 <- lm(Area ~ . - FFMC - Y - Rain - Day, data=dataset)
+summary(partial.fit4)
+
+partial.fit5 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind, data=dataset)
+summary(partial.fit5)
+
+partial.fit6 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind - RH, data=dataset)
+summary(partial.fit6)
+
+partial.fit7 <- lm(Area ~ . - FFMC - Y - Rain - Day - Wind - RH - ISI - DMC - DC - Month, data=dataset)
+summary(partial.fit7)
+
+## Transformaciones no lineales de las variables
+nonlinear.fit1 <- lm(Area ~ I(Temp^2) + X, data=dataset)
+summary(nonlinear.fit1)
+
+nonlinear.fit2 <- lm(Area ~ Temp + I(Temp^2) + X, data=dataset)
+summary(nonlinear.fit2)
+
+## Transformación de la columna temporal de los meses para mantener la información cíclica
+temporal.fit1 <- lm(Area ~ I(Temp^2) + X + Month, data=dataset)
+summary(temporal.fit1)
+
+temporal.fit2 <- lm(Area ~ I(Temp^2) + X + cos(pi*Month/6) + sin(pi*Month/6), data=dataset)
+summary(temporal.fit2)
+
+temporal.fit2 <- lm(Area ~ I(Temp^2) + X + cos(pi*Month/6), data=dataset)
+summary(temporal.fit2)
+
+## Regresión usando kNN
+knn.fit1 <- kknn(Area ~ ., dataset, dataset)
+
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit1$fitted.values, col="red", pch=20)
+
+## Cálculo del ECM cometido
+RMSE <- function(reals, preds){
+  sqrt(sum((reals - preds)^2)/length(reals))
+}
+RMSE(dataset$Area, knn.fit1$fitted.values)
+
+knn.fit2 <- kknn(Area ~ Temp + X, dataset, dataset)
+RMSE(dataset$Area, knn.fit2$fitted.values)
+
+knn.fit3 <- kknn(Area ~ . - Month - Day - X - Y, dataset, dataset)
+RMSE(dataset$Area, knn.fit3$fitted.values)
+
+knn.fit4 <- kknn(Area ~ Temp + RH + Wind + Rain, dataset, dataset)
+RMSE(dataset$Area, knn.fit4$fitted.values)
+
+## Adición de columna de índices automatizada
+check.index.knn <- function(var){
+  formula = paste("Area~Temp+RH+Wind+Rain", var, sep="+")
+  fit <- kknn(as.formula(formula), dataset, dataset)
+  RMSE(dataset$Area, fit$fitted.values)
+}
+
+sapply(c("FFMC", "DMC", "DC", "ISI"), check.index.knn, USE.NAMES=T)
+
+## Seleccionamos el mejor de los modelos
+knn.fit5 <- kknn(Area ~ Temp + RH + Wind + Rain + FFMC, dataset, dataset)
+RMSE(dataset$Area, knn.fit5$fitted.values)
+
+## Interacciones entre variables
+knn.fit6 <- kknn(Area ~ Temp + Wind + Rain + RH + 
+                   Temp*Wind + Temp*Rain + Temp*RH +
+                   Wind*Rain + Wind*RH + Rain*RH, dataset, dataset)
+RMSE(dataset$Area, knn.fit6$fitted.values)
+
+## Gráficos de los tres ajustes seleccionados
+par(mfrow=c(1,3))
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit1$fitted.values, col="red", pch=20)
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit5$fitted.values, col="green", pch=20)
+plot(Area ~ Temp, data=dataset)
+points(dataset$Temp, knn.fit6$fitted.values, col="blue", pch=20)
+
+## Cross-validation
+load.folds <- function(dataset.name, num.folds, colnames.vec){
+  train.filenames <- sapply(1:num.folds, function(x) paste(dataset.name, "/", dataset.name, "-", num.folds, "-", x, "tra.dat", sep = ""))
+  test.filenames <- sapply(1:num.folds, function(x) paste(dataset.name, "/", dataset.name, "-", num.folds, "-", x, "tst.dat", sep = ""))
+  train.folds <- lapply(train.filenames, read.csv, comment.char="@", header=F, col.names=colnames.vec)
+  test.folds <- lapply(test.filenames, read.csv, comment.char="@", header=F, col.names=colnames.vec)
+  
+  mapply(function(x,y) list(train=x, test=y), train.folds, test.folds, SIMPLIFY = F)
+}
+
+## Carga de los folds
+folds <- load.folds("forestFires", 5, cols)
+
+## Dimensiones de los conjuntos de train y test
+dim(folds[[1]]$train)
+dim(folds[[1]]$test)
+
+## Clasificación de un subconjunto usando modelos lineales
+classify.lm <- function(fold, form, set = 'test'){
+  train.set <- fold$train
+
+  # Aunque por defecto se evalúe sobre test, se permite la evaluación sobre train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  model <- lm(form, train.set)
+  res <- predict(model, test.set)
+  RMSE(res, test.set$Area)
+}
+
+## Aplicación sobre los cinco subconjuntos
+rmse.simple.lm.test <- sapply(folds, classify.lm, form = Area ~ Temp)
+rmse.simple.lm.train <- sapply(folds, classify.lm, form = Area ~ Temp, set = "train")
+kable(rbind(test = rmse.simple.lm.test, train = rmse.simple.lm.train), caption = "RMSE cometido por el modelo lineal sobre los conjunos de entrenamiento y test", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+rmse.bivariate.lm.test <- sapply(folds, classify.lm, form = Area ~ Temp + X)
+rmse.bivariate.lm.train <- sapply(folds, classify.lm, form = Area ~ Temp + X, set = "train")
+rmse.nonlinear.test <- sapply(folds, classify.lm, form = Area ~ I(Temp^2) + X + cos(pi*Month/6)) 
+rmse.nonlinear.train <- sapply(folds, classify.lm, form = Area ~ I(Temp^2) + X + cos(pi*Month/6), set = "train") 
+
+## Clasificación de un subconjunto usando kNN
+classify.knn <- function(fold, form, set = "test"){
+  train.set <- fold$train
+  
+  # Aunque por defecto se evalúe sobre test, se permite la evaluación sobre train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  res <- kknn(form, train.set, test.set)
+  RMSE(res$fitted.values, test.set$Area)
+}
+
+## Aplicación sobre los cinco subconjuntos
+rmse.basic.knn.test <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC)
+rmse.basic.knn.train <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC, set = "train")
+
+rmse.interaction.knn.test <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC + Temp*Wind + Temp*Rain + Temp*RH + Wind*Rain + Wind*RH + Rain*RH)
+rmse.interaction.knn.train <- sapply(folds, classify.knn, Area ~ Temp + RH + Wind + Rain + FFMC + Temp*Wind + Temp*Rain + Temp*RH + Wind*Rain + Wind*RH + Rain*RH, set = "train")
+
+## Tablas de resultados obtenidos
+rmse.matrix <- rbind(
+  simple=rmse.simple.lm.test, 
+  bivariado=rmse.bivariate.lm.test,
+  "no lineal"=rmse.nonlinear.test, 
+  "knn simple"=rmse.basic.knn.test, 
+  "interacciones"=rmse.interaction.knn.test,
+  simple=rmse.simple.lm.train,
+  bivariado=rmse.bivariate.lm.train,
+  "no lineal"=rmse.nonlinear.train,
+  "knn simple"=rmse.basic.knn.train,
+  interacciones=rmse.interaction.knn.train)
+
+rmse.means <- apply(rmse.matrix, 1, mean)
+
+rmse.matrix <- cbind(rmse.matrix, rmse.means)
+
+colnames(rmse.matrix) <- c("1", "2", "3", "4", "5", "Media")
+kable(rmse.matrix, digits = 2, booktabs = T, caption = "Resultados obtenidos por los algoritmos (RMSE)")  %>% kable_styling(position="center", latex_options="hold_position") %>% pack_rows("Test", 1, 5) %>% pack_rows("Train", 6, 10)
+
+## Tests estadísticos para comprobar los resultados
+regr.test <- read.csv("regr_test_alumnos.csv", row.names = 1)
+regr.train <- read.csv("regr_train_alumnos.csv", row.names = 1)
+
+# Necesitamos calcular el MSE, no el RMSE
+MSE <- function(preds, reals){sum((reals - preds)^2)/length(reals)}
+
+# Modificamos la función de CV para lm y kNN, para que devuelvan el MSE
+classify.lm <- function(fold, form, set = 'test'){
+    train.set <- fold$train
+    if (set == "test"){
+        test.set <- fold$test
+    } else if (set == "train"){
+        test.set <- fold$train
+    }
+    model <- lm(form, train.set)
+    res <- predict(model, test.set)
+    MSE(res, test.set$Area)
+}
+classify.knn <- function(fold, form, set = "test"){
+  train.set <- fold$train
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  res <- kknn(form, train.set, test.set)
+  MSE(res$fitted.values, test.set$Area)
+}
+
+# Calculamos la información necesaria
+mse.test.lm <- mean(sapply(folds, classify.lm, Area ~ .))
+mse.train.lm <- mean(sapply(folds, classify.lm, Area ~ ., set="train"))
+mse.test.knn  <- mean(sapply(folds, classify.knn, Area ~ .))
+mse.train.knn  <- mean(sapply(folds, classify.knn, Area ~ ., set="train"))
+
+# Y la sustituimos en los dataframes de resultados
+regr.test["forestFires", "out_test_lm"] <- mse.test.lm
+regr.train["forestFires", "out_train_lm"] <- mse.train.lm
+regr.test["forestFires", "out_test_kknn"] <- mse.test.knn
+regr.train["forestFires", "out_train_kknn"] <- mse.train.knn
+
+## ESTUDIO ESTADÍSTICO SOBRE LOS RESULTADOS EN LOS CONJUNTOS DE TRAIN
+## Test de Wilcoxon para comparar dos algoritmos
+difs <- (regr.train[,1] - regr.train[,2]) / regr.train[,1]
+wilc_1_2 <- cbind(ifelse (difs<0, abs(difs)+0.1, 0+0.1), ifelse (difs>0, abs(difs)+0.1, 0+0.1))
+colnames(wilc_1_2) <- c(colnames(regr.train)[1], colnames(regr.train)[2])
+head(wilc_1_2)
+
+LMvsKNNtst <- wilcox.test(wilc_1_2[,1], wilc_1_2[,2], alternative = "two.sided", paired=TRUE)
+KNNvsLMtst <- wilcox.test(wilc_1_2[,2], wilc_1_2[,1], alternative = "two.sided", paired=TRUE)
+kable(cbind("p-val"=LMvsKNNtst$p.value, "R+"=LMvsKNNtst$statistic, "R-"=KNNvsLMtst$statistic), row.names = F, caption="Valores del test LM (R+) vs kNN (R-)", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Test de friedman para comparar tres algoritmos
+friedman.test(as.matrix(regr.train))
+
+## Test post-hoc de Holm
+tam <- dim(regr.train)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(regr.train), grp, p.adjust = "holm", paired=T)
+
+## Cálculo de rankings para determinar qué modelo obtiene mejores resultados
+train.ranks <- apply(regr.train, 1, rank)
+kable(t(apply(train.ranks, 1, mean)), row.names=F, booktabs=T, caption="Ranking medio de cada algoritmo") %>% kable_styling(position="center", latex_options="hold_position")
+
+## TEST ESTADÍSTICO SOBRE LOS RESULTADOS EN TEST
+## Test de Wilcoxon para comparar dos algoritmos
+difs <- (regr.test[,1] - regr.test[,2]) / regr.test[,1]
+wilc_1_2 <- cbind(ifelse (difs<0, abs(difs)+0.1, 0+0.1), ifelse (difs>0, abs(difs)+0.1, 0+0.1))
+colnames(wilc_1_2) <- c(colnames(regr.test)[1], colnames(regr.test)[2])
+LMvsKNNtst <- wilcox.test(wilc_1_2[,1], wilc_1_2[,2], alternative = "two.sided", paired=TRUE)
+KNNvsLMtst <- wilcox.test(wilc_1_2[,2], wilc_1_2[,1], alternative = "two.sided", paired=TRUE)
+kable(cbind("p-val"=LMvsKNNtst$p.value, "R+"=LMvsKNNtst$statistic, "R-"=KNNvsLMtst$statistic), row.names = F, caption="Valores del test LM (R+) vs kNN (R-) sobre los resultados en test", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Test de Friedman para comparar tres algoritmos
+friedman.test(as.matrix(regr.test))
+
+## Test post-hoc de Holm
+tam <- dim(regr.test)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(regr.test), grp, p.adjust = "holm", paired=T)
+
+## Cálculo de los rankings
+test.ranks <- apply(regr.test, 1, rank)
+kable(t(apply(test.ranks, 1, mean)), row.names=F, booktabs=T, caption="Ranking medio de cada algoritmo sobre los resultados de test") %>% kable_styling(position="center", latex_options="hold_position")
+```
+
+\pagebreak
+
+__ANEXO 3: Código del apartado de clasificación__
+
+```{r eval=FALSE}
+## PROBLEMA DE CLASIFICACIÓN
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+
+## Preprocesamiento de los datos
+# La función scale estandariza el vector que se pasa como argumento restando su media y dividiendo por la desviación típica
+dataset$Age <- scale(dataset$Age)
+dataset$RestBloodPressure <- scale(dataset$RestBloodPressure)
+dataset$SerumCholestoral <- scale(dataset$SerumCholestoral)
+dataset$MaxHeartRate <- scale(dataset$MaxHeartRate)
+dataset$Oldpeak <- scale(dataset$Oldpeak)
+
+## Variables binarias a partir de las nominales
+dataset$DummyEC_0 <- ifelse(dataset$ResElectrocardiographic == 0, 1, 0)
+dataset$DummyEC_1 <- ifelse(dataset$ResElectrocardiographic == 1, 1, 0)
+dataset$DummyEC_2 <- ifelse(dataset$ResElectrocardiographic == 2, 1, 0)
+dataset$ResElectrocardiographic <- NULL
+
+dataset$DummySlope_1 <- ifelse(dataset$Slope == 1, 1, 0)
+dataset$DummySlope_2 <- ifelse(dataset$Slope == 2, 1, 0)
+dataset$DummySlope_3 <- ifelse(dataset$Slope == 3, 1, 0)
+dataset$Slope <- NULL
+
+dataset$Thal <- ifelse(dataset$Thal == 3, 0, 1)
+
+## Dimensión final del dataset
+dim(dataset)
+
+## Carga de los conjuntos de cross validation
+folds <- load.folds("heart", 10, cols)
+dim(folds[[1]]$train)
+dim(folds[[1]]$test)
+
+## Función para normalizar los conjuntos
+normalize.sets <- function(fold){
+  tra <- fold$train
+  tst <- fold$test
+
+  for (col in c("Age", "RestBloodPressure", "SerumCholestoral", "MaxHeartRate", "Oldpeak")){
+    pp <- preProcess(tra[col])
+    tra[col] <- predict(pp, tra[col])
+    tst[col] <- predict(pp, tst[col])
+  }
+  
+  tra$DummyEC_0 <- ifelse(tra$ResElectrocardiographic == 0, 1, 0)
+  tra$DummyEC_1 <- ifelse(tra$ResElectrocardiographic == 1, 1, 0)
+  tra$DummyEC_2 <- ifelse(tra$ResElectrocardiographic == 2, 1, 0)
+  tra$ResElectrocardiographic <- NULL
+
+  tst$DummyEC_0 <- ifelse(tst$ResElectrocardiographic == 0, 1, 0)
+  tst$DummyEC_1 <- ifelse(tst$ResElectrocardiographic == 1, 1, 0)
+  tst$DummyEC_2 <- ifelse(tst$ResElectrocardiographic == 2, 1, 0)
+  tst$ResElectrocardiographic <- NULL
+  
+  tra$DummySlope_1 <- ifelse(tra$Slope == 1, 1, 0)
+  tra$DummySlope_2 <- ifelse(tra$Slope == 2, 1, 0)
+  tra$DummySlope_3 <- ifelse(tra$Slope == 3, 1, 0)
+  tra$Slope <- NULL 
+  
+  tst$DummySlope_1 <- ifelse(tst$Slope == 1, 1, 0)
+  tst$DummySlope_2 <- ifelse(tst$Slope == 2, 1, 0)
+  tst$DummySlope_3 <- ifelse(tst$Slope == 3, 1, 0)
+  tst$Slope <- NULL
+  
+  tra$Thal <- ifelse(tra$Thal == 3, 0, 1)
+  tst$Thal <- ifelse(tst$Thal == 3, 0, 1)
+  
+  list(train = tra, test = tst)
+}
+
+## Aplicación de la función sobre todos los folds
+folds <- lapply(folds, normalize.sets)
+
+## Función para clasificar usando kNN
+classify.knn <- function(fold, k = 3, set = 'test'){
+  train.labels <- fold$train$Class
+  if (set == 'test'){
+     test.labels <- fold$test$Class 
+     test.set <- fold$test
+  } else if (set == 'train'){
+    test.labels <- fold$train$Class
+    test.set <- fold$train
+  }
+
+  fold$train$Class <- NULL
+  test.set$Class <- NULL
+  
+  preds <- knn(fold$train, test.set, train.labels, k = k)
+  
+  sum(preds == test.labels)/length(test.labels)
+}
+
+## Precisiones obtenidas
+accuracy <- sapply(folds, classify.knn)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisión obtenida sobre los distintos folds", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+mean(accuracy)
+
+## Estudio de la precisión según el valor de K para el kNN
+possible.k = seq(from=1, to=240, by=5)
+mean.accs.knn.test <- sapply(possible.k, function(x) mean(sapply(folds, classify.knn, k = x, set = 'test')))
+mean.accs.knn.train <- sapply(possible.k, function(x) mean(sapply(folds, classify.knn, k = x, set = 'train')))
+
+res = data.frame(train=mean.accs.knn.train, test=mean.accs.knn.test)
+
+ggplot(res, aes(x=possible.k)) + geom_line(aes(y=train, colour="red")) + geom_line(aes(y=test, colour="blue")) + xlab("Valor de k") + ylab("Precisión") +     scale_color_discrete(name = "Conjunto de datos", labels = c("Test", "Train"))
+
+## Seleción del mejor valor de K para nuestro problema
+mean.accs <- sapply(1:25, function(x) mean(sapply(folds, classify.knn, k = x)))
+
+paste("k óptimo: ", which.max(mean.accs), ", precisión: ", mean.accs[which.max(mean.accs)], sep = "")
+
+## Precisión obtenida
+mean.accs.knn.train <- sapply(folds, classify.knn, k = 19, set = "train")
+mean.accs.knn.test <- sapply(folds, classify.knn, k = 19, set = "test")
+
+res.knn <- rbind(train = mean.accs.knn.train, test = mean.accs.knn.test)
+
+## Carga de nuevo del dataset para utilizar el algoritmo LDA
+dataset <- read.csv('heart/heart.dat', comment.char = '@', header = F)
+cols <- c('Age', 'Sex', 'ChestPainType', 'RestBloodPressure', 'SerumCholestoral', 'FastingBloodSugar', 'ResElectrocardiographic', 'MaxHeartRate', 'ExerciseInduced', 'Oldpeak', 'Slope', 'MajorVessels', 'Thal', 'Class')
+colnames(dataset) <- cols
+dataset$Class = as.factor(dataset$Class)
+
+## Test de normalidad de las variables
+# Aprovechamos la tabla que construimos durante el análisis exploratorio de datos
+kable(tests.mat, caption="Tests de Shapiro-Wilk para las variables continuas", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## La varianza de los datos debe ser la misma para ambas clases. Comprobamos dicha precondición
+negative.examples <- dataset %>% filter(Class==1)
+positive.examples <- dataset %>% filter(Class==2)
+neg.var <- sapply(negative.examples[,-14], var)
+pos.var <- sapply(positive.examples[,-14], var)
+table.var <- rbind(neg.var, pos.var)
+kable(table.var[,1:5], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(table.var[,6:9], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(table.var[,10:13], booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Buscamos correlación entre las variables
+corrplot(cor(dataset[,-14]))
+
+## Cargamos los subconjuntos de validación
+folds <- load.folds("heart", 10, cols)
+
+## Normalización de los datos en cada fold
+normalize.sets <- function(fold){
+  tra <- fold$train
+  tst <- fold$test
+
+  for (col in c("Age", "RestBloodPressure", "SerumCholestoral", "MaxHeartRate", "Oldpeak")){
+    pp <- preProcess(tra[col])
+    tra[col] <- predict(pp, tra[col])
+    tst[col] <- predict(pp, tst[col])
+  }
+
+  list(train = tra, test = tst)
+}
+
+folds <- lapply(folds, normalize.sets)
+
+## Función para clasificar usando LDA
+classify.lda <- function(fold, form, set = "test"){
+  lda.fit <- lda(form, data=fold$train)
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train") {
+    test.set <- fold$train
+  }
+  preds <- predict(lda.fit, test.set)
+  sum(preds$class == test.set$Class)/length(preds$class)
+}
+
+## Resultados obtenidos usando todas las variables
+accuracy <- sapply(folds, classify.lda, form=Class ~ .)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo LDA con todas las variables", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+
+## Resultados obtenidos usando exclusivamente las variables numéricas
+accuracy <- sapply(folds, classify.lda, form=Class ~ Age + RestBloodPressure + SerumCholestoral + MaxHeartRate + Oldpeak)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo LDA con variables numéricas", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+
+## Precisión obtenida sobre test y train con LDA 
+mean.accs.lda.train <- sapply(folds, classify.lda, Class ~ ., set = "train")
+mean.accs.lda.test <- sapply(folds, classify.lda, Class ~ ., set = "test")
+
+res.lda <- rbind(train = mean.accs.lda.train, test = mean.accs.lda.test)
+
+## Función para clasificar usando QDA
+classify.qda <- function(fold, form, set = "test"){
+  qda.fit <- qda(form, data=fold$train)
+  if (set == "test"){
+    test.set <- fold$test
+  } else if (set == "train"){
+    test.set <- fold$train
+  }
+  preds <- predict(qda.fit, test.set)
+  sum(preds$class == test.set$Class)/length(preds$class)
+}
+
+## QDA usando todas las variables
+accuracy <- sapply(folds, classify.qda, form=Class ~ .)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo QDA con variables numéricas", booktabs=T) %>% kable_styling(position = "center")
+mean(accuracy)
+
+## QDA usando sólo las variables numéricas
+accuracy <- sapply(folds, classify.qda, form=Class ~ Age + RestBloodPressure + SerumCholestoral + MaxHeartRate + Oldpeak)
+kable(t(accuracy), digits = 3, col.names = sapply(1:10, function(x) paste("Fold", x)), caption = "Precisiones obtenidas por el modelo QDA con variables numéricas", booktabs=T) %>% kable_styling()
+mean(accuracy)
+
+## Resultados medios obtenidos
+mean.accs.qda.train <- sapply(folds, classify.qda, Class ~ ., set = "train")
+mean.accs.qda.test <- sapply(folds, classify.qda, Class ~ ., set = "test")
+
+res.qda <- rbind(train = mean.accs.qda.train, test = mean.accs.qda.test)
+
+## Tablas de resultados
+kable(res.knn, digits = 4, caption = "Resultados para kNN", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(res.lda, digits = 4, caption = "Resultados para LDA", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+kable(res.qda, digits = 4, caption = "Resultados para QDA", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+# Tests estadísticos sobre los resultados
+train.res <- cbind(res.knn['train',], res.lda['train',], res.qda['train',])
+colnames(train.res) <- c("kNN", "LDA", "QDA")
+test.res <- cbind(res.knn['test',], res.lda['test',], res.qda['test',])
+colnames(test.res) <- c("kNN", "LDA", "QDA")
+
+## Tes de Friedman para comparar los tres algoritmos (resultados en entrenamiento)
+friedman.test(train.res)
+
+## Test post-hoc de Holm
+tam <- dim(train.res)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(train.res), grp, p.adjust = "holm", paired=T)
+
+## Resultados medios obtenidos
+kable(t(apply(train.res, 2, mean)), caption="Precisión media obtenida por los algoritmos", booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+
+## Test de Friedman para comparar los tres algoritmos (resultados en test)
+friedman.test(test.res)
+
+## Test post-hoc de Holm
+tam <- dim(test.res)
+grp <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(test.res), grp, p.adjust = "holm", paired=T)
+
+## Resultados medios obtenidos
+accs <- rbind(apply(test.res, 2, mean), apply(test.res, 2, sd))
+rownames(accs) <- c("mean", "sd")
+kable(accs, booktabs=T) %>% kable_styling(position="center", latex_options="hold_position")
+```
+
