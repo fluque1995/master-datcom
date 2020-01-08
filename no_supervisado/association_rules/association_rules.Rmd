@@ -1,0 +1,61 @@
+---
+title: "Reglas de asociación"
+subtitle: "Minería de datos: aprendizaje no supervisado y detección de anomalías"
+author: "Francisco Luque Sánchez"
+date: "21/12/2019"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+output:
+  pdf_document:
+    number_sections: yes
+    template: eisvogel
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(arules)
+library(arulesViz)
+library(ggplot2)
+```
+
+```{r}
+dataset <- read.csv("titanic.csv")
+
+## Eliminamos variables que no nos interesan para el estudio
+dataset$PassengerId <- NULL
+dataset$Name <- NULL
+dataset$Ticket <- NULL
+dataset$Cabin <- NULL
+
+## Convertimos a factores las variables que nos interesan
+dataset$Survived <- as.factor(dataset$Survived)
+dataset$Pclass <- as.factor(dataset$Pclass)
+
+
+## Cuantizamos la información de edad en intervalos
+dataset$Age <- cut(dataset$Age, breaks = c(0,16, 30, 60, Inf),
+                   labels=c("Child", "Young adult", "Adult", "Elder"))
+
+## Cuantizamos la información sobre los hijos y esposa
+dataset$SibSp <- cut(dataset$SibSp, breaks = c(-Inf, 0, 3, +Inf),
+                     labels=c("No siblings/Spouse", "Standard family",
+                              "Large family")
+                     )
+
+dataset$Parch <- cut(dataset$Parch, breaks = c(-Inf, 0, 3, +Inf),
+                     labels=c("No parents/Childs", "Standard family",
+                              "Large family")
+                     )
+
+dataset$Fare <- cut(dataset$Fare, breaks = c(0, 10, 50, 200, Inf),
+                    labels=c("Cheap", "Average-low", "Average-high", "Expensive"))
+
+
+titanic <- as(dataset, "transactions")
+```
+
+```{r }
+plot(apriori(titanic), parameter = list(support=.1, confidence=.8, minlen=2))
+```
