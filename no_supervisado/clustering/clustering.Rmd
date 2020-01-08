@@ -25,31 +25,14 @@ library(factoextra)
 ```
 
 ```{r}
-dataset.path <- "dataset/Absenteeism_at_work.csv"
+dataset.path <- "dataset/australian.dat"
 
 read.dataset <- function(dataset.path){
-    dataset <- read.csv(dataset.path, sep = ";")
-
-    ## Eliminamos columnas que no aportan información
-    dataset$ID <- NULL
-    dataset$Body.mass.index <- NULL # Este valor es función del peso y la altura
-    dataset$Seasons <- NULL # Este valor codifica la misma información que el mes
-    dataset$Reason.for.absence <- NULL # A priori no contemplaremos este valor
-
-    ## Renombramos columnas con nombres largos
-    dataset <- dataset %>%
-        rename(
-            Month = Month.of.absence,
-            Day = Day.of.the.week,
-            Transport.exp = Transportation.expense,
-            Distance = Distance.from.Residence.to.Work,
-            Workload = Work.load.Average.day,
-            Absent.time = Absenteeism.time.in.hours
-        )
+    dataset <- read.csv(dataset.path, comment.char = "@")
     dataset
 }
 
-dataset <- read.dataset()
+dataset <- read.dataset(dataset.path)
 
 continuous.vars <- c(
     "Month", "Day", "Transport.exp", "Distance", "Service.time",

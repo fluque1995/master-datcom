@@ -1,3 +1,8 @@
+import os
+
+if os.path.basename(os.getcwd()) != 'clustering':
+    os.chdir("no_supervisado/clustering")
+
 import numpy as np
 import sklearn.manifold
 import pandas as pd
@@ -16,7 +21,8 @@ if dims == 2:
     reduced_data = sklearn.manifold.TSNE(n_components=2).fit_transform(x)
     df = pd.DataFrame(reduced_data, columns=["x", "y"])
     df['labels'] = y
-    fig = px.scatter(df, x="x", y="y", color="labels", color_continuous_scale="Portland")
+    fig = px.scatter(df, x="x", y="y", color="labels",
+                     color_continuous_scale="Portland")
 
 if dims == 3:
     reduced_data = sklearn.manifold.TSNE(n_components=3).fit_transform(x)
