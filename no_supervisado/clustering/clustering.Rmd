@@ -8,9 +8,9 @@ titlepage-background: "background.pdf"
 headrule-color: "435488"
 urlcolor: 'blue'
 output:
-pdf_document:
-number_sections: yes
-template: eisvogel
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
 ---
 
 ```{r setup, include=F}
@@ -25,8 +25,10 @@ library(factoextra)
 ```
 
 ```{r}
-read.dataset <- function(){
-    dataset <- read.csv("dataset/Absenteeism_at_work.csv", sep = ";")
+dataset.path <- "dataset/Absenteeism_at_work.csv"
+
+read.dataset <- function(dataset.path){
+    dataset <- read.csv(dataset.path, sep = ";")
 
     ## Eliminamos columnas que no aportan información
     dataset$ID <- NULL
@@ -62,7 +64,7 @@ binary.vars <- c("Disciplinary.failure", "Social.drinker", "Social.smoker")
 ```{r}
 nclust <- 7
 
-dataset <- read.dataset()
+dataset <- read.dataset(dataset.path)
 continuous.data <- dataset %>% select(continuous.vars)
 binary.data <- dataset %>% select(binary.vars)
 
@@ -170,7 +172,7 @@ plot(hclust)
 
 rect.hclust(hclust, k=nclust)
 
-groups <- cutree(h, k=nclust)
+groups <- cutree(hclust, k=nclust)
 
 groups
 
@@ -204,7 +206,7 @@ plot(hclust)
 
 rect.hclust(hclust, k=nclust)
 
-groups <- cutree(h, k=nclust)
+groups <- cutree(hclust, k=nclust)
 
 groups
 
@@ -248,6 +250,7 @@ plot(sil, col=1:5)
 cluster.stats(final.distances, clusters)$avg.silwidth
 ```
 ### Resultados con normalización de variables
+
 ```{r}
 dataset <- read.dataset()
 
@@ -296,7 +299,7 @@ final.distances <- (scaled.distances + binary.distances) / 2
 
 pamk.result <- pamk(scaled.distances)
 
-plot(pamk.results$pamobject)
+plot(pamk.result$pamobject)
 
 cluster.stats(final.distances, pamk.result$pamobject$clustering)
 ```
