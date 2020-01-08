@@ -3,8 +3,8 @@ import sklearn.manifold
 import pandas as pd
 import plotly.express as px
 
-dataset_path = "dataset/australian.dat"
-dims = 2
+dataset_path = "dataset/page-blocks.dat"
+dims = 3
 
 dataset = pd.read_csv(dataset_path, header=None, comment="@")
 
