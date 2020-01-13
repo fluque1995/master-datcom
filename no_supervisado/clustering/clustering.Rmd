@@ -22,39 +22,47 @@ library(fpc)
 library(cluster)
 library(dplyr)
 library(factoextra)
+library(fastDummies)
 ```
 
 ```{r}
-dataset.path <- "dataset/australian.dat"
+dataset.path <- "dataset/bankloan-spss.csv"
 
-read.dataset <- function(dataset.path){
-    dataset <- read.csv(dataset.path, comment.char = "@")
-    dataset
-}
+dataset <- read.csv(dataset.path, sep = ";", dec=",")
 
-dataset <- read.dataset(dataset.path)
+dataset <- dataset[1:700,]
 
-continuous.vars <- c(
-    "Month", "Day", "Transport.exp", "Distance", "Service.time",
-    "Age", "Workload", "Hit.target", "Education", "Son", "Pet",
-    "Weight", "Height", "Absent.time"
+numeric.vars <- c(
+    'ingresos', 'deudaingr', 'deudacred',
+    'deudaotro', 'empleo',  'direccion', 'edad',
+    'morapred2'
 )
-binary.vars <- c("Disciplinary.failure", "Social.drinker", "Social.smoker")
+
+nominal.vars <- c(
+    'educ', 'impago'
+)
 ```
 
 ## K-medias
 
 ```{r}
-nclust <- 7
+nclust <- 3
 
-dataset <- read.dataset(dataset.path)
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+dataset <- read.csv(dataset.path, sep = ";", dec=",")
+dataset <- dataset[1:700,]
 
-continuous.distances <- dist(continuous.data)
-binary.distances <- dist(binary.data, method="binary")
+numeric.data <- dataset %>% select(numeric.vars)
 
-final.distances <- (continuous.distances + binary.distances) / 2
+nominal.data <- dataset %>% select(nominal.vars)
+nominal.data <- dummy_cols(nominal.data, select_columns = 'educ')
+
+numeric.distances <- dist(numeric.data)
+
+nominal.distances <- dist(nominal.data, method="binary")
+
+final.distances <- (
+    length(numeric.vars)*numeric.distances + length(nominal.vars)*nominal.distances
+) / (length(numeric.vars) + length(nominal.vars))
 
 kmeans.result <- kmeans(final.distances, nclust)
 
@@ -62,69 +70,80 @@ idx <- sample(1: dim(dataset)[1], 300)
 
 plotcluster(dataset, kmeans.result$cluster)
 
-d1 <- dist(continuous.data[idx,])
-d2 <- dist(binary.data[idx,], method="binary")
+d1 <- dist(numeric.data[idx,])
+d2 <- dist(nominal.data[idx,], method="binary")
 
 d <- (d1+d2)/2
-sil <- silhouette(kmeans.result$cluster[idx], d)
+
+sil <- silhouette(kmeans.result$cluster, final.distances)
 plot(sil, col = 1:nclust)
 
-cluster.stats(final.distances, kmeans.result$cluster)
+table(kmeans.result$cluster, dataset$impago)
+
+cluster.stats(final.distances, kmeans.result$cluster, alt.clustering = dataset$impago + 1)
 ```
 
 ### Normalización de variables
 
 ```{r}
-dataset <- read.dataset()
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+dataset <- read.csv(dataset.path, sep=";",  dec = ",")
+dataset <- dataset[1:700]
+
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
 ## Normalizamos los atributos continuos
 ## Esta función nos estandariza los valores del dataframe por columnas
-scaled.data <- scale(continuous.data)
+scaled.data <- scale(numeric.data)
 
 ## Comprobamos que en efecto las columnas están normalizadas
 apply(scaled.data, 2, mean) # Los valores son muy cercanos a cero
 apply(scaled.data, 2, sd)
 
 scaled.distances <- dist(scaled.data)
-binary.distances <- dist(binary.data, method="binary")
+
+binary.distances <- dist(nominal.data, method="binary")
 
 final.distances <- (scaled.distances + binary.distances) / 2
+
+final.distances <- scaled.distances
 
 kmeans.result <- kmeans(final.distances, nclust)
 
 idx <- sample(1: dim(dataset)[1], 300)
 
-plotcluster(dataset[idx,], kmeans.result$cluster[idx])
+plotcluster(dataset, kmeans.result$cluster)
 
 d1 <- dist(scaled.data[idx,])
-d2 <- dist(binary.data[idx,], method="binary")
+d2 <- dist(nominal.data[idx,], method="binary")
 
 d <- (d1+d2)/2
-sil <- silhouette(kmeans.result$cluster[idx], d)
+
+sil <- silhouette(kmeans.result$cluster, final.distances)
 plot(sil, col = 1:nclust)
 
-cluster.stats(final.distances, kmeans.result$cluster)$avg.silwidth
+cluster.stats(final.distances, kmeans.result$cluster)
 ```
 
 ## DBSCAN
 
 ```{r}
-dataset <- read.dataset()
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+dataset <- read.csv(dataset.path, sep = ";", dec = ",")
+dataset <- dataset[1:700,]
 
-scaled.data <- scale(continuous.data)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
+
+scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
-binary.distances <- dist(binary.data, method="binary")
+nominal.distances <- dist(nominal.data, method="binary")
 
 final.distances <- (scaled.distances + binary.distances) / 2
 
 ## Aplicamos DBSCAN (con el parámetro dist este método acepta una matriz
 ## de distancias en lugar de los datos)
-dbscan.res <- dbscan(final.distances, eps=2, MinPts=5, method="dist")
+dbscan.res <- dbscan(final.distances, eps=.3, MinPts=5, method="dist")
 
 fviz_cluster(dbscan.res, scaled.data)
 
@@ -138,14 +157,15 @@ plot(sil, col=length(unique(dbscan.res$cluster)))
 ## Clustering jerárquico
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";",  dec = ",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-continuous.distances <- dist(continuous.data)
+numeric.distances <- dist(numeric.data)
 binary.distances <- dist(binary.data, method="binary")
-final.distances <- (continuous.distances + binary.distances) / 2
+final.distances <- (numeric.distances + binary.distances) / 2
 
 hclust <- hclust(final.distances, method="ward.D2")
 
@@ -155,7 +175,7 @@ plot(hclust)
 
 rect.hclust(hclust, k=nclust)
 
-groups <- cutree(hclust, k=nclust)
+groups <- cutree(hclust, k=3)
 
 groups
 
@@ -167,19 +187,21 @@ plot(sil, col <- nclust)
 
 cluster.stats(final.distances, groups)
 ```
+
 ### Normalización de variables
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";",  dec = ",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-continuous.distances <- dist(continuous.data)
-binary.distances <- dist(binary.data, method="binary")
-final.distances <- (continuous.distances + binary.distances) / 2
+scaled.data <- scale(numeric.data)
 
-hclust <- hclust(final.distances, method="ward.D2")
+scaled.distances <- dist(scaled.data)
+nominal.distances <- dist(nominal.data, method="binary")
+final.distances <- (scaled.distances + nominal.distances) / 2
 
 hclust <- hclust(final.distances, method="ward.D2")
 
@@ -187,9 +209,9 @@ hclust
 
 plot(hclust)
 
-rect.hclust(hclust, k=nclust)
+rect.hclust(hclust, k=3)
 
-groups <- cutree(hclust, k=nclust)
+groups <- cutree(hclust, k=3)
 
 groups
 
@@ -205,16 +227,18 @@ cluster.stats(final.distances, groups)
 ## k-medioides
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";",  dec=",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
 
-continuous.distances <- dist(continuous.data)
-binary.distances <- dist(binary.data, method="binary")
-final.distances <- (continuous.distances + binary.distances) / 2
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-pam.result <- pam(final.distances, 5)
+numeric.distances <- dist(numeric.data)
+nominal.distances <- dist(nominal.data, method="binary")
+final.distances <- (numeric.distances + nominal.distances) / 2
+
+pam.result <- pam(final.distances, 3)
 
 idx <- sample(1:dim(dataset)[1], 200)
 
@@ -223,30 +247,31 @@ clusters <- pam.result$cluster
 plotcluster(dataset[idx,], clusters[idx])
 
 scaled.d <- dist(scaled.data[idx,])
-binary.d <- dist(binary.data[idx,], method="binary")
+binary.d <- dist(nominal.data[idx,], method="binary")
 
 d <- (scaled.d + binary.d) / 2
 sil <- silhouette(clusters[idx], d)
 
-plot(sil, col=1:5)
+plot(sil, col=1:3)
 
 cluster.stats(final.distances, clusters)$avg.silwidth
 ```
 ### Resultados con normalización de variables
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";", dec = ",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-scaled.data <- scale(continuous.data)
+scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
-binary.distances <- dist(binary.data, method="binary")
-final.distances <- (scaled.distances + binary.distances) / 2
+nominal.distances <- dist(nominal.data, method="binary")
+final.distances <- (scaled.distances + nominal.distances) / 2
 
-pam.result <- pam(final.distances, 5)
+pam.result <- pam(final.distances, 3)
 
 idx <- sample(1:dim(dataset)[1], 200)
 
@@ -255,12 +280,12 @@ clusters <- pam.result$cluster
 plotcluster(dataset[idx,], clusters[idx])
 
 scaled.d <- dist(scaled.data[idx,])
-binary.d <- dist(binary.data[idx,], method="binary")
+binary.d <- dist(nominal.data[idx,], method="binary")
 
 d <- (scaled.d + binary.d) / 2
 sil <- silhouette(clusters[idx], d)
 
-plot(sil, col=1:5)
+plot(sil, col=1:3)
 
 cluster.stats(final.distances, clusters)$avg.silwidth
 ```
@@ -268,17 +293,18 @@ cluster.stats(final.distances, clusters)$avg.silwidth
 ### Búsqueda del valor óptimo de k
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";", dec = ",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-scaled.data <- scale(continuous.data)
+scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
-binary.distances <- dist(binary.data, method="binary")
+nominal.distances <- dist(nominal.data, method="binary")
 
-final.distances <- (scaled.distances + binary.distances) / 2
+final.distances <- (scaled.distances + nominal.distances) / 2
 
 pamk.result <- pamk(scaled.distances)
 
@@ -290,18 +316,20 @@ cluster.stats(final.distances, pamk.result$pamobject$clustering)
 ## Fuzzy k-means
 
 ```{r}
-dataset <- read.dataset()
+dataset <- read.csv(dataset.path, sep=";", dec = ",")
+dataset <- dataset[1:700,]
 
-continuous.data <- dataset %>% select(continuous.vars)
-binary.data <- dataset %>% select(binary.vars)
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
 
-scaled.data <- scale(continuous.data)
+scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
-binary.distances <- dist(binary.data, method="binary")
-final.distances <- (scaled.distances + binary.distances) / 2
+nominal.distances <- dist(nominal.data, method="binary")
 
-fuzzy.result <- fanny(final.distances, nclust, memb.exp=1.3)
+final.distances <- (scaled.distances + nominal.distances) / 2
+
+fuzzy.result <- fanny(final.distances, 3, memb.exp=1.3)
 
 plot(fuzzy.result)
 
