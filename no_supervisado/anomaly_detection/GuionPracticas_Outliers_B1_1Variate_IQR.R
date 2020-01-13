@@ -404,3 +404,4 @@ indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_co
 frame.es.outlier <- sapply(1:ncol(mydata.numeric), vector_es_outlier_IQR, datos = mydata.numeric)
 
 numero.total.outliers.por.columna <- apply(frame.es.outlier, 2, sum)
+numero.total.outliers.por.columna

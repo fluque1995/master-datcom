@@ -2,25 +2,20 @@
 # Juan Carlos Cubero. Universidad de Granada
 
 ###########################################################################
-# MULTIVARIATE OUTLIERS. CLUSTERING OUTLIERS 
+# MULTIVARIATE OUTLIERS. CLUSTERING OUTLIERS
 ###########################################################################
-
 
 ###########################################################################
 # AMPLIACIÓN
 ###########################################################################
 
-
 ###########################################################################
 # TODO LO QUE HAY EN ESTE APARTADO (CLUSTERING) ES DE AMPLIACIÓN
 # RESUÉLVALO SÓLO CUANDO TERMINE EL RESTO DE FICHEROS
 
-# ESTA PARTE DE AMPLIACIÓN ES OBLIGATORIO RESOLVERLA EN EL CASO DE QUE HAGA 
+# ESTA PARTE DE AMPLIACIÓN ES OBLIGATORIO RESOLVERLA EN EL CASO DE QUE HAGA
 # EL TRABAJO DEL CURSO SOBRE LA PARTE DE ANOMALÍAS
 ###########################################################################
-
-
-
 
 ###########################################################################
 # RESUMEN:
@@ -28,7 +23,6 @@
 # El objetivo es encontrar outliers multivariantes con técnicas no paramétricas
 # Por lo tanto, no exigiremos que haya una distribución estadística sobre los datos.
 # Vamos a ver distintos métodos basados en Clustering
-
 
 #####################################################################
 # Lectura de valores y Preprocesamiento
@@ -61,9 +55,9 @@ set.seed(2)  # Para establecer la semilla para la primera iteración de kmeans
 
 
 ###########################################################################
-# Cómputo de los outliers según la distancia euclídea de cada dato 
+# Cómputo de los outliers según la distancia euclídea de cada dato
 # al centroide de su cluster
-# El centroide podrá ser cualquiera (podrá provenir de un k-means 
+# El centroide podrá ser cualquiera (podrá provenir de un k-means
 # o ser un medoide, por ejemplo) Empezamos con k-means
 ###########################################################################
 
@@ -72,13 +66,13 @@ set.seed(2)  # Para establecer la semilla para la primera iteración de kmeans
 ###########################################################################
 # k-Means
 
-# Construimos el modelo kmeans (modelo.kmeans) con los datos normalizados. 
+# Construimos el modelo kmeans (modelo.kmeans) con los datos normalizados.
 # Para ello, usamos la función de R llamada "kmeans"
 
 # A partir del resultado de kmeans, accedemos a:
 
-# a) $cluster para obtener 
-#   los índices de asignación de cada dato al cluster correspondiente 
+# a) $cluster para obtener
+#   los índices de asignación de cada dato al cluster correspondiente
 #   El resultado lo guardamos en la variable indices.clustering.iris
 #   Por ejemplo, si el dato con índice 69 está asignado al tercer cluster,
 #   en el vector indices.clustering.iris habrá un 3 en la componente número 69
@@ -102,7 +96,7 @@ set.seed(2)  # Para establecer la semilla para la primera iteración de kmeans
 
 
 
-# COMPLETAR  
+# COMPLETAR
 
 
 
@@ -113,10 +107,10 @@ set.seed(2)  # Para establecer la semilla para la primera iteración de kmeans
 # Calculamos la distancia euclídea de cada dato a su centroide (con los valores normalizados)
 # Para ello, usad la siguiente función (intente entender cómo está implementada)
 
-distancias_a_centroides = function (datos.normalizados, 
-                                    indices.asignacion.clustering, 
+distancias_a_centroides = function (datos.normalizados,
+                                    indices.asignacion.clustering,
                                     datos.centroides.normalizados){
-  
+
   sqrt(rowSums(   (datos.normalizados - datos.centroides.normalizados[indices.asignacion.clustering,])^2   ))
 }
 
@@ -135,7 +129,7 @@ distancias_a_centroides = function (datos.normalizados,
 
 
 
-# COMPLETAR  
+# COMPLETAR
 
 
 
@@ -144,9 +138,9 @@ distancias_a_centroides = function (datos.normalizados,
 
 ###########################################################################
 # Creamos la función top_clustering_outliers para realizar las tareas anteriores
-# top_clustering_outliers = function(datos.normalizados, 
-#                                   indices.asignacion.clustering, 
-#                                   datos.centroides.normalizados, 
+# top_clustering_outliers = function(datos.normalizados,
+#                                   indices.asignacion.clustering,
+#                                   datos.centroides.normalizados,
 #                                   numero.de.outliers)
 # La función devolverá una lista con dos miembros:
 # indices    -> Contiene los índices de los top outliers
@@ -154,22 +148,22 @@ distancias_a_centroides = function (datos.normalizados,
 
 
 # Devuelve los índices de los top-k clustering outliers y sus distancias a los centroides
-top_clustering_outliers = function(datos.normalizados, 
-                                   indices.asignacion.clustering, 
-                                   datos.centroides.normalizados, 
+top_clustering_outliers = function(datos.normalizados,
+                                   indices.asignacion.clustering,
+                                   datos.centroides.normalizados,
                                    numero.de.outliers){
-  
-  dist_centroides = distancias_a_centroides (datos.normalizados, 
-                                             indices.asignacion.clustering, 
+
+  dist_centroides = distancias_a_centroides (datos.normalizados,
+                                             indices.asignacion.clustering,
                                              datos.centroides.normalizados)
-  
+
   indices = order(dist_centroides, decreasing=T)[1:numero.de.outliers]
-  
+
   list(distancias = dist_centroides[indices]  , indices = indices)
 }
 
 
-# Llamamos a la función top_clustering_outliers e imprimimos los índices y las distancias a sus 
+# Llamamos a la función top_clustering_outliers e imprimimos los índices y las distancias a sus
 # centroides de los outliers
 # Tiene que salir lo siguiente:
 
@@ -177,12 +171,12 @@ top_clustering_outliers = function(datos.normalizados,
 # [1]  42  16 132 118  61
 
 # > top.outliers.kmeans$distancias
-# 42       16      132      118       61 
-# 2.661639 2.390978 2.166200 2.094256 1.965365 
-# 
+# 42       16      132      118       61
+# 2.661639 2.390978 2.166200 2.094256 1.965365
+#
 
 
-# COMPLETAR  
+# COMPLETAR
 
 
 
@@ -203,14 +197,14 @@ top_clustering_outliers = function(datos.normalizados,
 # Dentro de esta función se llama a la función ggbiplot, la cual está basada
 # en la función ggplot que tiene un bug de diseño ya que dentro del parámetro aes
 # sólo se pueden llamar a variables del entorno global y no del entorno local.
-# Por tanto, desgraciadamente, debemos establecer variables globales que 
+# Por tanto, desgraciadamente, debemos establecer variables globales que
 # son usadas dentro de nuestra función MiBiPlot_Clustering_Outliers:
 # Dichas variables son BIPLOT.isOutlier, BIPLOT.cluster.colors y BIPLOT.asignaciones.clusters
 
 
 
 
-# COMPLETAR  
+# COMPLETAR
 
 
 
@@ -244,23 +238,23 @@ MiBiPlot_Clustering_Outliers(mis.datos.numericos, "K-Means Clustering Outliers")
 # Para revertir la operación de normalización, simplemente tenemos que despejar
 # en la fórmula:
 # z-score = (dato - media.columna) / sd.columna
-# dato = z-score * sd.columna + media.columna 
+# dato = z-score * sd.columna + media.columna
 
 # Para aplicar la anterior fórmula, seguimos los siguientes pasos:
 
 # Construimos un vector mis.datos.medias con las medias de cada columna (usad la función colMeans)
 # mis.datos.medias
-# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width
 # 5.843333     3.057333     3.758000      1.199333
 
 # Construimos un vector mis.datos.desviaciones con las desviaciones típicas de cada columna.
-# Para ello usamos apply con la función sd (standard deviation) 
+# Para ello usamos apply con la función sd (standard deviation)
 # mis.datos.desviaciones
-# Sepal.Length  Sepal.Width Petal.Length  Petal.Width 
+# Sepal.Length  Sepal.Width Petal.Length  Petal.Width
 # 0.8280661    0.4358663    1.7652982     0.7622377
 
 # Ahora hay que multiplicar cada dato del centroide por la desviación de la correspondiente columna.
-# es decir, tenemos que multiplicar centroides.normalizados.iris[i]  por mis.datos.desviaciones[i] 
+# es decir, tenemos que multiplicar centroides.normalizados.iris[i]  por mis.datos.desviaciones[i]
 # Para ello, usamos la función sweep con el operador producto "*", aplicándolo sobre las columnas (MARGIN = 2)
 
 # Sepal.Length Sepal.Width Petal.Length Petal.Width
@@ -281,7 +275,7 @@ MiBiPlot_Clustering_Outliers(mis.datos.numericos, "K-Means Clustering Outliers")
 
 
 
-# COMPLETAR  
+# COMPLETAR
 
 
 
@@ -315,7 +309,7 @@ MiBiPlot_Clustering_Outliers(mis.datos.numericos, "K-Means Clustering Outliers")
 # asignación cluster:  1   1   ...  3   3   2   3
 
 # Para obtener los índices de los medoides accedemos a modelo.pam$medoids
-# [1] "8"   "113" "56" 
+# [1] "8"   "113" "56"
 
 # Mostramos los valores normalizados y no normalizados de los índices
 # Para ello, como los medoides son registros reales de nuestro conjunto de datos
@@ -348,9 +342,9 @@ medoides.valores.normalizados
 medoides.valores                  = mis.datos.numericos[medoides.indices, ]
 medoides.valores
 
-top.outliers.pam = top_clustering_outliers(mis.datos.numericos.normalizados , 
-                                           indices.asignacion.clustering.pam, 
-                                           medoides.valores.normalizados, 
+top.outliers.pam = top_clustering_outliers(mis.datos.numericos.normalizados ,
+                                           indices.asignacion.clustering.pam,
+                                           medoides.valores.normalizados,
                                            numero.de.outliers)
 
 cat("PAM Medoids\n")
@@ -374,8 +368,8 @@ print(top.outliers.kmeans$indices)
 # El objetivo es calcular la distancia de cada punto a su centroide usando la distancia de Mahalanobis.
 
 # Vamos a construir la siguiente función:
-# top_clustering_outliers_distancia_mahalanobis = function(datos, 
-#                                                          indices.asignacion.clustering, 
+# top_clustering_outliers_distancia_mahalanobis = function(datos,
+#                                                          indices.asignacion.clustering,
 #                                                          numero.de.outliers)
 
 # Para hacerlo, tenemos que aislar en un mismo data frame aquellos registros que
@@ -388,7 +382,7 @@ print(top.outliers.kmeans$indices)
 
 # Así pues, realizamos el siguiente proceso:
 
-# Construimos el data frame "seleccion", de forma que 
+# Construimos el data frame "seleccion", de forma que
 # seleccion[, i] será un vector de T/F indicando qué registros pertenecen al cluster i.
 # seleccion
 #     cluster 1   cluster 2   cluster 3
@@ -446,44 +440,44 @@ print(top.outliers.kmeans$indices)
 # Llamamos a la función así construida con los datos de iris y mostramos el Biplot correspondiente.
 
 
-top_clustering_outliers_distancia_mahalanobis = function(datos, 
-                                                         indices.asignacion.clustering, 
+top_clustering_outliers_distancia_mahalanobis = function(datos,
+                                                         indices.asignacion.clustering,
                                                          numero.de.outliers){
-  
+
   cluster.ids = unique(indices.asignacion.clustering)
   k           = length(cluster.ids)
   seleccion   = sapply(1:k, function(x) indices.asignacion.clustering == x)
-  
-  
+
+
   # Usando medias y covarianzas:
   # lista.matriz.de.covarianzas   = lapply(1:k, function(x) cov(mis.datos.numericos[seleccion[,x],]))
   # lista.vector.de.medias        = lapply(1:k, function(x) colMeans(mis.datos.numericos[seleccion[,x],]))
-  
-  
+
+
   # Usando la estimación robusta de la media y covarianza: (cov.rob del paquete MASS:
   lista.matriz.de.covarianzas   = lapply(1:k, function(x) cov.rob(mis.datos.numericos[seleccion[,x],])$cov)
   lista.vector.de.medias        = lapply(1:k, function(x) cov.rob(mis.datos.numericos[seleccion[,x],])$center)
-  
-  
-  mah.distances   = lapply(1:k, 
-                           function(x) mahalanobis(mis.datos.numericos[seleccion[,x],], 
-                                                   lista.vector.de.medias[[x]], 
-                                                   lista.matriz.de.covarianzas[[x]]))  
-  
+
+
+  mah.distances   = lapply(1:k,
+                           function(x) mahalanobis(mis.datos.numericos[seleccion[,x],],
+                                                   lista.vector.de.medias[[x]],
+                                                   lista.matriz.de.covarianzas[[x]]))
+
   todos.juntos = unlist(mah.distances)
   todos.juntos.ordenados = names(todos.juntos[order(todos.juntos, decreasing=TRUE)])
   indices.top.mah.outliers = as.numeric(todos.juntos.ordenados[1:numero.de.outliers])
-  
-  
+
+
   list(distancias = mah.distances[indices.top.mah.outliers]  , indices = indices.top.mah.outliers)
 }
 
-top.clustering.outliers.mah = top_clustering_outliers_distancia_mahalanobis(mis.datos.numericos, 
-                                                                            indices.clustering.iris, 
+top.clustering.outliers.mah = top_clustering_outliers_distancia_mahalanobis(mis.datos.numericos,
+                                                                            indices.clustering.iris,
                                                                             numero.de.outliers)
 
 numero.de.datos = nrow(mis.datos.numericos)
-is.kmeans.outlier.mah = rep(FALSE, numero.de.datos) 
+is.kmeans.outlier.mah = rep(FALSE, numero.de.datos)
 is.kmeans.outlier.mah[top.clustering.outliers.mah$indices] = TRUE
 
 BIPLOT.isOutlier             = is.kmeans.outlier.mah
@@ -495,57 +489,48 @@ MiBiPlot_Clustering_Outliers(mis.datos.numericos, "K-Means Clustering Outliers")
 
 
 ###########################################################################
-# AMPLIACIÓN: 
+# AMPLIACIÓN:
 
 # Definir la función top_clustering_outliers_distancia_relativa
 # Esta función hará lo mismo que la función top_clustering_outliers
-# pero usando como criterio la distancia relativa 
+# pero usando como criterio la distancia relativa
 # (pag. 127 de las transparencias)
 
-top_clustering_outliers_distancia_relativa = function(datos.normalizados, 
-                                                      indices.asignacion.clustering, 
-                                                      datos.centroides.normalizados, 
+top_clustering_outliers_distancia_relativa = function(datos.normalizados,
+                                                      indices.asignacion.clustering,
+                                                      datos.centroides.normalizados,
                                                       numero.de.outliers){
-  
-  dist_centroides = distancias_a_centroides (datos.normalizados, 
-                                             indices.asignacion.clustering, 
+
+  dist_centroides = distancias_a_centroides (datos.normalizados,
+                                             indices.asignacion.clustering,
                                              datos.centroides.normalizados)
-  
+
   cluster.ids = unique(indices.asignacion.clustering)
   k           = length(cluster.ids)
-  
-  distancias.a.centroides.por.cluster    = sapply(1:k , 
+
+  distancias.a.centroides.por.cluster    = sapply(1:k ,
                                                   function(x) dist_centroides [indices.asignacion.clustering  == cluster.ids[x]])
-  
-  distancias.medianas.de.cada.cluster    = sapply(1:k , 
+
+  distancias.medianas.de.cada.cluster    = sapply(1:k ,
                                                   function(x) median(dist_centroides[[x]]))
-  
+
   todas.las.distancias.medianas.de.cada.cluster  =  distancias.medianas.de.cada.cluster[indices.asignacion.clustering]
   ratios = dist_centroides   /  todas.las.distancias.medianas.de.cada.cluster
-  
+
   indices.top.outliers           = order(ratios, decreasing=T)[1:numero.de.outliers]
-  
+
   list(distancias = ratios[indices.top.outliers]  , indices = indices.top.outliers)
 }
 
 
 
-top.outliers.kmeans.distancia.relativa = top_clustering_outliers_distancia_relativa(mis.datos.numericos.normalizados, 
-                                                                                    indices.clustering.iris, 
-                                                                                    centroides.normalizados.iris, 
+top.outliers.kmeans.distancia.relativa = top_clustering_outliers_distancia_relativa(mis.datos.numericos.normalizados,
+                                                                                    indices.clustering.iris,
+                                                                                    centroides.normalizados.iris,
                                                                                     numero.de.outliers)
 
 
 cat("Índices de los top k clustering outliers (k-means, usando distancia relativa)")
-top.outliers.kmeans.distancia.relativa$indices 
+top.outliers.kmeans.distancia.relativa$indices
 cat("Distancias a sus centroides de los top k clustering outliers (k-means, usando distancia relativa)")
 top.outliers.kmeans.distancia.relativa$distancias
-
-
-
-
-
-
-
-
-

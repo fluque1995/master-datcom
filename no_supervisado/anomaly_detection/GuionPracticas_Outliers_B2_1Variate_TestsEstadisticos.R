@@ -96,6 +96,7 @@ mydata.numeric = datos.con.un.outlier
 # COMPLETAR
 
 hist(mydata.numeric)
+
 plot(mydata.numeric)
 
 grubbs.test(mydata.numeric, two.sided = T)

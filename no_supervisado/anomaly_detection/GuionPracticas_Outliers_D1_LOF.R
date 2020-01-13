@@ -314,6 +314,6 @@ valores.normalizados.de.los.outliers.LOF.pero.no.1variantes
 
 MiPlot_Univariate_Outliers(
     mis.datos.numericos.normalizados,
-    which(rownames(mis.datos.numericos.normalizados) == "Ferrari Dino",
-          "Ferrari Dino")
+    which(rownames(mis.datos.numericos.normalizados) == "Ferrari Dino"),
+    "Ferrari Dino"
 )
