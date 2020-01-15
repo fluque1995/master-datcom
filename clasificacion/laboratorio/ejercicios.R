@@ -62,3 +62,31 @@ ggplot2::ggplot(datos, aes(x=Provincia, fill=crece)) +
 ## Gráficos de puntos
 ggplot2::ggplot(datos, aes(x=longitud, y=latitud)) +
     geom_point()
+
+datosCrecimiento <- datos %>% group_by(Provincia) %>%
+    summarize(crecMedio = mean(IncrPoblacion))
+
+ggplot2::ggplot(datosCrecimiento, aes(x=Provincia, y=crecMedio)) +
+    geom_bar(stat = "identity", fill="cornflowerblue") +
+    geom_text(aes(label = crecMedio, vjust = -.25)) +
+    labs(title = "Crecimiento medio por provincia")
+
+
+seleccionados <- dplyr::filter(datos, Provincia %in% c("Granada", "Jaén"))
+
+ggplot2::ggplot(seleccionados, aes(x=IncrPoblacion, fill=Provincia)) +
+    geom_density(alpha=.4, bins=10)
+
+ggplot2::ggplot(datos, aes(x=Provincia, y=Extranjeros)) +
+    geom_boxplot()
+
+ggplot2::ggplot(datos, aes(x=Provincia, y=Extranjeros)) +
+    geom_violin()
+
+
+ggplot2::ggplot(datos, aes(x=longitud, y = latitud, color = Provincia)) +
+    geom_point()
+
+ggplot2::ggplot(datos, aes(x=Mayores65)) +
+    geom_histogram() +
+    facet_wrap(~Provincia, ncol=2)

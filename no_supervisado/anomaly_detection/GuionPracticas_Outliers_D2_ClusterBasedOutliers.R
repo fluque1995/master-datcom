@@ -92,15 +92,12 @@ set.seed(2)  # Para establecer la semilla para la primera iteración de kmeans
 # 2   1.13217737  0.08812645    0.9928284   1.0141287
 # 3  -0.05005221 -0.88042696    0.3465767   0.2805873
 
-
-
-
-
 # COMPLETAR
 
+modelo.kmeans <- kmeans(mis.datos.numericos.normalizados, numero.de.clusters)
+indices.clustering.iris <- modelo.kmeans$cluster
 
-
-
+centroides.normalizados.iris <- modelo.kmeans$centers
 
 # -------------------------------------------------------------------------
 
@@ -125,15 +122,18 @@ distancias_a_centroides = function (datos.normalizados,
 # top.outliers.iris
 # [1]  42  16 132 118  61
 
-
-
-
-
 # COMPLETAR
 
+dist.centroides.iris <- distancias_a_centroides(
+    mis.datos.numericos.normalizados, indices.clustering.iris,
+    centroides.normalizados.iris
+)
 
+top.outliers.iris <- order(
+    dist.centroides.iris, decreasing = T
+)[1:numero.de.outliers]
 
-
+top.outliers.iris
 
 
 ###########################################################################
@@ -178,7 +178,12 @@ top_clustering_outliers = function(datos.normalizados,
 
 # COMPLETAR
 
+top.outliers.kmeans <- top_clustering_outliers(
+    mis.datos.numericos.normalizados, indices.clustering.iris,
+    centroides.normalizados.iris, numero.de.outliers
+)
 
+top.outliers.kmeans
 
 
 
@@ -201,14 +206,9 @@ top_clustering_outliers = function(datos.normalizados,
 # son usadas dentro de nuestra función MiBiPlot_Clustering_Outliers:
 # Dichas variables son BIPLOT.isOutlier, BIPLOT.cluster.colors y BIPLOT.asignaciones.clusters
 
-
-
-
 # COMPLETAR
 
-
-
-
+is.kmeans.outlier <- sapply(1:dim(mis.datos.numericos)[1], function (x) x %in% top.outliers.kmeans$indices)
 
 BIPLOT.isOutlier             = is.kmeans.outlier
 BIPLOT.cluster.colors        = c("blue","red","brown")     # Tantos colores como diga numero.de.clusters
