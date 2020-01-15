@@ -11,6 +11,7 @@ output:
     pdf_document:
         number_sections: yes
         template: eisvogel
+bibliography: references.bib
 ---
 
 ```{r setup, include=F}
@@ -25,6 +26,63 @@ library(factoextra)
 library(fastDummies)
 ```
 
+# Introducción
+
+En este trabajo se van a estudiar técnicas de agrupamiento de ejemplos
+de una base de datos desde el punto de vista del aprendizaje no
+supervisado. En el paradigma de aprendizaje no supervisado no se
+dispone de un conjunto de etiquetas o categorías en las que agrupar
+los datos y que son conocidas a priori, si no que se tratan de formar
+grupos de elementos (_clusters_) en función de la similaridad que hay
+entre ellos. Esta similaridad está usualmente definida en función de la
+distancia que existe entre ellos dentro del espacio de
+características. Cuanto menor sea la distancia entre dos elementos de
+nuestro conjunto, más probable es que exista alguna relación entre los
+mismos, y por tanto será deseable que el algoritmo de agrupamiento los
+coloque dentro del mismo grupo. Por el contrario, cuanto más alejados
+estén los elementos en el espacio de características, más diferencia
+existirá entre ellos, y por tanto nos interesará que se emplacen en
+_clusters_ diferentes.
+
+Por tanto, para tener bien definido un algoritmo de agrupamiento,
+tendremos que definir dos cosas. Por un lado, habrá que establecer una
+medida de distancia o similaridad entre cualesquiera dos elementos de
+nuestro conjunto de datos. Esta distancia dependerá del tipo de datos
+con los que estemos trabajando. Si los datos con los que estamos
+trabajando están compuestos por atributos numéricos continuos, la
+distancia a utilizar será usualmente la distancia euclídea, o una
+distancia de Minkowski (la distancia euclídea es un caso particular de
+una distancia de Minkowski, cuando k=2). En cambio, si la información
+está codificada como un conjunto de variables binarias o nominales, es
+posible que estas distancias no estén bien definidas, o no tengan
+sentido, y habrá que recurrir a otras funciones de distancia. Otros
+tipos de datos, como textos, imágenes o series temporales, necesitarán
+también de medidas de distancia propias que nos permitan comparar dos
+elementos. En el desarrollo de esta práctica se estudiará cómo el uso
+de distintas medidas de distancia pueden dar lugar a resultados
+distintos. Por otro lado, habrá de definir qué estrategia se utiliza
+para agrupar los puntos una vez que conocemos la distancia que existe
+entre ellos. En esta práctica se estudiarán distintas políticas de
+agrupamiento, concretamente las siguientes:
+
+- k-means
+- DBSCAN
+- Clustering jerárquico
+- k-medioides
+- k-means difuso
+
+Para cada algoritmo de los dictados anteriormente, se hará una breve
+descripción teórica del mismo, y se harán pruebas para observar los
+resultados que obtiene el mismo sobre un determinado dataset. Además,
+para algunos de los algoritmos, estudiaremos cómo el cambio en la
+distancia utilizada produce distintos resultados.
+
+## Conjunto de datos empleado - Bankloan
+
+El conjunto de datos sobre el que trabajaremos tiene el nombre de
+Bankloan dataset. Es uno de los conjuntos de datos de ejemplo que
+se distribuyen con el software IBM SPSS [@ibm]
+
 ```{r}
 dataset.path <- "dataset/bankloan-spss.csv"
 
@@ -34,8 +92,7 @@ dataset <- dataset[1:700,]
 
 numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
-    'deudaotro', 'empleo',  'direccion', 'edad',
-    'morapred2'
+    'deudaotro', 'empleo',  'direccion', 'edad'
 )
 
 nominal.vars <- c(
@@ -87,13 +144,19 @@ cluster.stats(final.distances, kmeans.result$cluster, alt.clustering = dataset$i
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";",  dec = ",")
-dataset <- dataset[1:700]
+dataset <- dataset[1:700,]
 
 numeric.data <- dataset %>% select(numeric.vars)
 nominal.data <- dataset %>% select(nominal.vars)
 
+nominal.data <- dummy_cols(nominal.data, select_columns = "educ",
+                           remove_selected_columns = T)
+
 ## Normalizamos los atributos continuos
 ## Esta función nos estandariza los valores del dataframe por columnas
+numeric.data <- numeric.data %>% select(
+                                     "ingresos", "deudaingr", "empleo", "edad"
+                                 )
 scaled.data <- scale(numeric.data)
 
 ## Comprobamos que en efecto las columnas están normalizadas
@@ -164,8 +227,8 @@ numeric.data <- dataset %>% select(numeric.vars)
 nominal.data <- dataset %>% select(nominal.vars)
 
 numeric.distances <- dist(numeric.data)
-binary.distances <- dist(binary.data, method="binary")
-final.distances <- (numeric.distances + binary.distances) / 2
+nominal.distances <- dist(nominal.data, method="binary")
+final.distances <- (numeric.distances + nominal.distances) / 2
 
 hclust <- hclust(final.distances, method="ward.D2")
 
