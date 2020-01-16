@@ -86,7 +86,3 @@ ggplot2::ggplot(datos, aes(x=Provincia, y=Extranjeros)) +
 
 ggplot2::ggplot(datos, aes(x=longitud, y = latitud, color = Provincia)) +
     geom_point()
-
-ggplot2::ggplot(datos, aes(x=Mayores65)) +
-    geom_histogram() +
-    facet_wrap(~Provincia, ncol=2)
