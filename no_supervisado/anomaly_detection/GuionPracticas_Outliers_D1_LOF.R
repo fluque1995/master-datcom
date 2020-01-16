@@ -92,16 +92,15 @@ numero.de.vecinos.lof = 5
 # COMPLETAR
 
 lof.scores <- lofactor(mis.datos.numericos.normalizados, numero.de.vecinos.lof)
-
 lof.scores
 
 indices.segun.lof.score.ordenados <- order(lof.scores, decreasing = T)
-
 indices.segun.lof.score.ordenados
 
 lof.scores.ordenados <- lof.scores[indices.segun.lof.score.ordenados]
-
 lof.scores.ordenados
+
+plot(lof.scores.ordenados)
 
 numero.de.outliers <- 4
 indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
@@ -109,6 +108,8 @@ indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.out
 is.lof.outlier <- 1:dim(
                         mis.datos.numericos.normalizados
                     )[1] %in% indices.de.lof.top.outliers
+
+is.lof.outlier
 
 MiBiPlot_Multivariate_Outliers(
     mis.datos.numericos.normalizados, is.lof.outlier,

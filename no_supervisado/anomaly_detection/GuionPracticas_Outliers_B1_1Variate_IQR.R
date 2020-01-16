@@ -112,6 +112,7 @@ vector.es.outlier.extremo <- (
 # [18] FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
 
 vector.es.outlier.normal
+vector.es.outlier.extremo
 
 # COMPLETAR
 
@@ -160,17 +161,7 @@ valores.outliers.extremos
 
 #  Outliers extremos no sale ninguno
 
-
-
-
-
 # COMPLETAR
-
-
-
-
-
-
 
 ###########################################################################
 # Desviación de los outliers con respecto a la media de la columna
@@ -256,6 +247,9 @@ vector.es.outlier.normal <- vector_es_outlier_IQR(
 vector.es.outlier.extremo <- vector_es_outlier_IQR(
     mydata.numeric.scaled, indice.columna, coef = 3
 )
+
+vector.es.outlier.normal
+vector.es.outlier.extremo
 
 ###########################################################################
 # BoxPlot
@@ -363,6 +357,8 @@ mydata.numeric.scaled[indices.de.outliers.en.alguna.columna,]
 
 indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mydata.numeric)
 
+indices.de.outliers.en.alguna.columna
+
 ###########################################################################
 # Índices de aquellos registros que tienen un outlier en alguna de las columnas
 ###########################################################################
@@ -402,6 +398,7 @@ indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_co
 # COMPLETAR
 
 frame.es.outlier <- sapply(1:ncol(mydata.numeric), vector_es_outlier_IQR, datos = mydata.numeric)
+frame.es.outlier
 
 numero.total.outliers.por.columna <- apply(frame.es.outlier, 2, sum)
 numero.total.outliers.por.columna

@@ -37,7 +37,7 @@
 ###########################################################################
 
 
-datos.con.un.outlier           = c(45,56,54,34,32,45,67,45,67,140,65)
+datos.con.un.outlier = c(45,56,54,34,32,45,67,45,67,140,65)
 mydata.numeric = datos.con.un.outlier
 
 ###########################################################################
@@ -100,6 +100,19 @@ hist(mydata.numeric)
 plot(mydata.numeric)
 
 grubbs.test(mydata.numeric, two.sided = T)
+
+indice.de.outlier.Grubbs <- order(
+    abs(mydata.numeric - mean(mydata.numeric)), decreasing = T
+)[1]
+indice.de.outlier.Grubbs
+
+valor.de.outlier.Grubbs <- mydata.numeric[
+    indice.de.outlier.Grubbs
+]
+valor.de.outlier.Grubbs
+
+MiPlot_Univariate_Outliers(mydata.numeric, indice.de.outlier.Grubbs,
+                           "Valor outlier según el test de Grubbs")
 
 ###########################################################################
 # Realizamos el mismo proceso anterior empaquetado en una función
