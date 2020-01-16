@@ -1,1 +1,7 @@
+# Stop tracking R command history
 .Rhistory
+
+# Stop tracking datasets (usually big files)
+*.csv
+*.dat
+
