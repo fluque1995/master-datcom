@@ -7,23 +7,27 @@ titlepage: true
 titlepage-background: "background.pdf"
 headrule-color: "435488"
 urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
 output:
     pdf_document:
+        keep_tex: true
         number_sections: yes
         template: eisvogel
-bibliography: references.bib
 ---
 
 ```{r setup, include=F}
 knitr::opts_chunk$set(echo = TRUE)
 set.seed(0)
 library(ggplot2)
+library(ggfortify)
 library(stats)
 library(fpc)
 library(cluster)
 library(dplyr)
 library(factoextra)
 library(fastDummies)
+library(knitr)
 ```
 
 # Introducción
@@ -80,16 +84,158 @@ distancia utilizada produce distintos resultados.
 ## Conjunto de datos empleado - Bankloan
 
 El conjunto de datos sobre el que trabajaremos tiene el nombre de
-Bankloan dataset. Es uno de los conjuntos de datos de ejemplo que
-se distribuyen con el software IBM SPSS [@ibm]
+Bankloan dataset. Es uno de los conjuntos de datos de ejemplo que se
+distribuyen con el software IBM SPSS. El objetivo de dicho conjunto de
+datos es una tarea de clasificación, en la que se pide predecir si un
+conjunto de potenciales clientes incurrirá o no en impago. El conjunto
+está compuesto por 700 registros de entrenamiento, para los cuales
+tenemos registrado si incurrieron o no en impago, y 150 registros de
+test, para los cuales tenemos que predecir dicha etiqueta. En este
+trabajo, descartaremos los últimos 150 registros a priori, ya que nos
+interesa saber el valor de impago para los individuos a la hora de
+calcular algunas de las medidas que nos indicarán la calidad del
+modelo que hemos calculado.
+
+En cuanto a las variables que se registran, se tienen datos de la edad
+del individuo, su nivel educativo, los años de empleo que lleva en su
+actual empresa, información de deudas e ingresos, y tres columnas que
+indican la probabilidad de que el individuo haya incurrido en impago
+(no se nos indica cómo se han calculado dichas probabilidades). En
+total, el conjunto está compuesto por 11 atributos más la clase. De
+estos atributos, dos de ellos son nominales (la clase, que toma dos
+valores distintos, y el nivel educativo, que toma cinco valores) y el
+resto son variables numéricas. Tomaremos la columna que indica el
+nivel educativo del individuo como una característica nominal porque
+no conocemos si los valores que toma esta variable corresponden a una
+escala ordenada, o son simplemente un código. El considerarlos una
+escala ordinal cuando realmente no lo son puede introducir un sesgo en
+la distancia que se calcula entre los elementos en esta variable,
+comportamiento que queremos evitar.
+
+Como hemos dicho anteriormente, aunque el conjunto de datos está
+pensado originalmente para ser utilizado en un problema de
+clasificación, nosotros lo utilizaremos para un problema de
+agrupamiento. Utilizaremos las etiquetas para comprobar si los
+algoritmos de agrupamiento son capaces de separar correctamente
+los datos en las dos clases.
+
+Comenzamos estudiando el algoritmo de _clustering_ k-medias
+
+# K-medias
+
+El algoritmo de clustering k-medias (también conocido como _k-means_)
+es un algoritmo que trata de particionar el espacio de características
+en $k$ conjuntos distintos, tratando de minimizar la distancia media
+intra-cluster (dicha cantidad es la media de las distancia de cada
+punto del cluster a su centro). Formalmente, el objetivo es agrupar
+$n$ observaciones en $k$ conjuntos $S = \{S_1, ..., S_n\}$ tal que se
+minimice la siguiente suma:
+
+\[
+    \sum_{i=1}^{k} \sum_{x \in S_i} d(x,\mu_i)^2
+\]
+
+Donde $\mu_i$ es el centro del clúster, y $d(v, w)^2$ es la distancia
+al cuadrado del vector $v$ al vector $w$. Debido a que nos encontramos
+ante un problema de optimización de complejidad _NP-duro_, no suele
+darse la solución óptima al problema. En su lugar, se utilizan
+heurísticas de cálculo que dan soluciones aproximadas. La más conocida
+es el algoritmo de Lloyd. Este algoritmo calcula la solución al
+problema de las k-medias de forma iterativa, hasta que se llega a un
+punto estable. El algoritmo se divide en dos fases, una de asignación
+de puntos a los clusters y otra de actualización de los centros. El
+pseudocódigo del algoritmo es el siguiente:
+
+1. Se generan aleatoriamente los $k$ centros en el espacio de
+características. Existen varias técnicas para inicializar los
+puntos.
+2. Mientras no se haya llegado a un punto estable:
+   - Asignación: Cada punto del conjunto de datos es asignado
+   al cluster cuyo centro le es más cercano
+   - Actualización: Para cada cluster, se recalcula el centro
+   del mismo a partir de la media de los puntos que pertenecen
+   a él
+3. El algoritmo termina cuando en una iteración todos los puntos son
+asignados al cluster al que pertenecían en la iteración anterior.
+
+## Aplicación del algoritmo
+
+Una vez hemos dado una descripción teórica del algoritmo, pasamos a
+estudiar cómo aplicarlo. En primer lugar, aplicaremos el algoritmo
+utilizando sólo las variables numéricas de las que
+disponemos. Comenzamos cargando el conjunto de datos y seleccionando
+las variables numéricas que nos interesan.
 
 ```{r}
 dataset.path <- "dataset/bankloan-spss.csv"
-
 dataset <- read.csv(dataset.path, sep = ";", dec=",")
-
 dataset <- dataset[1:700,]
 
+numeric.vars <- c(
+    'ingresos', 'deudaingr', 'deudacred',
+    'deudaotro', 'empleo',  'direccion', 'edad'
+)
+
+numeric.data <- dataset %>% select(numeric.vars)
+
+kable(head(numeric.data))
+```
+
+Un problema que se presenta cuando se trabaja con algoritmos basados
+en cálculo de distancias viene producido por el rango de las variables
+con las que trabajamos. Si observamos los valores máximos y mínimos
+del conjunto de datos de trabajo:
+
+```{r echo=F}
+mins <- apply(numeric.data, 2, min)
+maxs <- apply(numeric.data, 2, max)
+minmax <- rbind(mins, maxs)
+
+rownames(minmax) <- c("Min", "Max")
+kable(minmax)
+```
+
+Mientras que la variable `ingresos` tiene un rango de más de 400,
+otras variables, como `deudacred` apenas tiene un rango de 20
+unidades. A la hora de calcular una distancia, la primera variable
+tendrá una influencia mucho mayor en el resultados que la
+segunda. Para evitar esta problemática, normalizaremos las variables
+con las que estamos trabajando, restando a cada elemento su media
+y dividiendo por la desviación típica de los datos. De esta manera,
+transformamos la distribución de los datos a otra con media nula
+y desviación típica unitaria, de forma que todas las variables
+serán igualmente relevantes a la hora de calcular la distancia
+entre dos elementos de la base de datos:
+
+```{r}
+scaled.data <- scale(numeric.data) # La función scale hace la transformación que hemos especificado
+```
+
+Una vez aplicada la transformación, aplicamos el algoritmo de
+k-medias. Este algoritmo requiere que especifiquemos a priori
+el número de _clusters_ en los que se agruparán los datos. Vamos
+a tratar de crear dos grupos, para comprobar si con este método
+se pueden separar los elementos en las dos clases que se nos
+proporcionan:
+
+```{r}
+nclust <- 2
+
+kmeans.res <- kmeans(scaled.data, nclust)
+
+autoplot(kmeans.res, data = scaled.data)
+```
+
+Podemos comprobar como los dos clusters que se han formado están
+significativamente bien separados. Comprobamos si esta separación
+se corresponde con los valores de la columna a predecir:
+
+```{r echo=F}
+kable(table(kmeans.res$cluster, dataset$impago))
+```
+
+%% TODO:
+```{r}
 numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
     'deudaotro', 'empleo',  'direccion', 'edad'
