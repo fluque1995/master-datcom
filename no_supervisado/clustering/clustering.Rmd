@@ -236,8 +236,129 @@ conf.mat <- apply(conf.mat, 2, rev)
 kable(conf.mat)
 ```
 
-Podemos observar que los resultados obtenidos no son especialmente buenos.
-%% TODO:
+Podemos observar que los resultados obtenidos no son especialmente a
+la hora de clasificar los elementos de nuestro conjunto de datos en
+pagadores y no pagadores. En efecto, si mostramos el mismo gráfico que
+anteriormente, pero utilizando la columna impago como etiqueta,
+obtenemos el siguiente resultado:
+
+```{r echo=F}
+dataset['impago'] <- as.factor(dataset[,'impago'])
+autoplot(prcomp(scaled.data), data = dataset, colour = "impago")
+```
+
+Donde podemos observar que este algoritmo difícilmente será capaz de
+dividir correctamente los datos del conjunto en las dos clases, debido
+a que las mismas no forman grupos convexos de elementos. Es posible
+que, dado que las dos componentes principales de los datos explican
+sólamente el 70 % de la variabilidad de los mismos, al añadir más
+componentes las clases sean más fácilmente separables.
+
+Usualmente, cuando se utilizan algoritmos de aprendizaje no
+supervisado, no se dispone de una clase a predecir, por lo que no se
+puede construir una matriz de confusión como la que hemos mostrado
+anteriormente. En ese caso, existen medidas que permiten medir la
+calidad de los agrupamientos de forma no supervisada. Algunas de
+estas medidas son:
+
+- Medidas de cohesión: Miden cómo de cercanos están los datos dentro
+un mismo cluster. Un cluster cuya cohesión es buena suele indicar un
+buen agrupamiento, porque esta medida indica que sus elementos son
+similares entre si.
+- Medidas de separación: Miden la distancia que existe entre dos
+clusters distintos. Valores altos en esta medida indican que los
+clusters generados están distanciados unos de otros, por lo que los
+elementos que los componen están bien diferenciados.
+- Medidas de validez: Usualmente, la métrica que se usa para medir la
+calidad de un cluster es una combinación de las medidas de separación
+y cohesión de sus puntos, y la validez total del agrupamiento es una
+combinación de las medidas de validez de los grupos que lo componen.
+
+Una medida que suele ser utilizada para determinar la calidad de un
+agrupamiento es lo que se conoce como el coeficiente de silueta. Este
+coeficiente se calcula para todos los elementos del conjunto de datos.
+Para cada punto:
+
+1. Se calcula la distancia media de cada punto a los elementos de su
+grupo ($a_i$)
+2. Se calcula la distancia media de cada punto a los elementos que no
+son de su grupo ($b_i$)
+3. El coeficiente de silueta del elemento $i$ se define como
+\[ s_i = \frac{b_i - a_i}{\max{(a_i, b_i)}} \]
+
+Este valor oscila entre -1 y 1. Un valor cercano a 1 es deseable, ya
+que indica que el punto está bien representado dentro de su cluster
+(cercano a los elementos de su cluster y alejado de los otros grupos).
+Un valor negativo, por el contrario, indica que el elemento puede
+estar mal emplazado, ya que la distancia media del elemento a los
+elementos de su cluster es mayor que la distancia a los puntos de
+otros clusters. Una vez calculado el coeficiente de silueta para todos
+los puntos de un cluster, el coeficiente de silueta del cluster
+completo se calcula como la media de los coeficientes que componen el
+grupo, y el coeficiente de silueta del agrupamiento es la media de los
+coeficientes de todos los grupos. Podemos calcular los coeficientes
+de silueta del agrupamiento que hemos generado anteriormente de la
+siguiente forma:
+
+```{r}
+scaled.distances <- dist(scaled.data) # Tenemos que calcular
+                                      # manualmente las distancias
+sil <- silhouette(kmeans.res$cluster, scaled.distances)
+plot(sil, col=1:nclust, main = "Silhouette plot")
+```
+
+Podemos observar en el gráfico anterior que los resultados no son
+especialmente buenos. El cluster etiquetado con el valor 2 tiene un
+coeficiente de silueta relativamente alto, pero el cluster marcado en
+negro tiene un coeficiente muy cercano a 0, teniendo además una
+cantidad importante de puntos con un valor negativo. El coeficiente de
+silueta total del agrupamiento podemos observarlo abajo, y tiene un
+valor de $0.36$. No es un valor especialmente bueno, lo que podría
+estar indicando que el número de clusters que se ha seleccionado no
+es el idóneo. Escogimos el valor 2 en un primer momento tratando
+de obtener una correlación entre los clusters formados y la clase
+a predecir en este conjunto, pero podría no ser la forma idónea
+de agrupar los mismos. Repitiendo el proceso anterior cambiando a
+3 el número de clusters obtenemos el siguiente resultado:
+
+```{r echo=F}
+nclust <- 3
+
+kmeans.res <- kmeans(scaled.data, nclust)
+
+autoplot(kmeans.res, data = scaled.data)
+
+scaled.distances <- dist(scaled.data) # Tenemos que calcular
+                                        # manualmente las distancias
+sil <- silhouette(kmeans.res$cluster, scaled.distances)
+plot(sil, col=1:nclust, main = "Silhouette plot")
+```
+
+Observamos que los resultados obtenidos no son especialmente
+buenos, siendo de peor calidad que los conseguidos al trabajar
+con dos clases. Aumentando el número de clusters, el coeficiente
+de silueta empeora:
+
+```{r echo=F}
+avgs.sil <- sapply(2:10, function(i){
+    kmeans.res <- kmeans(scaled.data, i)
+    cluster.stats(dist(scaled.data), kmeans.res$cluster)$avg.silwidth
+})
+
+avgs.sil <- as.matrix(t(avgs.sil))
+
+colnames(avgs.sil) <- 2:10
+rownames(avgs.sil) <- "Sil. coef"
+kable(avgs.sil, digits=3)
+```
+
+Como podemos observar en la tabla anterior, el mejor resultado,
+medido utilizando el coeficiente de silueta, se obtiene con dos
+clusters, aunque no se produce un resultado especialmente bueno.
+
+## Adición de variables binarias
+
+En el apartado anterior, sólo hemos utilizado l
 ```{r}
 numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
