@@ -11,7 +11,6 @@ script-font-size: \scriptsize
 nncode-block-font-size: \scriptsize
 output:
     pdf_document:
-        keep_tex: true
         number_sections: yes
         template: eisvogel
 ---
@@ -231,9 +230,13 @@ significativamente bien separados. Comprobamos si esta separación
 se corresponde con los valores de la columna a predecir:
 
 ```{r echo=F}
-kable(table(kmeans.res$cluster, dataset$impago))
+conf.mat <- table(kmeans.res$cluster, dataset$impago)
+rownames(conf.mat) <- c(1, 0)
+conf.mat <- apply(conf.mat, 2, rev)
+kable(conf.mat)
 ```
 
+Podemos observar que los resultados obtenidos no son especialmente buenos.
 %% TODO:
 ```{r}
 numeric.vars <- c(
