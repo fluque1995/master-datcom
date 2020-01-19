@@ -321,15 +321,17 @@ a predecir en este conjunto, pero podría no ser la forma idónea
 de agrupar los mismos. Repitiendo el proceso anterior cambiando a
 3 el número de clusters obtenemos el siguiente resultado:
 
-```{r echo=F}
+```{r echo=F, fig.height=4}
 nclust <- 3
 
 kmeans.res <- kmeans(scaled.data, nclust)
 
 autoplot(kmeans.res, data = scaled.data)
 
-scaled.distances <- dist(scaled.data) # Tenemos que calcular
-                                        # manualmente las distancias
+scaled.distances <- dist(scaled.data)
+```
+```{r echo=F}
+
 sil <- silhouette(kmeans.res$cluster, scaled.distances)
 plot(sil, col=1:nclust, main = "Silhouette plot")
 ```
@@ -358,170 +360,421 @@ clusters, aunque no se produce un resultado especialmente bueno.
 
 ## Adición de variables binarias
 
-En el apartado anterior, sólo hemos utilizado l
+En el apartado anterior sólo hemos utilizado las variables numéricas
+de las que disponíamos, despreciando la información almacenada en las
+variables categóricas. En este apartado estudiaremos cómo podemos
+incorporar dicha información en el cómputo de los _clusters_. De
+nuevo, vamos a intentar acomodar los grupos calculados a la clase que
+se nos proporciona en el problema. Usaremos por tanto la variable
+educación como variable categórica, la cual convertiremos a un
+conjunto de variables binarias (variables _dummy_) sobre las que
+calcularemos una distancia binaria. Después, combinaremos esta
+distancia con la calculada sobre las variables continuas para definir
+la distancia final.
+
+```{r}
+nclust <- 2
+
+numeric.vars <- c(
+    'ingresos', 'deudaingr', 'deudacred',
+    'deudaotro', 'empleo',  'direccion', 'edad'
+)
+
+nominal.vars <- c('educ')
+
+dataset <- read.csv(dataset.path, sep = ";", dec=",")[1:700,]
+
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
+
+scaled.data <- scale(numeric.data)
+dummy.data <- dummy_cols(nominal.data)[,2:6]
+
+scaled.dist <- dist(scaled.data)
+dummy.dist <- dist(dummy.data, method = "binary")
+
+final.dist <- (scaled.dist * length(scaled.data) + dummy.dist * length(dummy.data)) /
+    (length(scaled.data) + length(dummy.data))
+
+kmeans.res <- kmeans(final.dist, nclust)
+
+# autoplot(kmeans.res, data = scaled.data)
+```
+
+Una vez estudiado el algoritmo de las k-medias, pasamos a otro algoritmo
+de particionado por distancias, conocido como DBSCAN.
+
+# DBSCAN
+
+El algoritmo de agrupamiento DBSCAN es un algoritmo de agrupamiento por
+distancias que trata de formar grupos de puntos por densidad. El funcionamiento
+del algoritmo es el siguiente. Mientras no se hayan agrupado todos los puntos:
+
+1. Se selecciona un punto que aún no ha sido agrupado $x$
+   1. Se seleccionan todos los elementos del conjunto que estén a una distancia
+   menor que $\varepsilon$ de $x$ y se añaden al cluster de $x$, siempre que
+   no hayan sido seleccionados previamente
+   2. Para todos los puntos seleccionados, se repite el proceso
+   3. Cuando no queden más puntos por seleccionar dentro del cluster
+      1. Si se han agrupado suficientes puntos juntos (un parámetro
+      del algoritmo dicta cuántos puntos son necesarios), se marcan
+      todos los puntos agrupados como un cluster.
+      2. Si no se han agrupado suficientes puntos, se marcan como
+      aislados
+2. Si quedan puntos sin marcar como pertenecientes a un cluster o como
+puntos aislados, se vuelve al inicio
+
+Una ventaja que tiene este algoritmo respecto a las k-medias que
+comentábamos anteriormente es su capacidad para inferir el número de
+grupos, que no ha de especificarse a priori. Además, es capaz de
+identificar datos ruidosos, que se encuentran alejados de los
+clusters.
+
+Por otro lado, como podemos observar en la descripción del algoritmo,
+hay que ajustar dos parámetros. Por un lado, tenemos el valor
+$\varepsilon$, que nos marca la distancia máxima a la que pueden
+encontrarse los puntos para ser agrupados, y por otro el número mínimo
+de puntos que deben ser relacionados para que un agrupamiento pase a
+considerarse un cluster, en lugar de un grupo pequeño de
+outliers.
+
+## Aplicación del algoritmo
+
+Pasamos a hacer pruebas con este algoritmo con el conjunto de datos
+con el que estamos trabajando. Empezaremos utilizando sólamente las
+variables numéricas y más adelante incorporaremos las variables
+nominales. El parámetro del mínimo de vecinos lo dejaremos en su
+valor por defecto, $MinPts = 5$. El valor $\varepsilon$, como
+podremos observar, tiene una gran influencia en el resultado final.
+Como no conocemos una política específica para la elección de este
+valor, comenzaremos tomando $\varepsilon = 1$:
+
+```{r}
+numeric.data <- dataset %>% select(numeric.vars)
+scaled.data <- scale(numeric.data)
+
+## Aplicamos DBSCAN (con el parámetro dist este método acepta una matriz
+## de distancias en lugar de los datos)
+dbscan.res <- dbscan(scaled.data, eps=1)
+
+fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
+```
+
+Podemos observar que sólo se han etiquetado los puntos en dos
+conjuntos, el cluster 1, y los puntos marcados como outliers (se les
+asigna el cluster 0 a todos ellos). Esto nos hace pensar que los
+valores que hemos tomado en los parámetros no son los adecuados. En
+particular, el parámetro que tiene una mayor afectación en el
+resultado del algoritmo es el $\varepsilon$ escogido. Trataremos
+de bajar dicho valor ligeramente, para forzar a que los puntos que
+han sido introducidos en el _cluster_  1 se dividan en más grupos.
+Si tomamos un $\varepsilon = 0.7$, obtenemos:
+
+```{r echo=F}
+dbscan.res <- dbscan(scaled.data, eps=.7)
+fviz_cluster(dbscan.res, data = scaled.data, outlier.pointsize = .1, geom = "point")
+```
+
+Se ha reducido el tamaño de los outliers para permitir la
+visualización de los nuevos _clusters_ que se han formado. En el
+gráfico podemos observar que el número de grupos ha pasado de 1 a 4,
+pero también ha aumentado significativamente el número de
+outliers. Además, tenemos un grupo de gran tamaño, y tres
+relativamente pequeños. Esto nos indica que en nuestro conjunto
+tenemos una zona en la que existe una gran densidad de ejemplos,
+mientras que en el resto del espacio los puntos se encuentran mucho
+más repartidos. Esta disposición de los datos es especialmente
+perjudicial para los resultados que ofrece el algoritmo. Dado que el
+valor $\varepsilon$ que se utiliza es global, una densidad de puntos
+distinta en dos zonas del espacio de características puede producir
+que ciertos agrupamientos sean etiquetados como datos outliers, si la
+densidad de una de las zonas es demasiado baja. Podemos controlar en
+parte esta problemática reduciendo el número de puntos necesarios para
+formar un cluster y ampliando la distancia. Por ejemplo, si tomamos
+$\varepsilon = 1.3$, y reducimos a 3 el número de vecinos, el
+resultado que obtenemos es el siguiente:
+
+```{r echo=F}
+dbscan.res <- dbscan(scaled.data, eps=1.3, MinPts=3)
+fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
+```
+
+De nuevo, tenemos los datos distribuidos en cuatro clusters, y el
+número de outliers se ha reducido significativamente, pero a cambio el
+cluster 1 ha crecido mucho en tamaño, mientras que los otros tres
+clusters están formados por un número muy pequeño de puntos. Vamos a
+estudiar ahora la calidad de los agrupamientos que se han formado.
+No tiene sentido que estudiemos la calidad de los grupos del primer
+agrupamiento porque sólo se ha generado un grupo, el resto de puntos
+no están agrupados entre sí. Estudiaremos por tanto los otros dos
+agrupamientos.
+
+```{r}
+dbscan.res.1 <- dbscan(scaled.data, eps=.7)
+dbscan.res.2 <- dbscan(scaled.data, eps=1.3, MinPts=3)
+
+idx.1 = (dbscan.res.1$cluster != 0)
+idx.2 = (dbscan.res.2$cluster != 0)
+
+## Eliminamos del conjunto aquellas filas que han sido etiquetadas
+## como outliers antes de calcular el coeficiente de silueta
+clustered.data.1 <- scaled.data[idx.1,]
+clustered.data.2 <- scaled.data[idx.2,]
+
+dist1 <- dist(clustered.data.1)
+dist2 <- dist(clustered.data.2)
+
+sil1 <- silhouette(dbscan.res.1$cluster[idx.1], dist1)
+sil2 <- silhouette(dbscan.res.2$cluster[idx.2], dist2)
+
+fviz_silhouette(sil1)
+fviz_silhouette(sil2)
+```
+
+Antes de cada gráfico se muestra el tamaño de cada uno de los grupos y
+el valor de su coeficiente de silueta. Como hemos comentado
+anteriormente, tenemos un desbalanceo importante en los grupos que se
+forman. Un grupo contiene a casi todos los elementos, mientras que los
+otros tres son de reducido tamaño. Esto es especialmente notorio en el
+segundo caso, donde el primero _cluster_ tiene más de 600 elementos, y
+los otros grupos menos de 5 en todos los casos.
+
+Otra conclusión que se puede extraer de las gráficas es que muchos de
+los puntos que están incluidos en el primer grupo no pertenecen a este
+grupo de forma natural, teniendo un coeficiente de silueta negativo.
+Esta problemática viene dada por el hecho de tener un número de puntos
+muy grande en la zona densa. Con una probabilidad muy alta, cuando se
+seleccione el primer punto para crear el primer cluster, este punto va
+a ser uno de los que se encuentra en la zona densa. Cuando empiece a
+construirse este grupo, una gran cantidad de puntos irán añadiéndose
+por proximidad. De esta forma, cuando termina de formarse el primer
+grupo, los grupos siguientes dispondrán de pocos vecinos (debido a que
+ya habrían sido agrupados), y los puntos que no hayan sido agrupados
+hasta ese momento estarán muy distantes. Es por esto por lo que se
+forma un primer grupo masivo, en el que muchos de sus puntos no están
+bien representados, y después pequeños grupos de pocos puntos.
+
+Pasamos a ver cómo podemos incorporar la información de las variables
+nominales al resultado de este algoritmo:
+
+## Combinación de distancias
+
 ```{r}
 numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
     'deudaotro', 'empleo',  'direccion', 'edad'
 )
 
-nominal.vars <- c(
-    'educ', 'impago'
-)
-```
+nominal.vars <- c('educ')
 
-## K-medias
-
-```{r}
-nclust <- 3
-
-dataset <- read.csv(dataset.path, sep = ";", dec=",")
-dataset <- dataset[1:700,]
+dataset <- read.csv(dataset.path, sep = ";", dec=",")[1:700,]
 
 numeric.data <- dataset %>% select(numeric.vars)
-
 nominal.data <- dataset %>% select(nominal.vars)
-nominal.data <- dummy_cols(nominal.data, select_columns = 'educ')
 
-numeric.distances <- dist(numeric.data)
+scaled.data <- scale(numeric.data)
+dummy.data <- dummy_cols(nominal.data)[2:6]
 
-nominal.distances <- dist(nominal.data, method="binary")
+scaled.dist <- dist(scaled.data)
+dummy.dist <- dist(dummy.data, method = "binary")
 
-final.distances <- (
-    length(numeric.vars)*numeric.distances + length(nominal.vars)*nominal.distances
-) / (length(numeric.vars) + length(nominal.vars))
+## Tomamos la media aritmética de las distancias como la distancia final
+final.dist <- (scaled.dist + dummy.dist) / 2
 
-kmeans.result <- kmeans(final.distances, nclust)
+dbscan.res <- dbscan(final.dist, eps=1, method = "dist")
 
-idx <- sample(1: dim(dataset)[1], 300)
-
-plotcluster(dataset, kmeans.result$cluster)
-
-d1 <- dist(numeric.data[idx,])
-d2 <- dist(nominal.data[idx,], method="binary")
-
-d <- (d1+d2)/2
-
-sil <- silhouette(kmeans.result$cluster, final.distances)
-plot(sil, col = 1:nclust)
-
-table(kmeans.result$cluster, dataset$impago)
-
-cluster.stats(final.distances, kmeans.result$cluster, alt.clustering = dataset$impago + 1)
+fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
 ```
 
-### Normalización de variables
+Hemos utilizado la misma configuración del algoritmo que utilizamos en
+primer lugar. Podemos observar que, en este caso, muchos más puntos
+han pasado a formar parte del primer cluster. Esto indica que las
+distancias entre los puntos se han reducido. Repetimos también los
+cambios de configuración, para ver cómo ha cambiado el resultado:
+
+```{r echo=F, fig.height=3.5}
+dbscan.res <- dbscan(final.dist, eps=.7, method = "dist")
+fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
+```
+
+```{r echo=F, fig.height=3.5}
+dbscan.res <- dbscan(final.dist, eps=1.3, MinPts=3, method = "dist")
+fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
+```
+
+Observamos cómo la modificación en las distancias nos ha producido que
+las configuraciones anteriores no nos sean útiles ahora para generar
+los agrupamientos. Esto puede haber sido provocado por una mala
+combinación de las distancias. Hemos escogido la media aritmética como
+la forma de combinar las distancias, pero es posible que no sea la
+combinación óptima. En particular, si tenemos distinto número de
+variables continuas y nominales, el dar el mismo peso a ambas matrices
+puede introducir sesgos no deseados. Otra posibilidad es que por
+conocimiento previo de nuestro problema, nos interese dar más relevancia
+a unas variables o a otras. En nuestro caso, si damos más importancia
+a las variables nominales que a las numéricas, obtenemos el siguiente
+resultado:
+
+```{r}
+## Hacemos una media ponderada entre ambas matrices de distancia
+## otorgando el triple de importancia a las distancias provenientes de
+## las variables nominales
+final.dist <- 0.25*scaled.dist + 0.75*dummy.dist
+
+dbscan.res <- dbscan(final.dist, eps=.7, MinPts = 3, method="dist")
+repr.data <- cbind(scaled.data, dummy.data)
+fviz_cluster(dbscan.res, data = repr.data, geom = "point")
+
+## Nos quedamos con aquellos elementos que han sido asignados a
+## algún cluster
+idx <- dbscan.res$cluster != 0
+
+num.slice <- scaled.data[idx,]
+dummy.slice <- dummy.data[idx,]
+
+num.dist <- dist(num.slice)
+dummy.dist <- dist(dummy.slice)
+
+fin.dist <- 0.25*num.dist + 0.75*dummy.dist
+
+sil <- silhouette(dbscan.res$cluster[idx], fin.dist)
+
+fviz_silhouette(sil)
+```
+
+Podemos observar que esta modificación ha supuesto una mejora
+importante en los resultados obtenidos, si medimos la calidad del
+agrupamiento con el coeficiente de silueta. En la representación
+gráfica del resultado, tres _clusters_ se superponen, al representar
+todo el conjunto utilizando sólo dos componentes principales (las
+cuales sólo explican un 40 % de la variabilidad de los datos), pero
+claramente el agrupamiento es de buena calidad, en función de los
+coeficientes de silueta obtenidos. En particular, no hay ningún punto
+con un coeficiente de silueta negativo, lo que indica que todos
+los puntos se encuentran bien representados en sus grupos.
+
+Una vez hemos visto el algoritmo de agrupamiento DBSCAN, pasamos a
+estudiar el clústering jerárquico
+
+# Clustering jerárquico
+
+Los modelos de _clustering_ jerárquico buscan establecer una jerarquía
+en el agrupamiento. Existen dos aproximaciones a la solución de este
+problema:
+
+- Clustering aglomerativo: Los algoritmos que utilizan este enfoque
+  parten colocando a cada elemento en un cluster distinto, y van
+  combinando clusters al avanzar hacia arriba en la jerarquía
+- Clustering divisivo: En este caso, todas las observaciones comienzan
+  dentro del mismo cluster, y se van dividiendo los grupos en
+  sucesivas etapas.
+
+Usualmente se utiliza un algoritmo de cluster aglomerativo, y es el
+que viene por defecto implementado en el paquete `stats` de R. Este
+algoritmo comienza con todos los elementos separados y en cada etapa
+agrupa los dos _clusters_ más similares. El criterio de similaridad
+que utilizaremos es el criterio de Ward, el cual minimiza la
+variabilidad intracluster, es decir, en cada etapa une los dos
+clusters cuyo resultado vaya a aumentar lo menos posible la distancia
+de los puntos agrupados entre sí. Seguiremos trabajando con la
+distancia euclídea en primer lugar.
+
+A continación vamos a aplicar el algoritmo de clústering jerárquico a
+nuestro conjunto de datos
+
+## Aplicación del algoritmo
+
+En primer lugar, como hemos hecho hasta ahora, aplicamos el algoritmo
+a los datos numéricos, sin tener en cuenta las variables nominales:
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";",  dec = ",")
 dataset <- dataset[1:700,]
 
 numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
-
-nominal.data <- dummy_cols(nominal.data, select_columns = "educ",
-                           remove_selected_columns = T)
-
-## Normalizamos los atributos continuos
-## Esta función nos estandariza los valores del dataframe por columnas
-numeric.data <- numeric.data %>% select(
-                                     "ingresos", "deudaingr", "empleo", "edad"
-                                 )
 scaled.data <- scale(numeric.data)
 
-## Comprobamos que en efecto las columnas están normalizadas
-apply(scaled.data, 2, mean) # Los valores son muy cercanos a cero
-apply(scaled.data, 2, sd)
+numeric.distances <- dist(scaled.data)
 
-scaled.distances <- dist(scaled.data)
+hierarch.clust <- hclust(numeric.distances, method="ward.D2")
 
-binary.distances <- dist(nominal.data, method="binary")
-
-final.distances <- (scaled.distances + binary.distances) / 2
-
-final.distances <- scaled.distances
-
-kmeans.result <- kmeans(final.distances, nclust)
-
-idx <- sample(1: dim(dataset)[1], 300)
-
-plotcluster(dataset, kmeans.result$cluster)
-
-d1 <- dist(scaled.data[idx,])
-d2 <- dist(nominal.data[idx,], method="binary")
-
-d <- (d1+d2)/2
-
-sil <- silhouette(kmeans.result$cluster, final.distances)
-plot(sil, col = 1:nclust)
-
-cluster.stats(final.distances, kmeans.result$cluster)
+nodePar <- list(lab.cex = 0.6, pch = c(NA, 19), cex = 0.7, col = "darkblue")
+plot(as.dendrogram(hierarch.clust), ylab = "Height",
+     nodePar = nodePar, leaflab = 'none')
 ```
 
-## DBSCAN
+El gráfico anterior es lo que se conoce como dendrograma. En él se
+muestra el agrupamiento jerárquico de los puntos en los clusters que
+se han formado. En el eje vertical se coloca la distancia utilizada, y
+en el eje horizontal los puntos del conjunto. Para cada valor en el
+eje vertical, la línea horizontal que pasa por dicho punto marca los
+clústers que se forman utilizando esa distancia como cota máxima. Los
+puntos que pertenecen a cada cluster son aquellos que cuelgan de cada
+subárbol que se forma con el corte entre la línea horizontal y el
+resto del árbol.
 
-```{r}
-dataset <- read.csv(dataset.path, sep = ";", dec = ",")
-dataset <- dataset[1:700,]
+Explorando el árbol visualmente, podemos establecer varios puntos en
+los que cortar el agrupamiento. Por un lado, podemos agrupar en dos
+grupos fácilmente. Después, el conjunto se separa en tres, y con un
+aumento muy pequeño de la distancia vuelve a separarse en cuatro e
+inmediatamente en cinco. Este comportamiento parece indicar que el
+particionado más natural de los datos es en dos o en cinco
+subconjuntos. Podemos visualizar fácilmente estos cortes colocando
+rectángulos sobre el gráfico:
 
-numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
 
-scaled.data <- scale(numeric.data)
-
-scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
-
-final.distances <- (scaled.distances + binary.distances) / 2
-
-## Aplicamos DBSCAN (con el parámetro dist este método acepta una matriz
-## de distancias en lugar de los datos)
-dbscan.res <- dbscan(final.distances, eps=.3, MinPts=5, method="dist")
-
-fviz_cluster(dbscan.res, scaled.data)
-
-plotcluster(dataset, dbscan.res$cluster)
-
-sil <- silhouette(dbscan.res$cluster, final.distances)
-
-plot(sil, col=length(unique(dbscan.res$cluster)))
+```{r, echo=F}
+plot(as.dendrogram(hierarch.clust), ylab = "Height",
+     nodePar = nodePar, leaflab = 'none')
+rect.hclust(hierarch.clust, k=2)
+rect.hclust(hierarch.clust, k=5, border = 3)
 ```
 
-## Clustering jerárquico
+Podemos estudiar cuál de los dos agrupamientos nos proporciona mejores
+resultados, midiendo la calidad de los mismos utilizando el
+coeficiente de silueta:
 
-```{r}
-dataset <- read.csv(dataset.path, sep=";",  dec = ",")
-dataset <- dataset[1:700,]
+```{r, fig.height = 3.7}
+groups.2 <- cutree(hierarch.clust, k=2)
+groups.5 <- cutree(hierarch.clust, k=5)
 
-numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
+repr.data <- data.frame(cbind(scaled.data, 'g2' = groups.2, 'g5' = groups.5))
 
-numeric.distances <- dist(numeric.data)
-nominal.distances <- dist(nominal.data, method="binary")
-final.distances <- (numeric.distances + nominal.distances) / 2
+repr.data[,'g2'] <- factor(repr.data[,'g2'])
+repr.data[,'g5'] <- factor(repr.data[,'g5'])
 
-hclust <- hclust(final.distances, method="ward.D2")
-
-hclust
-
-plot(hclust)
-
-rect.hclust(hclust, k=nclust)
-
-groups <- cutree(hclust, k=3)
-
-groups
-
-plotcluster(dataset, groups)
-
-sil <- silhouette(groups, final.distances)
-
-plot(sil, col <- nclust)
-
-cluster.stats(final.distances, groups)
+autoplot(prcomp(scaled.data), data = repr.data, colour = 'g2')
+autoplot(prcomp(scaled.data), data = repr.data, colour = 'g5')
 ```
 
-### Normalización de variables
+```{r echo=F, fig.height=4.4}
+sil1 <- silhouette(groups.2, dist(scaled.data))
+sil2 <- silhouette(groups.5, dist(scaled.data))
+
+
+plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+plot(sil2, col = 1:5, main = "Silhouette plot for 5 clusters")
+```
+
+Se puede observar que en ninguno de los casos el resultado es
+especialmente bueno. Especialmente en el caso de los cinco clusters,
+los coeficientes de silueta de una gran cantidad de puntos en los
+grupos 1, 2 y 3 son valores negativos. Lo mismo ocurre con
+aproximadamente la mitad de los puntos del primer grupo en el
+agrupamiento a dos. De hecho, en el primer caso, el primer cluster
+tiene un coeficiente de silueta negativo. En el segundo agrupamiento,
+aunque son de muy baja calidad, todos los agrupamientos tienen valores
+positivos.
+
+Pasamos a ver cómo podemos combinar las distancias numéricas y
+nominales para este algoritmo.
+
+## Inclusión de distancias nominales
+
+Dado que este algoritmo funciona con distancias entre nuestros puntos,
+podemos añadir las distancias de las variables nominales de la misma
+forma que hicimos anteriormente. Observemos cómo cambia el dendrograma
+cuando
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";",  dec = ",")
