@@ -222,7 +222,7 @@ nclust <- 2
 
 kmeans.res <- kmeans(scaled.data, nclust)
 
-autoplot(kmeans.res, data = scaled.data)
+autoplot(kmeans.res, data = scaled.data, )
 ```
 
 Podemos comprobar como los dos clusters que se han formado están
@@ -753,6 +753,7 @@ sil2 <- silhouette(groups.5, dist(scaled.data))
 
 
 plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+
 plot(sil2, col = 1:5, main = "Silhouette plot for 5 clusters")
 ```
 
@@ -824,6 +825,7 @@ sil2 <- silhouette(groups.3, final.distances)
 
 
 plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+
 plot(sil2, col = 1:3, main = "Silhouette plot for 3 clusters")
 ```
 
@@ -836,38 +838,67 @@ valor negativo bastante alto (probablemente estos puntos fueran
 marcados como outliers por el algoritmo DBSCAN), el resto de clusters
 calculados son de bastante calidad.
 
-## k-medioides
+# K-medioides
+
+Pasamos a ver otro algoritmo de agrupamiento, conocido como
+k-medioides. Este algoritmo tiene un funcionamiento similar al de las
+k-medias, pero en lugar de trabajar con centroides, los cuales no
+tienen por qué coincidir con elementos del conjunto de datos, utiliza
+mediodes o prototipos, que son elementos del propio conjunto de
+datos. La ventaja de utilizar este algoritmo frente a las k-medias es
+que no se necesita conocer la posición de los puntos en el espacio de
+parámetros, si no que es suficiente con conocer la matriz de
+distancias entre los mismos, ya que no se necesita construir instancias
+artificiales como son los centroides.
+
+Existen diversos algoritmos que computan soluciones por el método de
+los k-mediodes. El más típico es una búsqueda voraz, que no encuentra
+necesariamente el óptimo, pero aporta buenas soluciones. Su
+funcionamiento es parecido al que describimos para el método de las
+k-medias:
+
+1. Se inicializan aleatoriamente los $k$ medioides
+2. Se asocia cada punto al cluster definido por el mediode más cercano
+3. Mientras el coste final de la configuración decreza:
+   - Para cada medioide $m_i$ y cada punto no medioide $o$
+     1. Se intercambian los papeles de dichos puntos y se recalcula el
+        coste
+     2. Si el coste es mejor que el resultado actual, se guarda el
+        intercambio
+   - Se realiza el mejor intercambio encontrado. Si no se ha
+     encontrado un intercambio mejor que el resultado actual, el
+     algoritmo termina
+
+El coste de la configuración se define como la suma de las distancias
+de cada punto al medioide de su _cluster_, de la misma manera que
+ocurre en el algoritmo de las k-medias.
+
+A continuación vamos a ejecutar el algoritmo sobre nuestro conjunto
+de datos.
+
+## Aplicación del algoritmo
+
+Al igual que hemos hecho anteriormente, comenzaremos aplicando el
+algoritmo sobre los datos numéricos de los que dispone el problema:
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";",  dec=",")
 dataset <- dataset[1:700,]
 
-
 numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
+scaled.data <- scale(numeric.data)
 
-numeric.distances <- dist(numeric.data)
-nominal.distances <- dist(nominal.data, method="binary")
-final.distances <- (numeric.distances + nominal.distances) / 2
+set.seed(0)
+pam.result <- pam(scaled.data, 2)
 
-pam.result <- pam(final.distances, 3)
-
-idx <- sample(1:dim(dataset)[1], 200)
-
-clusters <- pam.result$cluster
-
-plotcluster(dataset[idx,], clusters[idx])
-
-scaled.d <- dist(scaled.data[idx,])
-binary.d <- dist(nominal.data[idx,], method="binary")
-
-d <- (scaled.d + binary.d) / 2
-sil <- silhouette(clusters[idx], d)
-
-plot(sil, col=1:3)
-
-cluster.stats(final.distances, clusters)$avg.silwidth
+autoplot(pam.result, frame=T)
 ```
+
+Podemos ver como, a pesar de ser un algoritmo con un funcionamiento
+similar al algoritmo de las k-medias, el hecho de forzar que los
+centros de los clusters sean puntos del conjunto de datos produce
+unos resultados significativamente distintos
+
 ### Resultados con normalización de variables
 
 ```{r}
