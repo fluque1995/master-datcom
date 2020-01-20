@@ -774,7 +774,9 @@ nominales para este algoritmo.
 Dado que este algoritmo funciona con distancias entre nuestros puntos,
 podemos añadir las distancias de las variables nominales de la misma
 forma que hicimos anteriormente. Observemos cómo cambia el dendrograma
-cuando
+cuando añadimos estas distancias. Al igual que hicimos para el
+algoritmo DBSCAN, vamos a dar una mayor importancia a las variables
+categóricas:
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";",  dec = ",")
@@ -783,32 +785,56 @@ dataset <- dataset[1:700,]
 numeric.data <- dataset %>% select(numeric.vars)
 nominal.data <- dataset %>% select(nominal.vars)
 
+dummy.data <- dummy_cols(nominal.data)[2:6]
+
 scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
-final.distances <- (scaled.distances + nominal.distances) / 2
+dummy.distances <- dist(dummy.data, method="binary")
+final.distances <- 0.25*scaled.distances + 0.75*dummy.distances
 
-hclust <- hclust(final.distances, method="ward.D2")
+hierarch.clust <- hclust(final.distances, method="ward.D2")
 
-hclust
-
-plot(hclust)
-
-rect.hclust(hclust, k=3)
-
-groups <- cutree(hclust, k=3)
-
-groups
-
-plotcluster(dataset, groups)
-
-sil <- silhouette(groups, final.distances)
-
-plot(sil, col <- nclust)
-
-cluster.stats(final.distances, groups)
+plot(as.dendrogram(hierarch.clust), ylab = "Height",
+     nodePar = nodePar, leaflab = 'none')
 ```
+
+Podemos ver que existen claras diferencias entre el dendrograma que se
+generó anteriormente y el actual. En este caso, el agrupamiento en dos
+conjuntos sigue pareciendo adecuado, pero en lugar del agrupamiento
+en cinco grupos, parece más lógico el agrupamiento en 3. Veamos los resultados
+obtenidos al generar esos dos grupos:
+
+```{r, echo=F, fig.height=4}
+groups.2 <- cutree(hierarch.clust, k=2)
+groups.3 <- cutree(hierarch.clust, k=3)
+
+repr.data <- data.frame(cbind(scaled.data, 'g2' = groups.2, 'g3' = groups.3))
+
+repr.data[,'g2'] <- factor(repr.data[,'g2'])
+repr.data[,'g3'] <- factor(repr.data[,'g3'])
+
+autoplot(prcomp(scaled.data), data = repr.data, colour = 'g2')
+autoplot(prcomp(scaled.data), data = repr.data, colour = 'g3')
+```
+
+```{r echo=F, fig.height=4.4}
+sil1 <- silhouette(groups.2, final.distances)
+sil2 <- silhouette(groups.3, final.distances)
+
+
+plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+plot(sil2, col = 1:3, main = "Silhouette plot for 3 clusters")
+```
+
+Podemos comprobar que, al igual que ocurrión con el algoritmo DBSCAN,
+la adición de distancias nominales a la hora de calcular los
+agrupamientos mejora significativamente la calidad de los resultados
+obtenidos. A excepción del _cluster_ 1, que en ambos casos tiene un
+coeficiente de silueta relativamente bajo, y con algunos puntos con un
+valor negativo bastante alto (probablemente estos puntos fueran
+marcados como outliers por el algoritmo DBSCAN), el resto de clusters
+calculados son de bastante calidad.
 
 ## k-medioides
 
