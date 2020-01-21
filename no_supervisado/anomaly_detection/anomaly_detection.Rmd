@@ -1,0 +1,93 @@
+---
+title: "Detección de anomalías"
+subtitle: "Minería de datos: aprendizaje no supervisado y detección de anomalías"
+author: "Francisco Luque Sánchez"
+date: "21/12/2019"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = FALSE)
+set.seed(0)
+library(ggplot2)
+library(knitr)
+library(rmatio)
+```
+
+# Introducción
+
+En este trabajo se va a desarrollar una práctica sobre detección de
+ejemplos anómalos en un conjunto de datos. Se define como dato anómalo
+aquel elemento de un conjunto de datos cuyo comportamiento difiere del
+comportamiento esperable. Este comportamiento se traduce en que los
+valores registrados para alguna de las variables se sale de los
+valores esperados. En función de la naturaleza de la desviación,
+podremos tener distintos tipos de comportamientos anómalos:
+
+- Ejemplos que presentan un valor extremo para alguno de los atributos
+medidos.
+- Ejemplos que presentan una combinación de valores anormal para
+varias columnas estudiadas en conjunto, pero con valores comunes si
+son estudiados individualmente.
+
+Estudiaremos distintas técnicas de detección de datos anómalos, tanto
+del primer como del segundo tipo.
+
+# IQR
+
+El primer método que estudiaremos está basado en el rango
+intercuartílico.  Este método trabaja de forma univariante, tratando
+todas las variables del conjunto por separado. Por tanto, nos
+permitirá detectar valores extremos en las variables por separado,
+pero no nos servirá para detectar combinaciones atípicas de valores.
+El funcionamiento del test se basa en el estudio de los cuartiles de
+una distribución normal. Cuando se trabaja con variables normalmente
+distribuidas, un enfoque típico para la detección de anomalías
+consiste en considerar como anómalos aquellos datos que se salen del
+intervalo $(\mu - k\sigma, \mu + k\sigma)$, donde $\mu$ y $\sigma$ son
+la media y la desviación típica de la distribución,
+respectivamente. En función del valor de $k$ que tomemos, cubriremos a
+un mayor número de puntos de la distribución normal. En concreto,
+suele tomarse el intervalo con $k=2$, de forma que aproximadamente el
+95 % de los valores de la distribución caen en el intervalo, o $k=3$,
+intervalo en el que se encuentran el 99.7 % de los valores. Los valores
+de la distribución que quedan fuera de estos límites se consideran datos
+atípicos
+
+No obstante, la asunción de normalidad en los datos es una suposición
+fuerte, que usualmente no se cumple. Además la media y la desviación
+típica de los datos son dos estadísticos muy sensibles a la existencia
+de valores anómalos. De esta forma, en lugar de utilizar el método
+descrito anteriormente, resulta más útil comparar el comportamiento
+del rango intercuartílico con el de la desviación, y utilizar el
+primer estadístico, que es más robusto ante la existencia de valores
+atípicos.  Para la distribución normal, el primer cuartil está en el
+valor $-0.67$, y el tercer cuartil en el valor $0.67$. El rango
+intercuartílico es, por tanto $1.34$, Tomando entonces el valor $k' =
+1.5$, tenemos que el intervalo $(-1.5*IQR, 1.5*IQR)$ contiene
+aproximadamente los mismos valores que el intervalo $(-2\sigma,
+2\sigma)$.
+
+Utilizando esta justificación, el método IQR etiqueta como datos
+anómalos normales para una variable aquellos que se desvían de la
+media más de 1.5 por el valor del rango intercuartílico. Por un
+razonamiento similar, se marcan como datos anómalos extremos aquellos
+que se desvían de la media más de 3*IQR.
+
+## Aplicación del algoritmo
+
+Pasamos a aplicar este método para detectar outliers en nuestro
+conjunto de datos.
+
+```{r}
+dataset <- read.mat("dataset/thyroid.mat")$X
+```

@@ -131,7 +131,7 @@ $n$ observaciones en $k$ conjuntos $S = \{S_1, ..., S_n\}$ tal que se
 minimice la siguiente suma:
 
 \[
-    \sum_{i=1}^{k} \sum_{x \in S_i} d(x,\mu_i)^2
+\sum_{i=1}^{k} \sum_{x \in S_i} d(x,\mu_i)^2
 \]
 
 Donde $\mu_i$ es el centro del clúster, y $d(v, w)^2$ es la distancia
@@ -149,11 +149,11 @@ pseudocódigo del algoritmo es el siguiente:
 características. Existen varias técnicas para inicializar los
 puntos.
 2. Mientras no se haya llegado a un punto estable:
-   - Asignación: Cada punto del conjunto de datos es asignado
-   al cluster cuyo centro le es más cercano
-   - Actualización: Para cada cluster, se recalcula el centro
-   del mismo a partir de la media de los puntos que pertenecen
-   a él
+- Asignación: Cada punto del conjunto de datos es asignado
+al cluster cuyo centro le es más cercano
+- Actualización: Para cada cluster, se recalcula el centro
+del mismo a partir de la media de los puntos que pertenecen
+a él
 3. El algoritmo termina cuando en una iteración todos los puntos son
 asignados al cluster al que pertenecían en la iteración anterior.
 
@@ -207,7 +207,8 @@ serán igualmente relevantes a la hora de calcular la distancia
 entre dos elementos de la base de datos:
 
 ```{r}
-scaled.data <- scale(numeric.data) # La función scale hace la transformación que hemos especificado
+scaled.data <- scale(numeric.data) # La función scale hace la transformación
+                                        # que hemos especificado
 ```
 
 Una vez aplicada la transformación, aplicamos el algoritmo de
@@ -302,7 +303,7 @@ siguiente forma:
 
 ```{r}
 scaled.distances <- dist(scaled.data) # Tenemos que calcular
-                                      # manualmente las distancias
+                                        # manualmente las distancias
 sil <- silhouette(kmeans.res$cluster, scaled.distances)
 plot(sil, col=1:nclust, main = "Silhouette plot")
 ```
@@ -331,7 +332,6 @@ autoplot(kmeans.res, data = scaled.data)
 scaled.distances <- dist(scaled.data)
 ```
 ```{r echo=F}
-
 sil <- silhouette(kmeans.res$cluster, scaled.distances)
 plot(sil, col=1:nclust, main = "Silhouette plot")
 ```
@@ -357,52 +357,225 @@ kable(avgs.sil, digits=3)
 Como podemos observar en la tabla anterior, el mejor resultado,
 medido utilizando el coeficiente de silueta, se obtiene con dos
 clusters, aunque no se produce un resultado especialmente bueno.
+Esto indica que el método utilizado, posiblemente, no es muy
+apropiado en este conjunto de datos.
 
-## Adición de variables binarias
+Pasamos a estudiar un algoritmo similar al anterior, pero que en
+lugar de calcular centroides en el espacio de características,
+utiliza puntos del propio conjunto como centros de los clusters.
+Este algoritmo se conoce como el algoritmo de los k-medioides.
 
-En el apartado anterior sólo hemos utilizado las variables numéricas
-de las que disponíamos, despreciando la información almacenada en las
-variables categóricas. En este apartado estudiaremos cómo podemos
-incorporar dicha información en el cómputo de los _clusters_. De
-nuevo, vamos a intentar acomodar los grupos calculados a la clase que
-se nos proporciona en el problema. Usaremos por tanto la variable
-educación como variable categórica, la cual convertiremos a un
-conjunto de variables binarias (variables _dummy_) sobre las que
-calcularemos una distancia binaria. Después, combinaremos esta
-distancia con la calculada sobre las variables continuas para definir
-la distancia final.
+# K-medioides
+
+Pasamos a ver otro algoritmo de agrupamiento, conocido como
+k-medioides. Este algoritmo tiene un funcionamiento similar al de las
+k-medias, pero en lugar de trabajar con centroides, los cuales no
+tienen por qué coincidir con elementos del conjunto de datos, utiliza
+mediodes o prototipos, que son elementos del propio conjunto de
+datos. La ventaja de utilizar este algoritmo frente a las k-medias es
+que no se necesita conocer la posición de los puntos en el espacio de
+parámetros, si no que es suficiente con conocer la matriz de
+distancias entre los mismos, ya que no se necesita construir instancias
+artificiales como son los centroides.
+
+Existen diversos algoritmos que computan soluciones por el método de
+los k-mediodes. El más típico es una búsqueda voraz, que no encuentra
+necesariamente el óptimo, pero aporta buenas soluciones. Su
+funcionamiento es parecido al que describimos para el método de las
+k-medias:
+
+1. Se inicializan aleatoriamente los $k$ medioides
+2. Se asocia cada punto al cluster definido por el mediode más cercano
+3. Mientras el coste final de la configuración decreza:
+- Para cada medioide $m_i$ y cada punto no medioide $o$
+1. Se intercambian los papeles de dichos puntos y se recalcula el
+coste
+2. Si el coste es mejor que el resultado actual, se guarda el
+intercambio
+- Se realiza el mejor intercambio encontrado. Si no se ha
+encontrado un intercambio mejor que el resultado actual, el
+algoritmo termina
+
+El coste de la configuración se define como la suma de las distancias
+de cada punto al medioide de su _cluster_, de la misma manera que
+ocurre en el algoritmo de las k-medias.
+
+A continuación vamos a ejecutar el algoritmo sobre nuestro conjunto
+de datos.
+
+## Aplicación del algoritmo
+
+Al igual que hemos hecho anteriormente, comenzaremos aplicando el
+algoritmo sobre los datos numéricos de los que dispone el problema:
+
+```{r, fig.height=4}
+nclust <- 2
+dataset <- read.csv(dataset.path, sep=";",  dec=",")
+dataset <- dataset[1:700,]
+
+numeric.data <- dataset %>% select(numeric.vars)
+scaled.data <- scale(numeric.data)
+
+set.seed(0)
+pam.result <- pam(scaled.data, nclust)
+
+autoplot(pam.result, frame=T)
+```
+
+Podemos ver como, a pesar de ser un algoritmo con un funcionamiento
+similar al algoritmo de las k-medias, el hecho de forzar que los
+centros de los clusters sean puntos del conjunto de datos produce unos
+resultados significativamente distintos. Probablemente, la existencia
+de puntos extremos (se pueden ver en el gráfico en la parte izquierda,
+más o menos aislados), hacen que el centroide del cluster 1 en las
+k-medias se desplace de la zona donde se concentran la mayoría de los
+puntos. Este comportamiento en el algoritmo de los k-medioides no
+puede darse.
+
+Pasamos a ver si los agrupamientos encontrados por el algoritmo son
+de buena calidad:
 
 ```{r}
-nclust <- 2
+sil <- silhouette(pam.result$cluster, scaled.distances)
+plot(sil, col=1:nclust, main = "Silhouette plot")
+```
+
+Podemos observar ciertas diferencias entre el resultado de este modelo
+y el que tuvimos a dos clusters con las k-medias. En primer lugar,
+obtenemos clusters más compensados, con un número de puntos similar.
+Con el algoritmo anterior, el número de puntos en el primer cluster
+era significativamente menor que en el segundo. Aquí la diferencia es
+mucho menor. Al igual que en el caso anterior, no obstante, tenemos
+muchos puntos del primer cluster que tienen un coeficiente de silueta
+negativo. Estos puntos son los puntos cercanos a la frontera entre un
+grupo y el otro. La distancia de dichos puntos al otro cluster es
+relativamente pequeña, mientras que la distancia a los puntos extremos
+de su propio cluster es significativamente alta. Probablemente, el
+problema no resida en el cluster en el que están colocados los puntos
+cercanos a la frontera, si no más bien el hecho de que los puntos
+alejados, en realidad, no sean agrupables en un cluster, si no más
+bien puntos ruidosos. El problema de los dos algoritmos que hemos
+visto hasta el momento es que no son capaces de marcar elementos del
+conjunto como ruido. Veremos más adelante otros algoritmos que nos
+permitirán marcar puntos como ruido, y no incluirlos dentro de ningún
+grupo.
+
+Pasamos a ver cómo podemos incorporar información de las variables
+nominales a este modelo, cosa que no podíamos hacer en el caso de las
+k-medias.
+
+## Combinación de distancias
+
+En el algoritmo de las k-medias no pudimos aprovechar la información
+contenida en las variables nominales debido a que necesitábamos poder
+generar instancias artificiales en el espacio de características. Esto
+hacía que tuviésemos que proporcionar el conjunto de datos completo al
+algoritmo. En el caso de los k-medioides, será suficiente con calcular
+a priori la matriz de distancias, y esto nos permite combinar la
+distancia de las variables numéricas y las nominales.
+
+Se puede argumentar que el algoritmo de las k-medias se puede
+modificar para que utilice una función de distancia propia, que
+calcule adecuadamente la distancia entre dos vectores que contienen
+simultáneamente variables numéricas y nominales. No obstante, aparece
+otro problema con este enfoque. Para las variables numéricas, el
+algoritmo calcula los centroides haciendo la media de los valores de
+cada variable de los puntos que pertenecen a cada cluster. En el caso
+de las variables nominales, esta media carecería de sentido, dado que
+los valores que tomaría esta variable pasarían a ser continuos,
+perdiéndose el sentido categórico de las mismas.
+
+Existen extensiones del algoritmo de las k-medias, que utilizan trucos
+similares al _kernel trick_ utilizado en las máquinas de vectores de
+soporte (SVMs), que permiten obtener soluciones aproximadas al problema
+de las k-medias sin necesidad de calcular explícitamente los centroides.
+No obstante, estos métodos quedan fuera del ámbito de conocimiento
+de la asignatura y no los estudiaremos.
+
+Para el problema que nos ocupa, la combinación de distancias que vamos
+a llevar a cabo es la siguiente. Para las variables numéricas,
+seguiremos calculando la distancia euclídea sobre las variables
+normalizadas. Sobre la variable nominal que tenemos en el problema, la
+cual mide el nivel educativo del individuo, crearemos tantas variables
+binarias como posibles valores toma dicha variable. Sobre esa
+binarización de las variables, se calculará una distancia binaria, la
+cual se mide como la proporción de columnas que difieren entre ambos
+ejemplos.
+
+Una vez tengamos calculadas las dos matrices de distancia, la
+distancia final que calcularemos será la media entre ambas matrices
+de distancia. Se muestra el funcionamiento del algoritmo:
+
+```{r}
+dataset <- read.csv(dataset.path, sep=";", dec = ",")
+dataset <- dataset[1:700,]
 
 numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
     'deudaotro', 'empleo',  'direccion', 'edad'
 )
-
 nominal.vars <- c('educ')
 
-dataset <- read.csv(dataset.path, sep = ";", dec=",")[1:700,]
+numeric.data <- dataset %>% select(numeric.vars)
+nominal.data <- dataset %>% select(nominal.vars)
+
+dummy.data <- dummy_cols(nominal.data)[2:6]
+
+scaled.data <- scale(numeric.data)
+
+scaled.distances <- dist(scaled.data)
+dummy.distances <- dist(dummy.data, method="binary")
+final.distances <- (scaled.distances + dummy.distances) / 2
+
+pam.result <- pam(final.distances, nclust)
+
+pam.result$data <- as.data.frame(scaled.data) # Necesitaremos los datos
+                                        # para la representación gráfica
+autoplot(pam.result, frame=T)
+```
+
+En primer lugar, podemos apreciar que el resultado del algoritmo es
+ligeramente distinto al anterior. No existe una diferencia sustancial,
+pero sí que puede observarse que la zona de solapamiento es mayor
+ahora que previamente, por lo que claramente hay un conjunto de puntos
+que han sido asignados al otro cluster al cambiar la matriz de
+distancias con la que se trabaja. Vamos a comprobar si el resultado
+ha mejorado respecto al que obtuvimos previamente:
+
+```{r, echo=F}
+sil <- silhouette(pam.result$cluster, final.distances)
+plot(sil, col=1:nclust)
+```
+
+Por un lado, tenemos que el número de puntos ha cambiado, como
+habíamos comprobado visualmente con el gráfico anterior. Por otro,
+podemos comprobar que el resultado no es especialmente bueno si
+medimos la calidad del mismo por el coeficiente de silueta. De hecho,
+el resultado es ligeramente peor que el que obteníamos sin introducir
+esta distancia.
+
+## Búsqueda del valor óptimo de k
+
+```{r}
+dataset <- read.csv(dataset.path, sep=";", dec = ",")
+dataset <- dataset[1:700,]
 
 numeric.data <- dataset %>% select(numeric.vars)
 nominal.data <- dataset %>% select(nominal.vars)
 
 scaled.data <- scale(numeric.data)
-dummy.data <- dummy_cols(nominal.data)[,2:6]
 
-scaled.dist <- dist(scaled.data)
-dummy.dist <- dist(dummy.data, method = "binary")
+scaled.distances <- dist(scaled.data)
+nominal.distances <- dist(nominal.data, method="binary")
 
-final.dist <- (scaled.dist * length(scaled.data) + dummy.dist * length(dummy.data)) /
-    (length(scaled.data) + length(dummy.data))
+final.distances <- (scaled.distances + nominal.distances) / 2
 
-kmeans.res <- kmeans(final.dist, nclust)
+pamk.result <- pamk(scaled.distances)
 
-# autoplot(kmeans.res, data = scaled.data)
+plot(pamk.result$pamobject)
+
+cluster.stats(final.distances, pamk.result$pamobject$clustering)
 ```
-
-Una vez estudiado el algoritmo de las k-medias, pasamos a otro algoritmo
-de particionado por distancias, conocido como DBSCAN.
 
 # DBSCAN
 
@@ -411,16 +584,16 @@ distancias que trata de formar grupos de puntos por densidad. El funcionamiento
 del algoritmo es el siguiente. Mientras no se hayan agrupado todos los puntos:
 
 1. Se selecciona un punto que aún no ha sido agrupado $x$
-   1. Se seleccionan todos los elementos del conjunto que estén a una distancia
-   menor que $\varepsilon$ de $x$ y se añaden al cluster de $x$, siempre que
-   no hayan sido seleccionados previamente
-   2. Para todos los puntos seleccionados, se repite el proceso
-   3. Cuando no queden más puntos por seleccionar dentro del cluster
-      1. Si se han agrupado suficientes puntos juntos (un parámetro
-      del algoritmo dicta cuántos puntos son necesarios), se marcan
-      todos los puntos agrupados como un cluster.
-      2. Si no se han agrupado suficientes puntos, se marcan como
-      aislados
+1. Se seleccionan todos los elementos del conjunto que estén a una distancia
+menor que $\varepsilon$ de $x$ y se añaden al cluster de $x$, siempre que
+no hayan sido seleccionados previamente
+2. Para todos los puntos seleccionados, se repite el proceso
+3. Cuando no queden más puntos por seleccionar dentro del cluster
+1. Si se han agrupado suficientes puntos juntos (un parámetro
+del algoritmo dicta cuántos puntos son necesarios), se marcan
+todos los puntos agrupados como un cluster.
+2. Si no se han agrupado suficientes puntos, se marcan como
+aislados
 2. Si quedan puntos sin marcar como pertenecientes a un cluster o como
 puntos aislados, se vuelve al inicio
 
@@ -453,8 +626,6 @@ valor, comenzaremos tomando $\varepsilon = 1$:
 numeric.data <- dataset %>% select(numeric.vars)
 scaled.data <- scale(numeric.data)
 
-## Aplicamos DBSCAN (con el parámetro dist este método acepta una matriz
-## de distancias en lugar de los datos)
 dbscan.res <- dbscan(scaled.data, eps=1)
 
 fviz_cluster(dbscan.res, data = scaled.data, geom = "point")
@@ -472,7 +643,8 @@ Si tomamos un $\varepsilon = 0.7$, obtenemos:
 
 ```{r echo=F}
 dbscan.res <- dbscan(scaled.data, eps=.7)
-fviz_cluster(dbscan.res, data = scaled.data, outlier.pointsize = .1, geom = "point")
+fviz_cluster(dbscan.res, data = scaled.data, outlier.pointsize = .1,
+             geom = "point")
 ```
 
 Se ha reducido el tamaño de los outliers para permitir la
@@ -564,8 +736,6 @@ numeric.vars <- c(
     'ingresos', 'deudaingr', 'deudacred',
     'deudaotro', 'empleo',  'direccion', 'edad'
 )
-
-nominal.vars <- c('educ')
 
 dataset <- read.csv(dataset.path, sep = ";", dec=",")[1:700,]
 
@@ -663,11 +833,11 @@ en el agrupamiento. Existen dos aproximaciones a la solución de este
 problema:
 
 - Clustering aglomerativo: Los algoritmos que utilizan este enfoque
-  parten colocando a cada elemento en un cluster distinto, y van
-  combinando clusters al avanzar hacia arriba en la jerarquía
+parten colocando a cada elemento en un cluster distinto, y van
+combinando clusters al avanzar hacia arriba en la jerarquía
 - Clustering divisivo: En este caso, todas las observaciones comienzan
-  dentro del mismo cluster, y se van dividiendo los grupos en
-  sucesivas etapas.
+dentro del mismo cluster, y se van dividiendo los grupos en
+sucesivas etapas.
 
 Usualmente se utiliza un algoritmo de cluster aglomerativo, y es el
 que viene por defecto implementado en el paquete `stats` de R. Este
@@ -753,6 +923,7 @@ sil2 <- silhouette(groups.5, dist(scaled.data))
 
 
 plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+
 plot(sil2, col = 1:5, main = "Silhouette plot for 5 clusters")
 ```
 
@@ -824,6 +995,7 @@ sil2 <- silhouette(groups.3, final.distances)
 
 
 plot(sil1, col = 1:2, main = "Silhouette plot for 2 clusters")
+
 plot(sil2, col = 1:3, main = "Silhouette plot for 3 clusters")
 ```
 
@@ -836,96 +1008,7 @@ valor negativo bastante alto (probablemente estos puntos fueran
 marcados como outliers por el algoritmo DBSCAN), el resto de clusters
 calculados son de bastante calidad.
 
-## k-medioides
-
-```{r}
-dataset <- read.csv(dataset.path, sep=";",  dec=",")
-dataset <- dataset[1:700,]
-
-
-numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
-
-numeric.distances <- dist(numeric.data)
-nominal.distances <- dist(nominal.data, method="binary")
-final.distances <- (numeric.distances + nominal.distances) / 2
-
-pam.result <- pam(final.distances, 3)
-
-idx <- sample(1:dim(dataset)[1], 200)
-
-clusters <- pam.result$cluster
-
-plotcluster(dataset[idx,], clusters[idx])
-
-scaled.d <- dist(scaled.data[idx,])
-binary.d <- dist(nominal.data[idx,], method="binary")
-
-d <- (scaled.d + binary.d) / 2
-sil <- silhouette(clusters[idx], d)
-
-plot(sil, col=1:3)
-
-cluster.stats(final.distances, clusters)$avg.silwidth
-```
-### Resultados con normalización de variables
-
-```{r}
-dataset <- read.csv(dataset.path, sep=";", dec = ",")
-dataset <- dataset[1:700,]
-
-numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
-
-scaled.data <- scale(numeric.data)
-
-scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
-final.distances <- (scaled.distances + nominal.distances) / 2
-
-pam.result <- pam(final.distances, 3)
-
-idx <- sample(1:dim(dataset)[1], 200)
-
-clusters <- pam.result$cluster
-
-plotcluster(dataset[idx,], clusters[idx])
-
-scaled.d <- dist(scaled.data[idx,])
-binary.d <- dist(nominal.data[idx,], method="binary")
-
-d <- (scaled.d + binary.d) / 2
-sil <- silhouette(clusters[idx], d)
-
-plot(sil, col=1:3)
-
-cluster.stats(final.distances, clusters)$avg.silwidth
-```
-
-### Búsqueda del valor óptimo de k
-
-```{r}
-dataset <- read.csv(dataset.path, sep=";", dec = ",")
-dataset <- dataset[1:700,]
-
-numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
-
-scaled.data <- scale(numeric.data)
-
-scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
-
-final.distances <- (scaled.distances + nominal.distances) / 2
-
-pamk.result <- pamk(scaled.distances)
-
-plot(pamk.result$pamobject)
-
-cluster.stats(final.distances, pamk.result$pamobject$clustering)
-```
-
-## Fuzzy k-means
+# Fuzzy k-means
 
 ```{r}
 dataset <- read.csv(dataset.path, sep=";", dec = ",")
