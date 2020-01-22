@@ -506,14 +506,12 @@ Una vez tengamos calculadas las dos matrices de distancia, la
 distancia final que calcularemos será la media entre ambas matrices
 de distancia. Se muestra el funcionamiento del algoritmo:
 
-```{r}
+```{r, fig.height=3.7}
 dataset <- read.csv(dataset.path, sep=";", dec = ",")
 dataset <- dataset[1:700,]
 
-numeric.vars <- c(
-    'ingresos', 'deudaingr', 'deudacred',
-    'deudaotro', 'empleo',  'direccion', 'edad'
-)
+numeric.vars <- c('ingresos', 'deudaingr', 'deudacred', 'deudaotro',
+                  'empleo',  'direccion', 'edad')
 nominal.vars <- c('educ')
 
 numeric.data <- dataset %>% select(numeric.vars)
@@ -525,10 +523,10 @@ scaled.data <- scale(numeric.data)
 
 scaled.distances <- dist(scaled.data)
 dummy.distances <- dist(dummy.data, method="binary")
+
 final.distances <- (scaled.distances + dummy.distances) / 2
 
 pam.result <- pam(final.distances, nclust)
-
 pam.result$data <- as.data.frame(scaled.data) # Necesitaremos los datos
                                         # para la representación gráfica
 autoplot(pam.result, frame=T)
@@ -552,7 +550,80 @@ habíamos comprobado visualmente con el gráfico anterior. Por otro,
 podemos comprobar que el resultado no es especialmente bueno si
 medimos la calidad del mismo por el coeficiente de silueta. De hecho,
 el resultado es ligeramente peor que el que obteníamos sin introducir
-esta distancia.
+la modificación en la distancia. Esta problemática puede venir
+justificada por diversos factores. Es posible que la información
+codificada en las variables nominales suponga un ruido en nuestro
+problema, y sea más adecuado prescindir de ellas. Otra posibilidad
+es que la forma de combinar las distancias que hemos elegido no sea
+óptima. En el ejemplo anterior, utilizamos una media aritmética
+entre las dos matrices. Realmente, en nuestro problema, la matriz
+de distancias correspondiente a las variables numéricas debería
+tener, a priori, un mayor peso, ya que el número de variables
+numéricas de las que se dispone es significativamente mayor al
+número de variables nominales. Si no se ponderan las matrices de
+distancia en consecuencia, se puede estar introduciendo un sesgo
+indeseado en el cálculo de las distancias.
+
+Otra forma de afrontar la combinación de las distancias viene motivada
+por la importancia que queramos dar a las variables. Podríamos querer
+dar más importancia a la información que contienen las variables
+nominales que las variables categóricas. Por ejemplo, si en lugar
+de hacer la media aritmética, hacemos una media ponderada en la
+que damos tres veces más peso a las distancias nominales que a las
+numéricas, el resultado que obtenemos es el siguiente:
+
+```{r}
+final.distances <- 0.25*scaled.distances + 0.75*dummy.distances
+
+pam.result <- pam(final.distances, nclust)
+pam.result$data <- as.data.frame(scaled.data) # Necesitaremos los datos
+                                        # para la representación gráfica
+autoplot(pam.result, frame=T)
+```
+
+Donde podemos observar, ahora sí, una diferencia sustancial en el
+resultado obtenido. Si medimos sobre este nuevo agrupamiento el
+coeficiente de silueta, obtenemos el siguiente resultado:
+
+```{r, echo=F}
+sil <- silhouette(pam.result$cluster, final.distances)
+plot(sil, col=1:nclust)
+```
+
+Donde obtenemos un agrupamiento de mejor calidad que en el caso
+anterior. A pesar de ello, aún quedan algunos puntos en el primero de
+los clusters con un coeficiente de silueta negativo, pero la cantidad
+de elementos en los que ocurre esto es significativamente menor que
+en el ejemplo anterior.
+
+Vamos a comprobar ahora si con el nuevo agrupamiento que hemos
+conseguido, se consigue discriminar entre los clientes que han
+incurrido en impago. Cuando ejecutamos el algoritmo de las k-medias
+vimos que el algoritmo no era capaz de separar correctamente estos
+dos grupos. En el agrupamiento que hemos generado ahora:
+
+```{r echo=F}
+conf.mat <- table(pam.result$cluster, dataset$impago)
+rownames(conf.mat) <- c(0, 1)
+kable(conf.mat)
+```
+
+Seguimos sin poder discriminar completamente entre estas dos clases,
+pero la cantidad de ejemplos bien clasificados ha aumentado
+notablemente. El número de ejemplos bien clasificados en el cluster de
+gente que no ha incurrido en impago ha aumentado en varios elementos,
+y especialmente para el otro cluster, el número de ejemplos bien
+clasificados se ha duplicado, prácticamente. Este hecho nos indica que
+la variable nominal de la que disponemos, el nivel de estudios del
+inidividuo, es una variable relevante a la hora de afrontar este
+problema, y nos permite agrupar bien (al menos, mejor que las otras
+variables con las que habíamos trabajado hasta el momento) los elementos
+de nuestro conjunto. A pesar de ello, la solución aún dista mucho
+de ser de calidad.
+
+En el siguiente apartado, veremos una modificación de este algoritmo
+que es capaz de inferir el número apropiado de agrupamientos en los
+que dividir los datos, sin necesidad de ser establecido a priori.
 
 ## Búsqueda del valor óptimo de k
 
@@ -579,9 +650,10 @@ cluster.stats(final.distances, pamk.result$pamobject$clustering)
 
 # DBSCAN
 
-El algoritmo de agrupamiento DBSCAN es un algoritmo de agrupamiento por
-distancias que trata de formar grupos de puntos por densidad. El funcionamiento
-del algoritmo es el siguiente. Mientras no se hayan agrupado todos los puntos:
+El algoritmo de agrupamiento DBSCAN es un algoritmo de agrupamiento
+por distancias que trata de formar grupos de puntos por densidad. El
+funcionamiento del algoritmo es el siguiente. Mientras no se hayan
+agrupado todos los puntos:
 
 1. Se selecciona un punto que aún no ha sido agrupado $x$
 1. Se seleccionan todos los elementos del conjunto que estén a una distancia
