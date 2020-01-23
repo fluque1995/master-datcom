@@ -9,18 +9,16 @@ import sklearn.decomposition
 import pandas as pd
 import plotly.express as px
 
-dataset_path = "dataset/bankloan-spss.csv"
+dataset_path = "dataset/optdigits.csv"
 dims = 2
 
-dataset = pd.read_csv(dataset_path, sep = ";", decimal = ",")
-
-dataset = dataset.iloc[:700,:-3]
+dataset = pd.read_csv(dataset_path)
 
 x = dataset.iloc[:, :-1]
 y = dataset.iloc[:, -1]
 
 if dims == 2:
-    reduced_data = sklearn.decomposition.PCA(
+    reduced_data = sklearn.manifold.TSNE(
         n_components=2,
     ).fit_transform(x)
     df = pd.DataFrame(reduced_data, columns=["x", "y"])

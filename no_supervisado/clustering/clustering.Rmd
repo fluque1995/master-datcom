@@ -627,6 +627,33 @@ que dividir los datos, sin necesidad de ser establecido a priori.
 
 ## Búsqueda del valor óptimo de k
 
+Como hemos dicho anteriormente, este método dispone de una extensión
+que le permite estimar el número de clusters en los que debe dividirse
+el conjunto de datos. Este método ejecuta el algoritmo utilizando el
+número de clusters en un rango especificado y selecciona el resultado
+más adecuado en función de un criterio especificado de antemano.
+
+En nuestro caso utilizaremos como criterio el coeficiente de silueta,
+que es la métrica principal con la que estamos evaluando nuestros
+resultados, y es la métrica que nuestro método utiliza por defecto.
+El rango del número de grupos que consideraremos será entre 2 y 10
+clusters. Excluimos el 1 porque no nos interesa agrupar todos los
+puntos dentro del mismo grupo. No obstante, existe la posibilidad de
+agrupar todos los puntos en el mismo grupo, y existen medidas que nos
+permiten evaluar la calidad de dicho agrupamiento frente a
+agrupamientos con más clusters (trivialmente, el coeficiente de
+silueta carece de sentido cuando sólo se dispone de un cluster, ya que
+es necesario calcular las distancias a puntos en otros clusters). El
+límite superior se establece en 10 porque con un conjunto de datos tan
+pequeño, un número mayor de clusters empieza a perder sentido. No
+obstante, si el número de clusters óptimo se situase en el máximo que
+hemos escogido, sería recomendable aumentar dicho número y repetir
+los experimentos.
+
+Ejecutaremos el algoritmo sobre la matriz de distancias del apartado
+anterior, que es la que mejores resultados nos ha proporcionado hasta
+el momento. Mostramos la ejecución del algoritmo:
+
 ```{r}
 dataset <- read.csv(dataset.path, sep=";", dec = ",")
 dataset <- dataset[1:700,]
@@ -635,18 +662,37 @@ numeric.data <- dataset %>% select(numeric.vars)
 nominal.data <- dataset %>% select(nominal.vars)
 
 scaled.data <- scale(numeric.data)
+dummy.data <- dummy_cols(nominal.data)[2:6]
 
 scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
+nominal.distances <- dist(dummy.data, method="binary")
 
-final.distances <- (scaled.distances + nominal.distances) / 2
+final.distances <- 0.25*scaled.distances + 0.75*nominal.distances
 
-pamk.result <- pamk(scaled.distances)
+pamk.result <- pamk(final.distances)
+pamk.result$pamobject$data <- as.data.frame(scaled.data)
 
-plot(pamk.result$pamobject)
-
-cluster.stats(final.distances, pamk.result$pamobject$clustering)
+autoplot(pamk.result$pamobject, frame=T)
 ```
+
+Utilizando el criterio del coeficiente de silueta, se encuentra que el
+número óptimo de grupos para esta configuración de distancias es de 3.
+Si observamos los coeficientes de silueta de este método, obtenemos:
+
+```{r, echo=F}
+sil <- silhouette(pamk.result$pamobject$cluster, final.distances)
+plot(sil, col=1:3, main="Silhouette plot")
+```
+
+En efecto, podemos comprobar que los resultados obtenidos son mejores
+que la agrupación en dos conjuntos que realizamos anteriormente,
+habiéndose aumentado significativamente el coeficiente de silueta de
+la configuración completa. A pesar de ello, aún existen algunos puntos
+con un coeficiente de silueta negativo en los clusters 1 y 2.
+
+Una vez hemos visto los métodos basados en prototipos, pasamos a ver
+un método que afronta el problema del agrupamiento de una forma
+completamente diferente, agrupando los puntos por densidad.
 
 # DBSCAN
 
@@ -1080,27 +1126,142 @@ valor negativo bastante alto (probablemente estos puntos fueran
 marcados como outliers por el algoritmo DBSCAN), el resto de clusters
 calculados son de bastante calidad.
 
+Finalmente, pasamos a ver el último algoritmo que vamos a estudiar.
+Se trata de una modificación del algoritmo de las k-medias, la cual
+trabaja de forma difusa. Esto es, en lugar de asignar un punto a un
+determinado grupo de forma única, lo que se asigna a cada punto es
+una medida de pertenencia a cada cluster.
+
 # Fuzzy k-means
 
+Como hemos dicho anteriormente, ahora vamos a estudiar un algoritmo de
+agrupamiento difuso, conocido como _fuzzy k-means_. Dicho algoritmo es
+similar al algoritmo de las k-medias, pero en lugar de asignar cada
+punto a un único cluster, se tiene una función de similaridad, la cual
+asigna a cada punto una medida de pertenencia del mismo a todos los
+clusters que se tienen. De esta manera. la información que se obtiene
+sobre los ejemplos del conjunto de datos es más rica.
+
+Algorítmicamente, la solución a este problema se resuelve de la
+siguiente manera. Dado un conjunto de puntos $X = \{x_1, ..., x_n\}$,
+y un valor $k \in \mathbb{N}$, tenemos que separar los puntos en $k$
+conjuntos difusos en función de una medida de distancia. Al igual
+que en el algoritmo de las k-medias, trataremos de buscar $k$ puntos
+del espacio de características $C = \{C_1, ..., C_k\}$ que representan
+los centroides de los clusters, y una matriz $W = [0,1]^{n \times k}$,
+tal que el valor $w_{ij}$ de la matriz representa el índice de pertenencia
+del punto $x_i$ al cluster $j$.
+
+El funcionamiento del algoritmo es el que sigue:
+
+1. Se inicializan aleatoriamente los $k$ centroides.
+2. Mientas no se cumpla la condición de parada (usualmente, mientras
+   no se converja a un punto de equilibrio):
+   - Se usan los centroides para calcular el grado de pertenencia de
+   cada punto a cada cluster (se recalcula la matriz $W$ en función de
+   la distancia de cada punto a cada centroide).
+   - Con las nuevas medidas de pertenencia calculadas, se recalculan
+   los centroides, haciendo una media ponderada de todos los puntos
+   por el grado de pertenencia de los mismos al cluster en cuestión
+   (matemáticamente, $c_j = \frac{\sum_{i=1}^n w^q_{ij}
+   x_i}{w^q_{ij}}$).  El exponente $q$ es un parámetro del algoritmo
+   que marca lo difuso que se permite que sea el cluster.
+
+Cuando el algoritmo converge (los centroides y la matriz de pertenencia
+son invariantes entre una iteración y la siguiente) el algoritmo termina.
+Usualmente se especifica además un máximo de iteraciones como criterio
+de parada, para evitar que el algoritmo no termine.
+
+En el algoritmo anterior no hemos hecho hincapié en la forma de
+calcular la pertenencia de los elementos a los clusters (el método de
+cálculo de los valores $w_{ij}$). Existen distintas políticas para el
+cálculo de la pertenencia. No obstante, la más utilizada suele ser un
+decaimiento exponencial en función de la distancia del punto a cada
+centroide, normalizado a posteriori para que la suma total de las
+pertenencias a todos los clusters sea igual a 1 (de esta forma es más
+fácil intepretar y comparar los resultados para los distintos puntos).
+En este punto hay que definir la distancia utilizada, que en nuestro
+caso será la distancia euclídea, al igual que hemos hecho a lo largo
+del resto de la práctica.
+
+En cuanto al valor del parámetro $q$, cuanto mayor sea dicho parámetro
+más difusos serán los clusters resultantes. En particular, cuando $q =
+1$, los clusters que se forman son clusters en el sentido clásico, con
+grados de pertenencia 0 o 1. Usualmente, si no se tiene más
+información, se suele inicializar al valor $q = 2$, y será el valor
+que tomaremos nosotros por defecto.
+
+Este algoritmo vuelve a presentar la problemática que teníamos en el
+algoritmo de las k-medias, y que conseguimos arreglar con los modelos
+que utilizaban los puntos del conjunto en lugar de prototipos
+artificiales. Para este método volvemos a no poder combinar distancias
+binarias y numéricas, así que trabajaremos exclusivamente con los
+valores numéricos de los que disponemos.
+
+## Aplicación del algoritmo
+
+Pasamos a ver cómo aplicar el algoritmo a nuestro conjunto de
+datos. De nuevo, comenzamos dividiendo el conjunto en dos clusters,
+para intentar diferenciar entre las dos clases que tenemos:
+
 ```{r}
+nclust <- 2
+
 dataset <- read.csv(dataset.path, sep=";", dec = ",")
 dataset <- dataset[1:700,]
 
 numeric.data <- dataset %>% select(numeric.vars)
-nominal.data <- dataset %>% select(nominal.vars)
 
 scaled.data <- scale(numeric.data)
 
-scaled.distances <- dist(scaled.data)
-nominal.distances <- dist(nominal.data, method="binary")
+fuzzy.result <- fanny(scaled.data, nclust, memb.exp=2)
+```
 
-final.distances <- (scaled.distances + nominal.distances) / 2
+Vemos que se nos genera un aviso que nos dice que los coeficientes de
+pertenencia están todos muy cercanos a $1/k$, donde $k$ es el número
+de clusters. Esto indica que con el valor $q = 2$, las distancias
+entre los puntos no son suficientemente grandes para discriminar los
+puntos.  En efecto, si miramos la matriz de pertenencia (imprimimos
+sólo las tres primeras filas):
 
-fuzzy.result <- fanny(final.distances, 3, memb.exp=1.3)
+```{r echo=F}
+kable(fuzzy.result$membership[1:3,],
+      row.names = T,
+      col.names = c("Cluster 1", "Cluster 2")
+      )
+```
 
-plot(fuzzy.result)
+Podemos observar que los valores de pertenencia calculados son
+prácticamente iguales a $0.5$ en todos los casos. Se puede arreglar
+esta problemática reduciendo el valor $q$. En efecto, variando el valor
+en pasos de $0.1$, no conseguimos que el algoritmo converja hasta que
+$q = 1.5$. Tomamos por tanto ese valor de $q$ como referencia. Los
+resultados obtenidos para dicho valor son los siguientes:
 
-str(fuzzy.result)
+```{r}
+fuzzy.result <- fanny(scaled.data, nclust, memb.exp = 1.5)
 
-cluster.stats(final.distances, fuzzy.result$clustering)
+autoplot(fuzzy.result)
+```
+
+Y la matriz anterior se convierte en:
+
+```{r echo=F}
+kable(fuzzy.result$membership[1:3,],
+      row.names = T,
+      col.names = c("Cluster 1", "Cluster 2")
+      )
+```
+
+En la que los coeficientes de pertenencia sí se han desviado del
+centro, lo que nos permite asignar con cierta confianza un cluster a
+cada punto.
+
+De nuevo, podemos estudiar la calidad del agrupamiento a través del
+coeficiente de silueta:
+
+```{r}
+sil <- silhouette(fuzzy.result$cluster, scaled.distances)
+
+plot(sil, col = 1:nclust)
 ```
