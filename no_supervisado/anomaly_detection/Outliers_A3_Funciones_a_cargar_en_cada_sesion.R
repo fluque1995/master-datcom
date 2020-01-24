@@ -23,13 +23,12 @@ MiPlot_Univariate_Outliers = function (datos, indices_de_Outliers, titulo){
   vector.colores.outlier = rep("black", numero.de.datos)
   vector.colores.outlier [vectorTFoutliers] = "red"
 
-  cat("\nNúmero de datos: ")
+  cat("\nNumero de datos: ")
   cat(numero.de.datos)
-  cat("\n¿Quién es outlier?: ")
+  cat("\nQuien es outlier?: ")
   cat(vectorTFoutliers)
   cat('\n')
 
-  X11()
   plot(datos, col=vector.colores.outlier, main = titulo)
 }
 
@@ -206,7 +205,7 @@ MiPlot_resultados_TestGrubbs = function(datos){
   if (test.de.Grubbs$p.value < alpha){
     indice.de.outlier.Grubbs = order(abs(datos - mean(datos)), decreasing = T)[1]
     indice.de.outlier.Grubbs
-    cat('Índice de outlier: ')
+    cat('Indice de outlier: ')
     cat(indice.de.outlier.Grubbs)
     cat('\n')
     valor.de.outlier.Grubbs  = datos[indice.de.outlier.Grubbs]
@@ -230,11 +229,11 @@ MiPlot_resultados_TestRosner = function(datos, num_outliers){
   valores.de.outliers.rosner = datos[indices.de.outliers.rosner]
 
   cat("\nTest de Rosner")
-  cat("\nÍndices de las k-mayores desviaciones de la media: ")
+  cat("\nIndices de las k-mayores desviaciones de la media: ")
   cat(k.mayores.desviaciones.de.la.media)
-  cat("\nDe las k mayores desviaciones, ¿Quién es outlier? ")
+  cat("\nDe las k mayores desviaciones, quien es outlier? ")
   cat(is.outlier.rosner)
-  cat("\nLos índices de los outliers son: ")
+  cat("\nLos indices de los outliers son: ")
   cat(indices.de.outliers.rosner)
   cat("\nLos valores de los outliers son: ")
   cat(valores.de.outliers.rosner)

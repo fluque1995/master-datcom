@@ -21,6 +21,12 @@ set.seed(0)
 library(ggplot2)
 library(knitr)
 library(rmatio)
+library(GGally)
+
+## Cargamos las librerías y funciones pertinentes
+source("Outliers_A2_Librerias_a_cargar_en_cada_sesion.R")
+
+source("Outliers_A3_Funciones_a_cargar_en_cada_sesion.R")
 ```
 
 # Introducción
@@ -86,8 +92,237 @@ que se desvían de la media más de 3*IQR.
 ## Aplicación del algoritmo
 
 Pasamos a aplicar este método para detectar outliers en nuestro
-conjunto de datos.
+conjunto de datos. Mostraremos en primer lugar el proceso completo
+para una variable, y lo aplicaremos después para todas las demás:
+
+```{r, echo=T}
+## Leemos el dataset y seleccionamos una columna
+dataset <- as.data.frame(read.mat("dataset/thyroid.mat")$X)
+columna.scaled <- scale(dataset$V5)
+
+## Calculamos los cuartiles y el IQR
+cuartil.primero <- quantile(columna.scaled, .25)
+cuartil.tercero <- quantile(columna.scaled, .75)
+iqr             <- cuartil.tercero - cuartil.primero
+
+## Calculamos los valores a partir de los cuales se consideran los outliers
+extremo.superior.outlier.normal <- cuartil.tercero + 1.5*iqr
+extremo.inferior.outlier.normal <- cuartil.primero - 1.5*iqr
+extremo.superior.outlier.extremo <- cuartil.tercero + 3*iqr
+extremo.inferior.outlier.extremo <- cuartil.primero - 3*iqr
+
+## Construimos los vectores que nos determinan los outliers
+vector.es.outlier.normal <- (
+    (columna.scaled > extremo.superior.outlier.normal &
+     columna.scaled < extremo.superior.outlier.extremo) |
+    (columna.scaled < extremo.inferior.outlier.normal &
+     columna.scaled > extremo.inferior.outlier.extremo)
+)
+
+vector.es.outlier.extremo <- (
+    columna.scaled < extremo.inferior.outlier.extremo |
+    columna.scaled > extremo.superior.outlier.extremo
+)
+
+## Calculamos los valores normales y extremos
+claves.outliers.normales <- which(vector.es.outlier.normal)
+data.frame.outliers.normales <- dataset[claves.outliers.normales,]
+valores.outliers.normales <- data.frame.outliers.normales["V5"]
+
+claves.outliers.extremos <- which(vector.es.outlier.extremo)
+data.frame.outliers.extremos <- dataset[claves.outliers.extremos,]
+valores.outliers.extremos <- data.frame.outliers.extremos['V5']
+
+## Observamos como se expresa este valor en la distribución tras normalizar
+valores.normalizados.outliers.normales <- columna.scaled[claves.outliers.normales]
+valores.normalizados.outliers.normales
+
+par(mfrow=c(1,2))
+## Mostramos gráficamente los outliers
+MiPlot_Univariate_Outliers(columna.scaled, claves.outliers.normales,
+                           "Outliers normales")
+MiPlot_Univariate_Outliers(columna.scaled, claves.outliers.extremos,
+                           "Outliers extremos")
+```
+
+Una vez hemos visto cómo se aplica el método a una determinada columna, nos
+interesará aplicarlo a todas las variables de nuestro conjunto (ocultamos
+el código porque no aporta nueva información). Mostramos gráficamente los
+resultados:
+
+```{r echo=F}
+## Repetimos la operación con una función del fichero A2
+indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(dataset)
+
+indices.de.outliers.en.alguna.columna
+
+## Calculamos el número de outliers totales por columna
+frame.es.outlier <- sapply(1:ncol(dataset), vector_es_outlier_IQR, datos = dataset)
+frame.es.outlier
+
+numero.total.outliers.por.columna <- apply(frame.es.outlier, 2, sum)
+numero.total.outliers.por.columna
+```
+# Aplicación de tests estadísticos para la detección de anomalías
+
+## Test de Grubbs
 
 ```{r}
-dataset <- read.mat("dataset/thyroid.mat")$X
+hist(mydata.numeric)
+
+plot(mydata.numeric)
+
+grubbs.test(mydata.numeric, two.sided = T)
+
+indice.de.outlier.Grubbs <- order(
+    abs(mydata.numeric - mean(mydata.numeric)), decreasing = T
+)[1]
+indice.de.outlier.Grubbs
+
+valor.de.outlier.Grubbs <- mydata.numeric[
+    indice.de.outlier.Grubbs
+]
+valor.de.outlier.Grubbs
+
+MiPlot_Univariate_Outliers(mydata.numeric, indice.de.outlier.Grubbs,
+                           "Valor outlier según el test de Grubbs")
+
+## Automatización utilizando una función
+MiPlot_resultados_TestGrubbs(mydata.numeric)
+
+## Problema de masking
+plot(datos.con.dos.outliers.masking)
+grubbs.test(datos.con.dos.outliers.masking, two.sided = T)
+```
+
+## Test de Rosner
+
+```{r}
+test.de.rosner <- rosnerTest(datos.con.dos.outliers.masking, 4)
+
+test.de.rosner$all.stats$Outlier
+test.de.rosner$all.stats$Obs.Num
+
+MiPlot_Univariate_Outliers(datos.con.dos.outliers.masking, c(10,11),
+                           "Outliers detectados por el test de Rosner")
+
+MiPlot_resultados_TestRosner(datos.con.dos.outliers.masking, 4)
+```
+
+# Test de Cerioli para el cálculo de outliers multivariados
+
+```{r}
+nivel.de.significacion = 0.05
+nivel.de.significacion.penalizado = 1 - (1 - nivel.de.significacion) ^ (1 / nrow(mis.datos.numericos))  # Transparencia 96
+
+set.seed(12)
+
+## Método de Cerioli para el cálculo de outliers
+cerioli <- cerioli2010.fsrmcd.test(
+    mis.datos.numericos, signif.alpha = nivel.de.significacion
+)
+
+cerioli$outliers
+
+is.outlier.cerioli <- which(cerioli$outliers)
+is.outlier.cerioli
+
+dist.mah.ponderadas <- cerioli$mahdist.rw
+order.idx <- order(dist.mah.ponderadas, decreasing = T)
+
+order.idx
+
+mis.datos.numericos.normalizados[order.idx[1],]
+
+## Uso del test para más de un punto anómalo
+cerioli.b <- cerioli2010.fsrmcd.test(
+    mis.datos.numericos, signif.alpha = nivel.de.significacion.penalizado
+)
+
+which(cerioli.b$outliers)
+
+```
+
+# Detección de outliers usando LOF
+
+```{r}
+numero.de.vecinos.lof = 5
+
+lof.scores <- lofactor(mis.datos.numericos.normalizados, numero.de.vecinos.lof)
+lof.scores
+
+indices.segun.lof.score.ordenados <- order(lof.scores, decreasing = T)
+indices.segun.lof.score.ordenados
+
+lof.scores.ordenados <- lof.scores[indices.segun.lof.score.ordenados]
+lof.scores.ordenados
+
+plot(lof.scores.ordenados)
+
+numero.de.outliers <- 4
+indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
+
+is.lof.outlier <- 1:dim(
+                        mis.datos.numericos.normalizados
+                    )[1] %in% indices.de.lof.top.outliers
+
+is.lof.outlier
+
+MiBiPlot_Multivariate_Outliers(
+    mis.datos.numericos.normalizados, is.lof.outlier,
+    "Outliers detectador por LOF"
+)
+
+data.frame.solo.outliers <- mis.datos.numericos.normalizados[is.lof.outlier,]
+
+MiBoxPlot_juntos(mis.datos.numericos.normalizados, is.lof.outlier)
+```
+
+## Uso de IQR para eliminar los outliers univariantes
+
+```{r}
+vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mis.datos.numericos.normalizados)
+vector.claves.outliers.IQR.en.alguna.columna
+
+indices.de.outliers.multivariantes.LOF.pero.no.1variantes <- setdiff(
+    indices.de.lof.top.outliers, vector.claves.outliers.IQR.en.alguna.columna
+)
+
+indices.de.outliers.multivariantes.LOF.pero.no.1variantes
+valores.normalizados.de.los.outliers.LOF.pero.no.1variantes <- mis.datos.numericos.normalizados[indices.de.outliers.multivariantes.LOF.pero.no.1variantes,]
+valores.normalizados.de.los.outliers.LOF.pero.no.1variantes
+
+numero.de.outliers <- 12
+
+indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
+
+is.lof.outlier <- 1:dim(
+                        mis.datos.numericos.normalizados
+                    )[1] %in% indices.de.lof.top.outliers
+
+MiBiPlot_Multivariate_Outliers(
+    mis.datos.numericos.normalizados, is.lof.outlier,
+    "Outliers detectador por LOF"
+)
+
+data.frame.solo.outliers <- mis.datos.numericos.normalizados[is.lof.outlier,]
+
+MiBoxPlot_juntos(mis.datos.numericos.normalizados, is.lof.outlier)
+
+vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mis.datos.numericos.normalizados)
+vector.claves.outliers.IQR.en.alguna.columna
+
+indices.de.outliers.multivariantes.LOF.pero.no.1variantes <- setdiff(
+    indices.de.lof.top.outliers, vector.claves.outliers.IQR.en.alguna.columna
+)
+indices.de.outliers.multivariantes.LOF.pero.no.1variantes
+
+valores.normalizados.de.los.outliers.LOF.pero.no.1variantes <- mis.datos.numericos.normalizados[indices.de.outliers.multivariantes.LOF.pero.no.1variantes,]
+valores.normalizados.de.los.outliers.LOF.pero.no.1variantes
+
+MiPlot_Univariate_Outliers(
+    mis.datos.numericos.normalizados,
+    which(rownames(mis.datos.numericos.normalizados) == "Ferrari Dino"),
+    "Ferrari Dino"
+)
 ```
