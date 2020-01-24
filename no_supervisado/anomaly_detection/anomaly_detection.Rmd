@@ -150,18 +150,41 @@ interesará aplicarlo a todas las variables de nuestro conjunto (ocultamos
 el código porque no aporta nueva información). Mostramos gráficamente los
 resultados:
 
-```{r echo=F}
-## Repetimos la operación con una función del fichero A2
+```{r, fig.height=3.8}
+## Repetimos la operacieón con una función del fichero A2
 indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(dataset)
 
 indices.de.outliers.en.alguna.columna
 
 ## Calculamos el número de outliers totales por columna
-frame.es.outlier <- sapply(1:ncol(dataset), vector_es_outlier_IQR, datos = dataset)
-frame.es.outlier
+frame.es.outlier <- sapply(
+    1:ncol(dataset), vector_es_outlier_IQR, datos = dataset
+)
+
+frame.es.outlier.extremo <- sapply(
+    1:ncol(dataset), vector_es_outlier_IQR, datos = dataset, coef = 3
+)
+
+frame.es.outlier.normal <- (frame.es.outlier & !frame.es.outlier.extremo)
+
+par(mfrow=c(1,2))
+## Mostramos gráficamente los outliers
+foo <- sapply(1:ncol(dataset), function(x) {
+    MiPlot_Univariate_Outliers(dataset[,x],
+                               frame.es.outlier.normal[,x],
+                               "Outliers normales")
+    MiPlot_Univariate_Outliers(dataset[,x],
+                               frame.es.outlier.extremo[,x],
+                               "Outliers extremos")
+})
 
 numero.total.outliers.por.columna <- apply(frame.es.outlier, 2, sum)
-numero.total.outliers.por.columna
+
+kable(as.data.frame(t(numero.total.outliers.por.columna)),
+      col.names = c("Columna 1", "Columna 2", "Columna 3",
+                    "Columna 4", "Columna 5", "Columna 6"),
+      caption = "Número de outliers en cada columna del conjunto de datos"
+      )
 ```
 # Aplicación de tests estadísticos para la detección de anomalías
 
@@ -280,7 +303,7 @@ MiBoxPlot_juntos(mis.datos.numericos.normalizados, is.lof.outlier)
 
 ## Uso de IQR para eliminar los outliers univariantes
 
-```{r}
+```{r, fig.height=3.5}
 vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mis.datos.numericos.normalizados)
 vector.claves.outliers.IQR.en.alguna.columna
 

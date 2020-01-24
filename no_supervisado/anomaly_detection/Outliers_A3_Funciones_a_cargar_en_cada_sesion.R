@@ -23,12 +23,6 @@ MiPlot_Univariate_Outliers = function (datos, indices_de_Outliers, titulo){
   vector.colores.outlier = rep("black", numero.de.datos)
   vector.colores.outlier [vectorTFoutliers] = "red"
 
-  cat("\nNumero de datos: ")
-  cat(numero.de.datos)
-  cat("\nQuien es outlier?: ")
-  cat(vectorTFoutliers)
-  cat('\n')
-
   plot(datos, col=vector.colores.outlier, main = titulo)
 }
 
