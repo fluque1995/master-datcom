@@ -99,7 +99,7 @@ para una variable, y lo aplicaremos después para todas las demás:
 ```{r, echo=T, fig.height=4}
 ## Leemos el dataset y seleccionamos una columna
 # dataset <- read.csv("dataset/yeast.data")
-dataset <- as.data.frame(read.mat("dataset/vertebral.mat")$X)
+dataset <- as.data.frame(read.mat("dataset/thyroid.mat")$X)
 columna.scaled <- scale(dataset$V5)
 
 ## Calculamos los cuartiles y el IQR
@@ -262,31 +262,82 @@ significación $\alpha/2N$ de una distribución T de Student con $N-2$
 grados de libertad. Vamos a ver cómo podemos aplicar este test a una
 columna de nuestro conjunto de datos.
 
-```{r}
-hist(selected.col)
+```{r, echo=T}
+selected.col <- dataset$V4
 
-plot(selected.col)
-
+## Dado que el p-valor es inferior a 0.05, tenemos que el valor de mayor
+## dispersión respecto de la media es un valor anómalo
 grubbs.test(selected.col, two.sided = T)
-
-indice.de.outlier.Grubbs <- order(
-    abs(selected.col - mean(selected.col)), decreasing = T
-)[1]
-indice.de.outlier.Grubbs
-
-valor.de.outlier.Grubbs <- selected.col[
-    indice.de.outlier.Grubbs
-]
-valor.de.outlier.Grubbs
-
+indice.de.outlier.Grubbs <- order(abs(selected.col - mean(selected.col)),
+                                  decreasing = T)[1]
+valor.de.outlier.Grubbs <- selected.col[indice.de.outlier.Grubbs]
 MiPlot_Univariate_Outliers(selected.col, indice.de.outlier.Grubbs,
                            "Valor outlier según el test de Grubbs")
-
-## Automatización utilizando una función
-selected.col <- dataset$V5
-MiPlot_resultados_TestGrubbs(selected.col)
-
-## Problema de masking
-plot(datos.con.dos.outliers.masking)
-grubbs.test(datos.con.dos.outliers.masking, two.sided = T)
 ```
+
+Podemos observar que, para esta variable, se detecta que el valor de
+máxima varianza es un valor anómalo. Este test nos permite averiguar,
+precisamente, si el valor de máxima varianza se desvía anormalmente
+del resto del conjunto de datos. No obstante, ofrece varios problemas.
+En primer lugar, sólo nos permite averiguar si hay un valor anómalo,
+pero no nos aporta información del resto de puntos. Por ejemplo, en el
+caso anterior, el punto que se encuentra cercano al marcado como
+outlier, y que presenta el mismo valor de $y$, es claramente otro
+punto anómalo. Además de este, probablemente el punto aislado que se
+muestra a la derecha también tenga un valor anormalmente alto. Para
+estos dos puntos, el test de Grubbs no aporta información. Una posible
+forma de solventar esta problemática consiste en ejecutar
+iterativamente este algoritmo mientras se sigan encontrando anomalías,
+quitando cada vez el punto marcado como anomalía. No obstante, el
+hecho de trabajar con un único punto puede producir ciertos
+problemas. Por ejemplo existe una problemática conocida como masking,
+en la cual la presencia de varios valores anómalos hacen que este
+test no permita rechazar la hipótesis nula. Ponemos a continuación
+un ejemplo de masking:
+
+```{r}
+## Tenemos dos valores claramente anómalos
+datos.masking = c(45,56,54,34,32,45,67,45,67,154,125,65)
+plot(datos.masking)
+grubbs.test(datos.masking, two.sided=T)
+```
+
+Obtenemos un p-valor superior a 0.05, por lo que con los niveles de
+significación estándar, no podemos rechazar la hipótesis nula y por
+tanto no tendríamos ningún outlier. No obstante, podemos observar que
+existen dos valores que se desvían significativamente de los valores
+normales, pero su presencia hace que la desviación típica del conjunto
+de datos aumente, y por tanto este método no detecte su presencia.  En
+el siguiente apartado veremos otro text estadístico, que nos permitirá
+afrontar esta problemática.
+
+## Test de Rosner
+
+Para solucionar el problema anterior, suelen utilizarse otros tests
+estadísticos, que permiten averiguar si hay un número $k$ (fijo de
+antemano) de outliers en la muestra. No obstante, estos métodos
+carecen de mucho interés, ya que existen tests más informativos, que
+nos permiten discernir si existen un número de outliers menor o igual
+al número $k$ fijado de antemano, en lugar de necesitar el número
+exacto de outliers. Entre estos tests se encuentra el test de Rosner.
+Este test trabaja de la siguiente manera. Se calcula la serie de
+estadísticos siguiente:
+
+\[
+\large R_{i+1} = \frac{|x^{(i)} - \bar x^{(i)}|}{s^{(i)}}
+\]
+
+Donde $\bar{x}^{(i)}$ y $\bar{s}^{(i)}$ son la media y la desviación
+típica del conjunto tras eliminar los $i$ valores más extremos, y
+$x^{(i)}$ es la observación de dicho subconjunto que más se desvía de
+la media. Una vez los valores $R_{1}, ..., R_k$ se han calculado, se
+realizan una serie de tests de hipótesis consistentes en comparar los
+valores $R_i$ con una serie de valores $\lambda_i$, los cuales se
+calculan como
+
+\[
+\lambda_{i+1} = \frac{t_{p, n-i-2} (n-i-1)}{\sqrt{(n-i-2 + t_{p, n-i-2}) (n-i)}}
+\]
+
+Donde de nuevo, $t_{p,n}$ corresponde al percentil $p$ extraído de una
+distribución t de Student con $n$ grados de libertad.
