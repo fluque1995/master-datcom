@@ -20,10 +20,14 @@ MiPlot_Univariate_Outliers = function (datos, indices_de_Outliers, titulo){
   numero.de.datos = nrow(as.matrix(datos))
   vectorTFoutliers =  rep(FALSE, numero.de.datos)
   vectorTFoutliers[indices_de_Outliers] = TRUE
-  vector.colores.outlier = rep("black", numero.de.datos)
-  vector.colores.outlier [vectorTFoutliers] = "red"
+  vector.colores.outlier = rep("Normal", numero.de.datos)
+  vector.colores.outlier [vectorTFoutliers] = "Outlier"
 
-  plot(datos, col=vector.colores.outlier, main = titulo)
+  repr.data <- as.data.frame(cbind(1:length(datos), datos))
+  ggplot(repr.data, aes(x=V1, y=datos, col=vector.colores.outlier)) +
+      geom_point() + theme(legend.position="none") +
+      scale_color_manual(values=c("lightblue", "red")) +
+      ggtitle(titulo) + xlab("Indice") + ylab("Valores")
 }
 
 

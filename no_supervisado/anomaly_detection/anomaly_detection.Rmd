@@ -22,6 +22,7 @@ library(ggplot2)
 library(knitr)
 library(rmatio)
 library(GGally)
+library(gridExtra)
 
 ## Cargamos las librerías y funciones pertinentes
 source("Outliers_A2_Librerias_a_cargar_en_cada_sesion.R")
@@ -95,9 +96,10 @@ Pasamos a aplicar este método para detectar outliers en nuestro
 conjunto de datos. Mostraremos en primer lugar el proceso completo
 para una variable, y lo aplicaremos después para todas las demás:
 
-```{r, echo=T}
+```{r, echo=T, fig.height=4}
 ## Leemos el dataset y seleccionamos una columna
-dataset <- as.data.frame(read.mat("dataset/thyroid.mat")$X)
+# dataset <- read.csv("dataset/yeast.data")
+dataset <- as.data.frame(read.mat("dataset/vertebral.mat")$X)
 columna.scaled <- scale(dataset$V5)
 
 ## Calculamos los cuartiles y el IQR
@@ -133,9 +135,7 @@ claves.outliers.extremos <- which(vector.es.outlier.extremo)
 data.frame.outliers.extremos <- dataset[claves.outliers.extremos,]
 valores.outliers.extremos <- data.frame.outliers.extremos['V5']
 
-## Observamos como se expresa este valor en la distribución tras normalizar
 valores.normalizados.outliers.normales <- columna.scaled[claves.outliers.normales]
-valores.normalizados.outliers.normales
 
 par(mfrow=c(1,2))
 ## Mostramos gráficamente los outliers
@@ -150,11 +150,9 @@ interesará aplicarlo a todas las variables de nuestro conjunto (ocultamos
 el código porque no aporta nueva información). Mostramos gráficamente los
 resultados:
 
-```{r, fig.height=3.8}
+```{r, fig.height=3.4}
 ## Repetimos la operacieón con una función del fichero A2
 indices.de.outliers.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(dataset)
-
-indices.de.outliers.en.alguna.columna
 
 ## Calculamos el número de outliers totales por columna
 frame.es.outlier <- sapply(
@@ -167,16 +165,22 @@ frame.es.outlier.extremo <- sapply(
 
 frame.es.outlier.normal <- (frame.es.outlier & !frame.es.outlier.extremo)
 
-par(mfrow=c(1,2))
 ## Mostramos gráficamente los outliers
-foo <- sapply(1:ncol(dataset), function(x) {
+normal.outliers <- lapply(1:ncol(dataset), function(x) {
     MiPlot_Univariate_Outliers(dataset[,x],
                                frame.es.outlier.normal[,x],
-                               "Outliers normales")
+                               paste("Outliers normales - columna", x))
+})
+extreme.outliers <- lapply(1:ncol(dataset), function(x) {
     MiPlot_Univariate_Outliers(dataset[,x],
                                frame.es.outlier.extremo[,x],
-                               "Outliers extremos")
+                               paste("Outliers extremos - columna", x))
 })
+
+foo <-sapply(1:ncol(dataset), function(x) grid.arrange(
+                                              normal.outliers[[x]],
+                                              extreme.outliers[[x]], ncol=2)
+             )
 
 numero.total.outliers.por.columna <- apply(frame.es.outlier, 2, sum)
 
@@ -186,166 +190,103 @@ kable(as.data.frame(t(numero.total.outliers.por.columna)),
       caption = "Número de outliers en cada columna del conjunto de datos"
       )
 ```
+
+Se pueden extraer varias conclusiones de las gráficas y la tabla
+anteriores. En primer lugar, tenemos que la variable primera no tiene
+outliers de ningún tipo, mientras que en el resto de variables se
+tiene un número bastante considerable. El conjunto tiene unos 3800
+elementos, así que 400 outliers, como llega a tener la variables 2,
+suponen más del 10 % de los valores, lo cual es un número anormalmente
+alto. Un comportamiento curioso que se puede observar también es la
+distribución de los outliers. En todas las variables ocurre que los
+outliers se concentran en los valores altos. Esto nos indica que
+la distribuciones están fuertemente sesgadas a la derecha. El
+caso más extremo lo tenemos para la segunda variable, como podemos
+observar a continuación:
+
+```{r}
+ggplot(dataset, aes(x=V2)) + geom_histogram(bins=10)
+```
+
+Donde tenemos el grueso de los datos agrupado en la parte izquierda
+del gráfico (cercanos a 0) y un pequeño grupo de valores dispersos en
+la parte derecha. Sería interesante conocer el origen de las
+variables, para intentar buscar las causas que producen estas
+desviaciones, pero no se nos proporciona dicha información con el
+conjunto de datos.
+
+Una vez hemos visto cómo podemos detectar valores anómalos utilizando
+el método del rango intercuartílico, vamos a ver cómo podemos dotar
+de más robustez a la detección de anomalías univariantes.
+
 # Aplicación de tests estadísticos para la detección de anomalías
+
+En este apartado veremos cómo podemos aplicar tests estadísticos para
+la detección de datos anómalos univariantes. En primer lugar,
+aplicaremos el test de Grubbs, el cual nos permite saber si existe un
+único outlier en una determinada columna del conjunto de datos, y
+posteriormente utilizaremos el test de Rosner, el cual nos permitirá
+deducir si hay hasta $k$ outliers, para k conocido de antemano.
+Comenzamos comentando el test de Grubbs.
 
 ## Test de Grubbs
 
+Este test estadístico permite encontrar outliers en una distribución
+univariante, asumiendo que existe normalidad en la misma. Existen dos
+versiones del test, dependiendo si hacemos el test con una o dos
+colas.  La versión del test de una cola nos permite saber si el máximo
+o el mínimo de los valores es anómalo, pero no trabaja sobre ambos
+valores simultáneamente. Nosotros utilizaremos el test de dos colas,
+que trabaja sobre toda la muestra. Para ambas versiones del test, las
+hipótesis que plantea el mismo son las siguientes.
+
+- $H_0$: No hay anomalías en el conjunto de datos
+- $H_1$: Hay exactamente una anomalía en el conjunto de datos
+
+El estadístico del test de Grubbs se define como:
+
+\[
+G = \frac{\max\limits_{i=1,..., N} \lvert Y_i - \bar{Y} \rvert}{S}
+\]
+
+Donde $\bar{Y}$ y $S$ representan la media y la desviación típica
+muestrales, simultáneamente. Para el test de dos colas, la hipótesis
+nula se rechaza para un nivel de significación $\alpha$ si el
+estadístico $G$ cumple:
+
+\[ G>{\frac {N-1}{{\sqrt {N}}}}{\sqrt {{\frac {t_{{\alpha
+/(2N),N-2}}^{2}}{N-2+t_{{\alpha /(2N),N-2}}^{2}}}}} \]
+
+Donde $t_{{\alpha/(2N),N-2}}$ es el valor crítico para el nivel de
+significación $\alpha/2N$ de una distribución T de Student con $N-2$
+grados de libertad. Vamos a ver cómo podemos aplicar este test a una
+columna de nuestro conjunto de datos.
+
 ```{r}
-hist(mydata.numeric)
+hist(selected.col)
 
-plot(mydata.numeric)
+plot(selected.col)
 
-grubbs.test(mydata.numeric, two.sided = T)
+grubbs.test(selected.col, two.sided = T)
 
 indice.de.outlier.Grubbs <- order(
-    abs(mydata.numeric - mean(mydata.numeric)), decreasing = T
+    abs(selected.col - mean(selected.col)), decreasing = T
 )[1]
 indice.de.outlier.Grubbs
 
-valor.de.outlier.Grubbs <- mydata.numeric[
+valor.de.outlier.Grubbs <- selected.col[
     indice.de.outlier.Grubbs
 ]
 valor.de.outlier.Grubbs
 
-MiPlot_Univariate_Outliers(mydata.numeric, indice.de.outlier.Grubbs,
+MiPlot_Univariate_Outliers(selected.col, indice.de.outlier.Grubbs,
                            "Valor outlier según el test de Grubbs")
 
 ## Automatización utilizando una función
-MiPlot_resultados_TestGrubbs(mydata.numeric)
+selected.col <- dataset$V5
+MiPlot_resultados_TestGrubbs(selected.col)
 
 ## Problema de masking
 plot(datos.con.dos.outliers.masking)
 grubbs.test(datos.con.dos.outliers.masking, two.sided = T)
-```
-
-## Test de Rosner
-
-```{r}
-test.de.rosner <- rosnerTest(datos.con.dos.outliers.masking, 4)
-
-test.de.rosner$all.stats$Outlier
-test.de.rosner$all.stats$Obs.Num
-
-MiPlot_Univariate_Outliers(datos.con.dos.outliers.masking, c(10,11),
-                           "Outliers detectados por el test de Rosner")
-
-MiPlot_resultados_TestRosner(datos.con.dos.outliers.masking, 4)
-```
-
-# Test de Cerioli para el cálculo de outliers multivariados
-
-```{r}
-nivel.de.significacion = 0.05
-nivel.de.significacion.penalizado = 1 - (1 - nivel.de.significacion) ^ (1 / nrow(mis.datos.numericos))  # Transparencia 96
-
-set.seed(12)
-
-## Método de Cerioli para el cálculo de outliers
-cerioli <- cerioli2010.fsrmcd.test(
-    mis.datos.numericos, signif.alpha = nivel.de.significacion
-)
-
-cerioli$outliers
-
-is.outlier.cerioli <- which(cerioli$outliers)
-is.outlier.cerioli
-
-dist.mah.ponderadas <- cerioli$mahdist.rw
-order.idx <- order(dist.mah.ponderadas, decreasing = T)
-
-order.idx
-
-mis.datos.numericos.normalizados[order.idx[1],]
-
-## Uso del test para más de un punto anómalo
-cerioli.b <- cerioli2010.fsrmcd.test(
-    mis.datos.numericos, signif.alpha = nivel.de.significacion.penalizado
-)
-
-which(cerioli.b$outliers)
-
-```
-
-# Detección de outliers usando LOF
-
-```{r}
-numero.de.vecinos.lof = 5
-
-lof.scores <- lofactor(mis.datos.numericos.normalizados, numero.de.vecinos.lof)
-lof.scores
-
-indices.segun.lof.score.ordenados <- order(lof.scores, decreasing = T)
-indices.segun.lof.score.ordenados
-
-lof.scores.ordenados <- lof.scores[indices.segun.lof.score.ordenados]
-lof.scores.ordenados
-
-plot(lof.scores.ordenados)
-
-numero.de.outliers <- 4
-indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
-
-is.lof.outlier <- 1:dim(
-                        mis.datos.numericos.normalizados
-                    )[1] %in% indices.de.lof.top.outliers
-
-is.lof.outlier
-
-MiBiPlot_Multivariate_Outliers(
-    mis.datos.numericos.normalizados, is.lof.outlier,
-    "Outliers detectador por LOF"
-)
-
-data.frame.solo.outliers <- mis.datos.numericos.normalizados[is.lof.outlier,]
-
-MiBoxPlot_juntos(mis.datos.numericos.normalizados, is.lof.outlier)
-```
-
-## Uso de IQR para eliminar los outliers univariantes
-
-```{r, fig.height=3.5}
-vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mis.datos.numericos.normalizados)
-vector.claves.outliers.IQR.en.alguna.columna
-
-indices.de.outliers.multivariantes.LOF.pero.no.1variantes <- setdiff(
-    indices.de.lof.top.outliers, vector.claves.outliers.IQR.en.alguna.columna
-)
-
-indices.de.outliers.multivariantes.LOF.pero.no.1variantes
-valores.normalizados.de.los.outliers.LOF.pero.no.1variantes <- mis.datos.numericos.normalizados[indices.de.outliers.multivariantes.LOF.pero.no.1variantes,]
-valores.normalizados.de.los.outliers.LOF.pero.no.1variantes
-
-numero.de.outliers <- 12
-
-indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
-
-is.lof.outlier <- 1:dim(
-                        mis.datos.numericos.normalizados
-                    )[1] %in% indices.de.lof.top.outliers
-
-MiBiPlot_Multivariate_Outliers(
-    mis.datos.numericos.normalizados, is.lof.outlier,
-    "Outliers detectador por LOF"
-)
-
-data.frame.solo.outliers <- mis.datos.numericos.normalizados[is.lof.outlier,]
-
-MiBoxPlot_juntos(mis.datos.numericos.normalizados, is.lof.outlier)
-
-vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(mis.datos.numericos.normalizados)
-vector.claves.outliers.IQR.en.alguna.columna
-
-indices.de.outliers.multivariantes.LOF.pero.no.1variantes <- setdiff(
-    indices.de.lof.top.outliers, vector.claves.outliers.IQR.en.alguna.columna
-)
-indices.de.outliers.multivariantes.LOF.pero.no.1variantes
-
-valores.normalizados.de.los.outliers.LOF.pero.no.1variantes <- mis.datos.numericos.normalizados[indices.de.outliers.multivariantes.LOF.pero.no.1variantes,]
-valores.normalizados.de.los.outliers.LOF.pero.no.1variantes
-
-MiPlot_Univariate_Outliers(
-    mis.datos.numericos.normalizados,
-    which(rownames(mis.datos.numericos.normalizados) == "Ferrari Dino"),
-    "Ferrari Dino"
-)
 ```
