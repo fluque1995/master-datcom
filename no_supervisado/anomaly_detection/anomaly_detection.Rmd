@@ -23,6 +23,7 @@ library(knitr)
 library(rmatio)
 library(GGally)
 library(gridExtra)
+library(ggfortify)
 
 ## Cargamos las librerías y funciones pertinentes
 source("Outliers_A2_Librerias_a_cargar_en_cada_sesion.R")
@@ -98,8 +99,8 @@ para una variable, y lo aplicaremos después para todas las demás:
 
 ```{r, echo=T, fig.height=4}
 ## Leemos el dataset y seleccionamos una columna
-# dataset <- read.csv("dataset/yeast.data")
-dataset <- as.data.frame(read.mat("dataset/thyroid.mat")$X)
+# dataset <- read.csv("dataset/ecoli.data")
+dataset <- as.data.frame(read.mat("dataset/vertebral.mat")$X)
 columna.scaled <- scale(dataset$V5)
 
 ## Calculamos los cuartiles y el IQR
@@ -219,7 +220,7 @@ Una vez hemos visto cómo podemos detectar valores anómalos utilizando
 el método del rango intercuartílico, vamos a ver cómo podemos dotar
 de más robustez a la detección de anomalías univariantes.
 
-# Aplicación de tests estadísticos para la detección de anomalías
+# Tests estadísticos para la detección de anomalías univariables
 
 En este apartado veremos cómo podemos aplicar tests estadísticos para
 la detección de datos anómalos univariantes. En primer lugar,
@@ -291,9 +292,9 @@ iterativamente este algoritmo mientras se sigan encontrando anomalías,
 quitando cada vez el punto marcado como anomalía. No obstante, el
 hecho de trabajar con un único punto puede producir ciertos
 problemas. Por ejemplo existe una problemática conocida como masking,
-en la cual la presencia de varios valores anómalos hacen que este
-test no permita rechazar la hipótesis nula. Ponemos a continuación
-un ejemplo de masking:
+en la cual la presencia de varios valores anómalos hacen que este test
+no permita rechazar la hipótesis nula. Ponemos a continuación un
+ejemplo de masking:
 
 ```{r}
 ## Tenemos dos valores claramente anómalos
@@ -341,3 +342,320 @@ calculan como
 
 Donde de nuevo, $t_{p,n}$ corresponde al percentil $p$ extraído de una
 distribución t de Student con $n$ grados de libertad.
+
+Para ver cómo funciona el algoritmo sobre nuestros datos, trataremos
+de encontrar los outliers por este método sobre los datos sintéticos
+que hemos generado previamente:
+
+```{r}
+test.de.rosner <- rosnerTest(datos.masking, 3)
+
+test.de.rosner$all.stats$Outlier
+test.de.rosner$all.stats$Obs.Num
+
+outliers.rosner <- test.de.rosner$all.stats$Obs.Num[
+                                                test.de.rosner$all.stats$Outlier
+                                            ]
+MiPlot_Univariate_Outliers(datos.masking, outliers.rosner,
+                           "Outliers detectados por el test de Rosner")
+```
+
+En nuestro caso, hemos ejecutado el test para buscar un máximo de 3
+outliers, pero sólo han dado positivo dos de ellos (los cuales
+habíamos observado a simple vista a priori). La ventaja que aporta
+este test frente al de Grubbs es la capacidad de detectar más de un
+elemento anómalo al mismo tiempo. Aplicamos a continuación este test a
+nuestro conjunto de datos, para tratar de detectar valores anómalos
+sobre nuestras variables.
+
+```{r}
+apply(dataset, 2, MiPlot_resultados_TestRosner, num_outliers=10)
+```
+
+# Test de hipótesis para detección de anomalías multivariables
+
+Una vez que hemos visto tests de hipótesis que nos permiten detectar
+outliers en variables unidimensionales, lo que nos será realmente
+interesante es encontrar valores anómalos en distribuciones de mayor
+dimensionalidad. En este caso no buscaremos valores anormales dentro
+de una única variable, si no que la idea será encontrar combinaciones
+atípicas de valores en varias variables. De esta forma, aunque los
+valores que toma cada variable por separado puedan ser valores
+normales, la anomalía proviene de la combinación de los mismos.
+
+Vamos a aplicar este test sobre nuestro conjunto de datos. Para tratar
+de dar una información lo más visual posible, trabajaremos en primer
+lugar sobre dos columnas del dataset, en lugar del conjunto de datos
+completo. De esta forma, podremos observar gráficamente si somos
+capaces de detectar outliers bivariantes que no son considerados como
+tales cuando trabajamos con las variables de forma independiente.Este
+test tiene dos posibles formas de aplicación, para detectar un único
+outlier, o para detectar todos los posibles outliers del conjunto de
+datos. En el primero de los casos, las hipótesis que se imponen son
+
+- $H_0$: en el conjunto de datos no hay ningún outlier.
+- $H_1$: en el conjunto de datos hay exactamente un outlier.
+
+Usando este test, sólo podremos sacar conclusiones sobre el valor más
+desviado de nuestra distribución. En el segundo de los casos, se
+relaja la hipótesis alternativa, lo cual nos obliga a aplicar una
+corrección sobre el nivel de significación, para evitar incurrir en un
+error FWER. La nueva hipótesis alternativa es la siguiente:
+
+- $H_1$: en el conjunto de datos hay al menos un outlier
+
+Aplicamos ambos métodos sobre las columnas 3 y 4 de
+nuestro dataset. Comenzamos por el primero de los métodos:
+
+```{r}
+bivar.dataset <- dataset[, 3:4]
+bivar.dataset.scaled <- scale(bivar.dataset)
+nivel.de.significacion = 0.05
+
+## Método de Cerioli para el cálculo de outliers
+cerioli <- cerioli2010.fsrmcd.test(
+    bivar.dataset, signif.alpha = nivel.de.significacion
+)
+is.outlier.cerioli <- which(cerioli$outliers)
+dist.mah.ponderadas <- cerioli$mahdist.rw
+order.idx <- order(dist.mah.ponderadas, decreasing = T)
+
+## Estudiamos únicamente el primero de los outliers, aquel que tiene
+## una distancia de Mahalanobis mayor
+
+kable(t(bivar.dataset.scaled[order.idx[1],]),
+      caption = "Valores normalizados para el outlier encontrado con el test de Cerioli de tipo a")
+
+
+ggplot(bivar.dataset, aes(x=V3, y=V4)) +
+    geom_point(colour = "lightblue") +
+    geom_point(data=bivar.dataset[order.idx[1],], colour = "red")
+```
+
+En el caso del primer outlier, podemos comprobar que tiene un valor
+anormalmente alto para la variable V4, por lo que en realidad no es uno
+de esos puntos que estamos buscando, que tienen valores normales en
+ambas variables pero su combinación es anormal. No obstante, si en
+lugar de utilizar el test como un test de tipo a lo utilizamos como un
+test de tipo b, corrigiendo adecuadamente el nivel de significación,
+lo que obtenemos es lo siguiente:
+
+```{r}
+bivar.dataset <- dataset[, 3:4]
+bivar.dataset.scaled <- scale(bivar.dataset)
+nivel.de.significacion.penalizado = 1 - (1 - nivel.de.significacion) ^ (1 / nrow(bivar.dataset))
+
+## Método de Cerioli para el cálculo de outliers
+cerioli <- cerioli2010.fsrmcd.test(
+    bivar.dataset, signif.alpha = nivel.de.significacion.penalizado
+)
+
+is.outlier.cerioli <- which(cerioli$outliers)
+cerioli.outliers <- bivar.dataset.scaled[is.outlier.cerioli,]
+rownames(cerioli.outliers) <- is.outlier.cerioli
+
+kable(cerioli.outliers,
+      caption = "Valores normalizados para los outliers encontrados con el test de Cerioli de tipo b")
+
+ggplot(bivar.dataset, aes(x=V3, y=V4)) +
+    geom_point(colour = "lightblue") +
+    geom_point(data=bivar.dataset[is.outlier.cerioli,], colour = "red") +
+    geom_point(data=bivar.dataset[180,], colour = "darkgreen")
+```
+
+Podemos observar que ahora sí obtenemos resultados más
+interesantes. Aunque los valores para las variables del punto con
+índice 180, marcado en verde en el gráfico, no son especialmente
+anómalos (para la variable V3 el valor está a menos de 1 unidad de la
+media, y para la variable V4 a menos de 2), la combinación de valores
+sí que es atípica, y por esto el algoritmo nos marca el punto como
+anómalo. Algo similar podemos decir de los puntos con índice 163, 202
+y 203, aunque para éstos el valor de una de las variables es
+ligeramente alto.
+
+Podemos extraer conclusiones interesantes observando los resultados
+obtenidos por el test de Rosner y los resultados obtenidos por este
+método. El test de Rosner sólo nos arrojó resultados positivos para un
+punto en cada una de las dos variables que estamos utilizando.
+Probablemente, estos dos puntos correspondan a los dos valores más
+extremos en cada uno de los ejes de la nube de puntos anterior (los
+que corresponden a los índices 116 y 198 en la tabla). Ahora, al
+combinar las dos variables y trabajar con un test multidimensional,
+tenemos muchos más registros con valores atípicos, los cuales resultan
+más interesantes de estudiar que las anomalías univariadas.
+
+Este test puede ser aplicado a distribuciones de mayor
+dimensionalidad, no sólo para distribuciones bidimensionales. Podemos
+utilizar el test sobre el conjunto de datos al completo. No obstante,
+existe una dependencia lineal muy alta entre algunas de nuestras
+variables, y si intentamos ejecutar el algoritmo sobre las 6 columnas
+se nos produce un error porque la matriz de covarianzas con la que
+trabaja el test se convierte en una matriz singular y no es
+diagonalizable. Esto nos ha obligado a descartar la primera variable y
+trabajar con las otras cinco. El resultado que obtenemos es el
+siguiente (la representación gráfica se realiza sobre las dos primeras
+componentes principales del conjunto de datos:
+
+
+```{r}
+multivar.dataset <- dataset[,2:6]
+dataset.scaled <- scale(multivar.dataset)
+nivel.de.significacion.penalizado = 1 - (1 - nivel.de.significacion) ^ (1 / nrow(multivar.dataset))
+
+## Método de Cerioli para el cálculo de outliers
+cerioli <- cerioli2010.fsrmcd.test(
+    multivar.dataset, signif.alpha = nivel.de.significacion.penalizado
+)
+
+is.outlier.cerioli <- which(cerioli$outliers)
+cerioli.outliers <- dataset.scaled[is.outlier.cerioli,]
+rownames(cerioli.outliers) <- is.outlier.cerioli
+
+kable(cerioli.outliers,
+      caption = "Valores normalizados para los outliers encontrados con el test de Cerioli de tipo b sobre el conjunto de datos completo")
+
+multivar.dataset$outlier <- cerioli$outliers
+autoplot(prcomp(multivar.dataset), data = multivar.dataset, colour = 'outlier')
+```
+
+Donde de nuevo podemos observar que tenemos algunos outliers
+multidimensionales sobre el conjunto completo. Si quitamos
+aquellos outliers en los que al menos una variable se desvía
+más de $2\sigma$ de su media, los outliers que nos quedan son
+los siguientes:
+
+```{r}
+extreme.rows <- apply(cerioli.outliers, 1, function(x) any(abs(x) > 2))
+
+kable(cerioli.outliers[!extreme.rows,],
+      caption = "Valores outliers multivariados puros")
+```
+
+Una vez hemos visto cómo detectar outliers utilizando tests
+estadísticos, en el siguiente apartado trataremos de utilizar modelos
+basados en distancias para la detección de anomalías.
+
+# Modelos basados en distancias para detección de anomalías
+
+En este apartado, utilizaremos métodos no paramétricos basados en
+distancias para la detección de puntos anómalos en nuestro conjunto de
+datos. La principal ventaja que tienen estos métodos respecto a los
+anteriores es que no necesitan suponer una distribución sobre los
+datos a priori. Los test estadísticos que hemos utilizado previamente
+asumían que los datos seguían una distribución normal, lo cual es una
+asunción bastante fuerte, que no siempre se cumple cuando se trabaja
+en un problema real. Los métodos que vamos a utilizar a continuación
+no necesitan hacer estas suposiciones, dado que son métodos no
+paramétricos.
+
+Vamos a estudiar varios métodos distintos basados en distancias. El
+primero de ellos, conocido como Local Outlier Factor, se se basa en la
+idea del vecino más cercano. El resto de métodos son modificaciones de
+algoritmos clásicos de clustering,
+
+## LOF
+
+En este apartado, veremos un método basado en distancias para la
+detección de datos anómalos. Concretamente, este algoritmo, conocido
+como Local Outlier Factor (LOF), se basa en la idea de vecinos más
+cercanos. Para cada punto del conjunto de datos, se calcula una
+puntuación, la cual se calcula como una función dependiente de la
+distancia de dicho punto a sus $k$ vecinos más cercanos, cuanto mayor
+sea este valor, más aislado del resto de puntos del conjunto se
+encuentra el dato en cuestión. Para este algoritmo nos hace falta, por
+tanto, establecer la función de distancia con la que trabajaremos, que
+en nuestro caso será la distancia euclídea porque todas las variables
+con las que trabajamos son numéricas y carecemos de información para
+poder utilizar una distancia más apropiada, y el valor de $k$. En
+principio, estableceremos dicho valor a 5, ya que no tenemos mucha
+información sobre el conjunto de datos.
+
+```{r}
+dataset.scaled <- scale(dataset)
+numero.de.vecinos.lof = 5
+
+lof.scores <- lofactor(dataset.scaled, numero.de.vecinos.lof)
+
+indices.segun.lof.score.ordenados <- order(lof.scores, decreasing = T)
+
+lof.scores.ordenados <- lof.scores[indices.segun.lof.score.ordenados]
+plot(lof.scores.ordenados)
+```
+
+En el plot anterior podemos ver como hay un primer grupo de valores
+anómalos detectados por este método, y tras un pequeño salto, se
+produce una cierta estabilizacion de dichos valores, que empiezan a
+decrecer a un ritmo más lento. Concretamente, en el primer grupo hay
+siete puntos, contando con el outlier con un valor superior a 6. Este
+método no nos marca el número de outliers, si no que nos da un
+determinado coeficiente para cada punto. Tras calcular ese
+coeficiente, tenemos que decidir nosotros cuál es el valor a partir
+del cual se considera que un punto es anómalo. Esta es una de las
+problemáticas del algoritmo. El índice de anomalía que se nos da no es
+fácilmente interpretable. Por la construcción del mismo, es evidente
+que un valor menor o igual que 1 representa un punto no anómalo, pero
+para cualquier valor superior a 1, es difícil establecer el punto en
+el que los ejemplos empiezan a considerarse anómalos. El valor óptimo
+es muy dependiente del dataset, y por lo general difícil de
+establecer. Como ya hemos comentado, inspeccionando los valores
+ordenados, parece sensato establecer el número de outliers en 7:
+
+```{r}
+numero.de.outliers <- 7
+indices.de.lof.top.outliers <- indices.segun.lof.score.ordenados[1:numero.de.outliers]
+
+is.lof.outlier <- 1:dim(dataset.scaled)[1] %in% indices.de.lof.top.outliers
+
+MiBiPlot_Multivariate_Outliers(
+    dataset.scaled, is.lof.outlier,
+    "Outliers detectados por LOF"
+)
+
+data.frame.solo.outliers <- dataset.scaled[is.lof.outlier,]
+
+MiBoxPlot_juntos(dataset.scaled, is.lof.outlier)
+```
+
+En el boxplot anterior podemos comprobar que muchos de los puntos que
+hemos detectado tienen algún outlier univariante. Como lo que nos
+interesa con este método es buscar outliers multivariantes, vamos a
+tratar de limpiar los elementos anomálos univariantes de las anomalías
+que hemos obtenido. Una vez hemos etiquetado los puntos anómalos con
+LOF, vamos a eliminar de este conjunto aquellos puntos que tengan
+algún outlier univariante. Para esto, extraeremos, utilizando el
+método IQR, los registros que tengan algún outlier para alguna
+variable.
+
+```{r}
+vector.claves.outliers.IQR.en.alguna.columna <- vector_claves_outliers_IQR_en_alguna_columna(dataset.scaled)
+
+indices.de.outliers.multivariantes.LOF.pero.no.1variantes <- setdiff(
+    indices.de.lof.top.outliers, vector.claves.outliers.IQR.en.alguna.columna
+)
+
+valores.normalizados.de.los.outliers.LOF.pero.no.1variantes <- dataset.scaled[
+    indices.de.outliers.multivariantes.LOF.pero.no.1variantes,
+    ]
+
+is.lof.multivariate.outlier <- 1:dim(dataset.scaled)[1] %in%
+    indices.de.outliers.multivariantes.LOF.pero.no.1variantes
+
+MiBiPlot_Multivariate_Outliers(
+    dataset.scaled, is.lof.multivariate.outlier,
+    "Outliers multivariantes detectados por LOF"
+)
+
+kable(t(valores.normalizados.de.los.outliers.LOF.pero.no.1variantes),
+      caption="Valores de las variables normalizadas para el outlier multivariante detectado con LOF")
+```
+
+Como podemos observar en la gráfica anterior, casi todos los outliers
+que se han detectado por este método son outliers univariantes. Tras
+limpiar los outliers detectados por el método IQR, sólo nos ha quedado
+un punto relevante. Además, este punto tiene un valor ligeramente alto
+para la segunda variable, como se puede ver en la tabla anterior. A
+pesar de esto, no es un punto con valores muy extremos, como podemos
+comprobar en la nube de puntos previa. El hecho de que aparezca
+rodeado de otros puntos nos indica que para ninguna de las variables
+se tiene un valor excesivamente alto, y que por tanto es posible
+que hayamos encontrado realmente un outlier multivariante.
