@@ -548,10 +548,15 @@ en un problema real. Los métodos que vamos a utilizar a continuación
 no necesitan hacer estas suposiciones, dado que son métodos no
 paramétricos.
 
-Vamos a estudiar varios métodos distintos basados en distancias. El
+Vamos a estudiar tres métodos distintos basados en distancias. El
 primero de ellos, conocido como Local Outlier Factor, se se basa en la
-idea del vecino más cercano. El resto de métodos son modificaciones de
-algoritmos clásicos de clustering,
+idea del vecino más cercano. Los dos métodos restantes son
+modificaciones de algoritmos clásicos de clustering, concretamente de
+k-means y PAM, los cuales marcan los puntos como anómalos en función
+de la distancia que haya entre cada punto y el centro del cluster
+al que pertenece.
+
+Comenzamos estudiando el método basado en vecindad.
 
 ## LOF
 
@@ -659,3 +664,109 @@ comprobar en la nube de puntos previa. El hecho de que aparezca
 rodeado de otros puntos nos indica que para ninguna de las variables
 se tiene un valor excesivamente alto, y que por tanto es posible
 que hayamos encontrado realmente un outlier multivariante.
+
+Una vez hemos visto el funcionamiento del algoritmo basado en vecindad,
+pasamos a comentar los métodos basados en clustering.
+
+## Métodos basados en clustering
+
+Los métodos de agrupamiento basados en clustering que vamos a estudiar
+se basan todos en la misma idea. Cada cluster del conjunto estará
+representado por un elemento característico o centroide, y cada
+ejemplo será considerado como más o menos anómalo en función de la
+distancia a la que se encuentre del centroide de su grupo. La
+diferencia entre los algoritmos que veremos reside en la forma que
+tienen de buscar los centroides. Comenzamos con el método conocido
+como k-means
+
+### K-means
+
+El algoritmo de k-means o algoritmo de las k-medias es un algoritmo de
+agrupamiento cuyo funcionamiento se basa en la construcción de
+instancias artificiales, que funcionan como centros de sus
+clusters. El funcionamiento del algoritmo es el que sigue. Se debe
+establecer a priori el número $k$ de grupos que van a formarse. Una
+vez especificado dicho valor:
+
+- Se inicializan aleatoriamente $k$ elementos artificiales en el
+  espacio de características (centroides)
+- Se asigna cada ejemplo del conjunto al centroide más cercano
+- Mientras no se alcance un punto de equilibrio (la asignación de los
+  puntos a los centroides no cambie en una iteración)
+  - Se recalcula la posición de los centroides como la media
+  aritmética de los puntos que pertenecen al cluster
+  - Se reasignan los puntos a su cluster más cercano.
+
+Como se puede intuir de la descripción del algoritmo, este método es
+dependiente de la función de distancia que se utilice. Usualmente,
+para atributos numéricos, suelen usarse distancias de Minkowski, y más
+concretamente la distancia de Minkowski para $k=2$ (distancia
+euclídea). No obstante, para otro tipo de dato, o con el fin de
+aportar información al problema, se puede utilizar otra función de
+distancia. No estudiaremos cómo afecta el cambio de la distancia
+al resultado del algoritmo, ya que carece de interés por el momento.
+Nos limitaremos al uso de la distancia euclídea, la cual está bien
+definida en nuestro problema, ya que todos los atributos de nuestro
+conjunto de datos son atributos numéricos continuos.
+
+Mostramos una ejecución del algoritmo. Trabajaremos con tres clusters
+en primer lugar. En la gráfica puede observarse el resultado de la
+ejecución del algoritmo. Es recomendable remarcar que, aunque la
+visualización la hemos hecho sobre los datos originales, el algoritmo
+se ha ejecutado sobre los datos normalizados, ya que las diferencias
+en la varianza de las distintas variables afectan notablemente en las
+distancias calculadas, por lo que se debe trabajar con los datos
+normalizados para evitar introducir un sesgo.
+
+```{r}
+numero.de.clusters <- 3
+dataset.scaled <- scale(dataset)
+modelo.kmeans <- kmeans(dataset.scaled, numero.de.clusters)
+indices.clustering <- modelo.kmeans$cluster
+
+centroides.normalizados <- modelo.kmeans$centers
+
+autoplot(modelo.kmeans, data = dataset)
+```
+
+Una vez tenemos los resultados del modelo, se nos proporcionan también
+las coordenadas de los tres centroides:
+
+```{r}
+kable(centroides.normalizados, row.names=T, caption="Coordenadas normalizadas de los centroides calculados por el algoritmo")
+```
+
+Con esta información, podemos calcular las distancias de cada punto a
+su centroide. Tras esto, ordenando las distancias obtenidas, tenemos
+los puntos que más se alejan de sus respectivos centroides, y por
+tanto los datos peor representados por su conjunto. Mostramos a
+continuación los primeros outliers de nuestro conjunto de datos,
+ordenados en función de la distancia a su centroide:
+
+```{r}
+distancias_a_centroides = function (datos.normalizados,
+                                    indices.asignacion.clustering,
+                                    datos.centroides.normalizados){
+    sqrt(rowSums((datos.normalizados - datos.centroides.normalizados[
+                                           indices.asignacion.clustering,
+                                           ])^2
+                 ))
+}
+
+dist.centroides <- distancias_a_centroides(dataset.scaled, indices.clustering,
+                                           centroides.normalizados)
+
+top.outliers <- order(dist.centroides, decreasing = T)[1:15]
+
+kable(t(dist.centroides[top.outliers]), col.names=top.outliers, digits = 2,
+      caption="Índice y distancia de los 15 puntos más alejados de sus respectivos centroides")
+```
+
+La problemática principal de este método, al igual que ocurría con
+LOF, es el hecho de tener que identificar los outliers a partir de los
+valores de distancia anteriores, cosa que puede no ser sencilla en
+todos los casos. Observando los valores, tenemos un punto
+significativamente alejado de su centroide, tras este otros cuatro
+puntos en los que la distancia aún se decrementa rápidamente entre uno
+y otro, y después los valores comienzan a estabilizarse. Consideramos,
+por tanto, que  existen 5 outliers en nuestro conjunto de datos.
