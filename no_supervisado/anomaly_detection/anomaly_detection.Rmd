@@ -770,3 +770,27 @@ significativamente alejado de su centroide, tras este otros cuatro
 puntos en los que la distancia aún se decrementa rápidamente entre uno
 y otro, y después los valores comienzan a estabilizarse. Consideramos,
 por tanto, que  existen 5 outliers en nuestro conjunto de datos.
+Mostramos dichos outliers en una gráfica sobre el conjunto de datos completo:
+
+```{r}
+is.kmeans.outlier <- sapply(1:dim(dataset.scaled)[1], function (x) x %in% top.outliers[1:5])
+
+BIPLOT.isOutlier             = is.kmeans.outlier
+BIPLOT.cluster.colors        = c("blue","red","brown")     # Tantos colores como diga numero.de.clusters
+BIPLOT.asignaciones.clusters = indices.clustering
+MiBiPlot_Clustering_Outliers(dataset, "K-Means Clustering Outliers")
+```
+
+En el biplot se muestran los 5 puntos marcados como outliers. Se puede
+observar que todos los puntos se encuentran en la parte más externa
+del gráfico, lo cual suele indicar que los outliers son univariantes.
+En efecto, en la siguiente tabla podemos observar que, en todos los
+casos, al menos una de las columnas presenta un valor alto:
+
+```{r}
+kmeans.outliers.data <- as.data.frame(dataset.scaled[top.outliers[1:5],])
+rownames(kmeans.outliers.data) <- top.outliers[1:5]
+
+kable(kmeans.outliers.data, caption="Valores de las características de los \
+primeros 5 outliers encontrados por el algoritmo k-means")
+```
