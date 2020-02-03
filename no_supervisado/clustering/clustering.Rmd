@@ -27,6 +27,8 @@ library(dplyr)
 library(factoextra)
 library(fastDummies)
 library(knitr)
+library(Rtsne)
+library(gplots)
 ```
 
 # Introducción
@@ -207,8 +209,9 @@ serán igualmente relevantes a la hora de calcular la distancia
 entre dos elementos de la base de datos:
 
 ```{r}
-scaled.data <- scale(numeric.data) # La función scale hace la transformación
-                                        # que hemos especificado
+scaled.data <- scale(numeric.data) # La función scale hace la
+                                   # transformación que hemos
+                                   # especificado
 ```
 
 Una vez aplicada la transformación, aplicamos el algoritmo de
@@ -237,11 +240,11 @@ conf.mat <- apply(conf.mat, 2, rev)
 kable(conf.mat)
 ```
 
-Podemos observar que los resultados obtenidos no son especialmente a
-la hora de clasificar los elementos de nuestro conjunto de datos en
-pagadores y no pagadores. En efecto, si mostramos el mismo gráfico que
-anteriormente, pero utilizando la columna impago como etiqueta,
-obtenemos el siguiente resultado:
+Podemos observar que los resultados obtenidos no son especialmente
+buenos a la hora de clasificar los elementos de nuestro conjunto de
+datos en pagadores y no pagadores. En efecto, si mostramos el mismo
+gráfico que anteriormente, pero utilizando la columna impago como
+etiqueta, obtenemos el siguiente resultado:
 
 ```{r echo=F}
 dataset['impago'] <- as.factor(dataset[,'impago'])
@@ -302,8 +305,7 @@ de silueta del agrupamiento que hemos generado anteriormente de la
 siguiente forma:
 
 ```{r}
-scaled.distances <- dist(scaled.data) # Tenemos que calcular
-                                        # manualmente las distancias
+scaled.distances <- dist(scaled.data) # Calculamos las distancias
 sil <- silhouette(kmeans.res$cluster, scaled.distances)
 plot(sil, col=1:nclust, main = "Silhouette plot")
 ```
@@ -615,7 +617,7 @@ gente que no ha incurrido en impago ha aumentado en varios elementos,
 y especialmente para el otro cluster, el número de ejemplos bien
 clasificados se ha duplicado, prácticamente. Este hecho nos indica que
 la variable nominal de la que disponemos, el nivel de estudios del
-inidividuo, es una variable relevante a la hora de afrontar este
+individuo, es una variable relevante a la hora de afrontar este
 problema, y nos permite agrupar bien (al menos, mejor que las otras
 variables con las que habíamos trabajado hasta el momento) los elementos
 de nuestro conjunto. A pesar de ello, la solución aún dista mucho
@@ -645,10 +647,11 @@ agrupamientos con más clusters (trivialmente, el coeficiente de
 silueta carece de sentido cuando sólo se dispone de un cluster, ya que
 es necesario calcular las distancias a puntos en otros clusters). El
 límite superior se establece en 10 porque con un conjunto de datos tan
-pequeño, un número mayor de clusters empieza a perder sentido. No
-obstante, si el número de clusters óptimo se situase en el máximo que
-hemos escogido, sería recomendable aumentar dicho número y repetir
-los experimentos.
+pequeño, un número mayor de clusters empieza a perder sentido, debido
+a que el número de puntos que se asignan a cada cluster es muy
+bajo. No obstante, si el número de clusters óptimo se situase en el
+máximo que hemos escogido, sería recomendable aumentar dicho número y
+repetir los experimentos.
 
 Ejecutaremos el algoritmo sobre la matriz de distancias del apartado
 anterior, que es la que mejores resultados nos ha proporcionado hasta
@@ -702,16 +705,19 @@ funcionamiento del algoritmo es el siguiente. Mientras no se hayan
 agrupado todos los puntos:
 
 1. Se selecciona un punto que aún no ha sido agrupado $x$
-1. Se seleccionan todos los elementos del conjunto que estén a una distancia
-menor que $\varepsilon$ de $x$ y se añaden al cluster de $x$, siempre que
-no hayan sido seleccionados previamente
-2. Para todos los puntos seleccionados, se repite el proceso
-3. Cuando no queden más puntos por seleccionar dentro del cluster
-1. Si se han agrupado suficientes puntos juntos (un parámetro
-del algoritmo dicta cuántos puntos son necesarios), se marcan
-todos los puntos agrupados como un cluster.
-2. Si no se han agrupado suficientes puntos, se marcan como
-aislados
+
+   1. Se seleccionan todos los elementos del conjunto que estén a una distancia
+   menor que $\varepsilon$ de $x$ y se añaden al cluster de $x$, siempre que
+   no hayan sido seleccionados previamente
+   2. Para todos los puntos seleccionados, se repite el proceso
+   3. Cuando no queden más puntos por seleccionar dentro del cluster
+
+        1. Si se han agrupado suficientes puntos juntos (un parámetro
+        del algoritmo dicta cuántos puntos son necesarios), se marcan
+        todos los puntos agrupados como un cluster.
+        2. Si no se han agrupado suficientes puntos, se marcan como
+        aislados
+
 2. Si quedan puntos sin marcar como pertenecientes a un cluster o como
 puntos aislados, se vuelve al inicio
 
@@ -1238,9 +1244,8 @@ en pasos de $0.1$, no conseguimos que el algoritmo converja hasta que
 $q = 1.5$. Tomamos por tanto ese valor de $q$ como referencia. Los
 resultados obtenidos para dicho valor son los siguientes:
 
-```{r}
+```{r, fig.height=4}
 fuzzy.result <- fanny(scaled.data, nclust, memb.exp = 1.5)
-
 autoplot(fuzzy.result)
 ```
 
@@ -1262,6 +1267,149 @@ coeficiente de silueta:
 
 ```{r}
 sil <- silhouette(fuzzy.result$cluster, scaled.distances)
-
 plot(sil, col = 1:nclust)
 ```
+
+Podemos observar que los resultados obtenidos no son especialmente
+buenos, ya que en este caso nos va a ocurrir los mismo que nos ocurría
+en el caso de las k-medias. Este conjunto de datos no es
+particularmente adecuado para el uso de estos algoritmos, debido a que
+la información más discriminatoria entre puntos está almacenada en la
+variable nominal que mide el nivel educativo, la cual no es fácilmente
+aprovechable en este tipo de algoritmos. Podríamos tratarla como una
+variable numérica continua más, pero se podría introducir un sesgo
+no deseado.
+
+A modo de conclusión, vamos a poner un ejemplo de conjunto de datos en
+el que los algoritmos de agrupamiento convexo dan buenos resultados, y
+los clusters que se encuentran tienen una correspondencia con las
+clases en las que hay que clasificar los elementos del conjunto.
+
+# Anexo - Dataset optdigits
+
+En este apartado, vamos a mostrar un ejemplo de dataset en el que los
+algoritmos de clustering sí tienen un buen comportamiento. Dicho
+conjunto de datos es conocido como optdigits. Dicho conjunto de datos
+aparece tras un preprocesamiento sobre el conjunto de datos
+MNIST. MNIST es un dataset compuesto por imágenes de tamaño $32 \times
+32$ de dígitos manuscritos del 0 al 9. Optdigits se forma dividiendo
+las imágenes anteriores en 64 parches de $4 \times 4$, y contando el
+número de píxeles negros de cada parche (las imágenes están en blanco
+y negro). De esta forma, tenemos para cada ejemplo 64 variables con
+valores entre 0 y 16. Si aplicamos TSNE (un algoritmo de reducción de
+dimensionalidad basado en vecindad) sobre los datos para
+representarlos en un gráfico 2D, obtenemos el siguiente gráfico:
+
+```{r}
+optdigits <- read.csv("dataset/optdigits.csv", header=F)
+opt.X <- optdigits[,1:64]
+opt.y <- optdigits[,65]
+
+opt.tsne <- as.data.frame(Rtsne(X = opt.X)$Y)
+
+ggplot(opt.tsne, aes(x=V1, y=V2)) + geom_point()
+```
+
+Donde podemos observar que los elementos se distribuyen, de forma
+más o menos ordenada, en grupos de puntos convexos. Se distinguen,
+a priori, 10 u 11 grupos de puntos. Como sabemos que los puntos
+vienen de dígitos manuscritos, vamos a tratar de agruparlos en 10
+clusters distintos, para ver si los grupos que hemos visto en la
+gráfica anterior corresponden con las clases reales de los puntos:
+
+```{r, fig.height=3.6}
+kmeans.opt <- kmeans(opt.X, 10)
+opt.tsne$pred.class <- as.factor(kmeans.opt$cluster)
+
+ggplot(opt.tsne, aes(x=V1, y=V2, col=pred.class)) + geom_point()
+```
+
+Podemos observar que, aunque los grupos no están perfectamente
+separados, sí que hay varios de ellos que se han reconocido
+correctamente (los grupos que se encuentran en el exterior del
+conjunto están mejor delimitados que los del centro). De hecho,
+si ahora tratamos de ver la matriz de confusión, tenemos lo
+siguiente
+
+```{r}
+kable(table(opt.y, opt.tsne$pred.class))
+```
+
+Podemos observar que en el primer cluster están la mayoría de dígitos
+1, en el tercer cluster están casi todos los 0 (es el grupo mejor
+definido, con menos errores de ambos tipos), en el 4 cluster están los
+dígitos 2, o en el cluster 6, que están los dígitos 6. Los grupos 9 y
+10 son los que peor definidos están, el 9 por tener muchos elementos
+en varios grupos (tiene a la mayoría de dígitos 3, pero también tiene
+un importante número de 9), y el 10 por tener pocos elementos (tiene
+en su mayoría dígitos 1, pero hay muchos más de estos dígitos en el
+primer cluster). Este es un ejemplo de conjunto de datos en el que
+los algoritmos de agrupamiento se comportan correctamente.
+
+Otra opción posible es hacer el clustering directamente sobre los
+grupos obtenidos por TSNE. Al igual que se hace cuando se utiliza PCA,
+se puede hacer una selección de características con TSNE y aplicar el
+algoritmo de agrupamiento sobre los datos reducidos. El resultado
+que obtenemos en ese caso es el siguiente:
+
+```{r}
+kmeans.opt <- kmeans(opt.tsne[,1:2], 10)
+opt.tsne$pred.class <- as.factor(kmeans.opt$cluster)
+
+ggplot(opt.tsne, aes(x=V1, y=V2, col=pred.class)) + geom_point()
+```
+
+Ahora sí que tenemos un agrupamiento que a simple vista parece de
+bastante calidad. Los puntos parecen estar bien colocados dentro de
+sus grupos, y si mostramos la tabla que mostramos anteriormente:
+
+```{r}
+kable(table(opt.y, opt.tsne$pred.class))
+```
+
+Tenemos un agrupamiento mucho más correcto que el que encontramos al
+utilizar todas las variables. Por poner algunos ejemplos, en el
+cluster 7 están los dígitos 0, y sólamente hay dos elementos mal
+clasificados. En el cluster 10 están los dígitos 3, y hay 11 dígitos 3
+mal colocados en otros clusters, así como 10 ejemplos dentro de este
+grupo que representan otro dígito. Por otro lado, el dígito 1 no se
+ha colocado claramente en ningún cluster, teniendo más o menos la mitad
+de sus ejemplos en el cluster 3, pero con un número importante también
+en el cluster 8, el cual comparte con el 9.
+
+Es importante remarcar que no hemos tenido en cuenta la clase en
+ningún momento excepto a la hora de configurar las tablas. Tanto la
+reducción de dimensionalidad utilizando TSNE como el agrupamiento han
+sido realizados de manera no supervisada, aunque luego hayamos
+contrastado que los agrupamientos que hemos obtenido sí que hacen
+referencia a las clases definidas a priori sobre el problema.
+
+Una vez que hemos hecho los agrupamientos, podemos estudiar los valores
+de las variables que tenemos, para tratar de obtener información de los
+grupos que hemos encontrado.
+
+Por ejemplo, vamos a estudiar detenidamente el grupo 7, que hemos
+visto que tiene la mayoría de dígitos 0. Si nos restringimos a los
+puntos que componen dicho cluster, calculamos la media de las 64
+variables, las reordenamos en una matriz $8 \times 8$, y mostramos
+esa matriz como un mapa de calor, obtenemos lo siguiente:
+
+```{r}
+means <- apply(opt.X[opt.tsne$pred.class == 7,], 2, mean)
+means.mat <- matrix(means, nrow=8, byrow=T)
+heatmap.2(means.mat, dendrogram = "none", Rowv = FALSE, Colv=FALSE, trace='none')
+```
+
+Tenemos que los colores más cercanos al rojo representan medias más
+bajas, y colores más cercanos al amarillo y al blanco representan
+medias más altas. Como era de esperar, dada la reorganización que
+hemos hecho, obtenemos algo similar a la silueta de un 0. En las
+casillas centrales de arriba y abajo (correspondientes a las variables
+4, 5, 60 y 61) tenemos una media de píxeles negros muy alta, mientras
+que en los bordes derecho e izquierdo, así como en los cuadros
+centrales, la media de píxeles coloreados es muy baja.
+
+Este es un ejemplo de cómo interpretar la información proveniente de
+un algoritmo de agrupamiento no supervisado, aunque se ha utilizado
+cierta información del conjunto de datos y sus etiquetas para guiar la
+búsqueda y mostrar información relevante.

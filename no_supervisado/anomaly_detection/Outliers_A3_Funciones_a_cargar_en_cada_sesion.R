@@ -111,7 +111,6 @@ MiBoxPlot_IQR_Univariate_Outliers = function (datos, indice.de.columna, coef = 1
     geom_boxplot(outlier.colour = "red") +
     geom_text(aes(label = nombres.de.filas)) #, position = position_jitter(width = 0.1))
 
-  X11()
   ggboxplot
 }
 
@@ -226,16 +225,6 @@ MiPlot_resultados_TestRosner = function(datos, num_outliers){
   indices.de.outliers.rosner = k.mayores.desviaciones.de.la.media[is.outlier.rosner]
   valores.de.outliers.rosner = datos[indices.de.outliers.rosner]
 
-  cat("\nTest de Rosner")
-  cat("\nIndices de las k-mayores desviaciones de la media: ")
-  cat(k.mayores.desviaciones.de.la.media)
-  cat("\nDe las k mayores desviaciones, quien es outlier? ")
-  cat(is.outlier.rosner)
-  cat("\nLos indices de los outliers son: ")
-  cat(indices.de.outliers.rosner)
-  cat("\nLos valores de los outliers son: ")
-  cat(valores.de.outliers.rosner)
-
   MiPlot_Univariate_Outliers (datos, indices.de.outliers.rosner, "Test de Rosner")
 }
 
@@ -243,8 +232,7 @@ MiPlot_resultados_TestRosner = function(datos, num_outliers){
 MiBiplot = function(datos){
   PCA.model = princomp(scale(datos))
   biplot = ggbiplot(PCA.model, obs.scale = 1, var.scale=1 , varname.size = 5,alpha = 1/2)
-  X11()
-  print(biplot)
+  biplot
 }
 
 MiBiPlot_Multivariate_Outliers = function (datos, vectorTFoutliers, titulo){
@@ -269,8 +257,7 @@ MiBiPlot_Multivariate_Outliers = function (datos, vectorTFoutliers, titulo){
                                vjust=0)
    biplot = biplot + ggtitle(titulo)
 
-   X11()
-   print(biplot)
+   biplot
 }
 
 
@@ -298,8 +285,8 @@ MiBiPlot_Clustering_Outliers = function (datos, titulo){
     scale_color_manual(values = BIPLOT.cluster.colors) +
     scale_shape_manual(values = outlier.shapes) +
     ggtitle(titulo) +
-    geom_text(label = identificadores_de_datos, stat = "identity", size = 3, hjust=0, vjust=0)
+    geom_text(label = identificadores_de_datos, stat = "identity", size = 3, hjust=0, vjust=0) +
+    labs(color = "Cluster", shape = "Outlier")
 
-  X11()
-  print(biplot)
+  biplot
 }

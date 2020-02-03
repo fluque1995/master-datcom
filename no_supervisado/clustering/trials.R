@@ -7,7 +7,7 @@ library(dplyr)
 library(factoextra)
 library(fastDummies)
 library(knitr)
-library(Rtsne)
+
 
 dataset.path <- "dataset/bankloan-spss.csv"
 dataset <- read.csv(dataset.path, sep=";", dec = ",")

@@ -24,6 +24,8 @@ library(rmatio)
 library(GGally)
 library(gridExtra)
 library(ggfortify)
+library(MASS)
+library(HDMD)
 
 ## Cargamos las librerías y funciones pertinentes
 source("Outliers_A2_Librerias_a_cargar_en_cada_sesion.R")
@@ -50,15 +52,44 @@ son estudiados individualmente.
 Estudiaremos distintas técnicas de detección de datos anómalos, tanto
 del primer como del segundo tipo.
 
+## Conjunto de datos de trabajo
+
+El conjunto de datos con el que trabajaremos contiene información
+sobre enfermedades de la columna vertebral. Se nos proveen seis
+variables numéricas correspondientes a seis características
+biomecánicas, y se nos pide reconocer elementos anómalos dentro del
+conjunto. En total, se nos proporcionan 240 ejemplos, de los cuales
+210 son ejemplos etiquetados como normales y 30 como anómalos. Resulta
+curioso, en la descripción del dataset, el hecho de que los pacientes
+etiquetados como anómalos son los pacientes sanos, mientras que los
+pacientes normales son aquellos que presentan la enfermedad. En el
+campo médico suele presentarse justo la casuística contraria, en la
+que la clase con pocos ejemplos suele ser la que contiene a los
+individuos enfermos. Esta diferencia puede deberse a que las
+enfermedades de espalda son relativamente comunes, o a que el conjunto
+de datos ha sido preparado específicamente.
+
+En cualquier caso, en el enfoque que daremos a la solución del
+problema, no utilizaremos las etiquetas que se nos han provisto, ya
+que vamos a utilizar técnicas no supervisadas para la resolución del
+problema. Utilizaremos las etiquetas al final, para ver si los métodos
+que hemos empleado marcan como anómalos los ejemplos que realmente
+pertenecen a dicha clase, o si por el contrario los métodos que
+estamos utilizando no tienen un buen comportamiento para el problema
+que nos ocupa.
+
+Comenzamos viendo los métodos de detección de outliers en una sola
+dimensión.
+
 # IQR
 
 El primer método que estudiaremos está basado en el rango
 intercuartílico.  Este método trabaja de forma univariante, tratando
 todas las variables del conjunto por separado. Por tanto, nos
-permitirá detectar valores extremos en las variables por separado,
-pero no nos servirá para detectar combinaciones atípicas de valores.
-El funcionamiento del test se basa en el estudio de los cuartiles de
-una distribución normal. Cuando se trabaja con variables normalmente
+permitirá detectar valores extremos en cada una de las variables, pero
+no nos servirá para detectar combinaciones atípicas de valores.  El
+funcionamiento del test se basa en el estudio de los cuartiles de una
+distribución normal. Cuando se trabaja con variables normalmente
 distribuidas, un enfoque típico para la detección de anomalías
 consiste en considerar como anómalos aquellos datos que se salen del
 intervalo $(\mu - k\sigma, \mu + k\sigma)$, donde $\mu$ y $\sigma$ son
@@ -67,9 +98,9 @@ respectivamente. En función del valor de $k$ que tomemos, cubriremos a
 un mayor número de puntos de la distribución normal. En concreto,
 suele tomarse el intervalo con $k=2$, de forma que aproximadamente el
 95 % de los valores de la distribución caen en el intervalo, o $k=3$,
-intervalo en el que se encuentran el 99.7 % de los valores. Los valores
-de la distribución que quedan fuera de estos límites se consideran datos
-atípicos
+intervalo en el que se encuentran el 99.7 % de los valores. Los
+valores de la distribución que quedan fuera de estos límites se
+consideran datos atípicos
 
 No obstante, la asunción de normalidad en los datos es una suposición
 fuerte, que usualmente no se cumple. Además la media y la desviación
@@ -97,7 +128,7 @@ Pasamos a aplicar este método para detectar outliers en nuestro
 conjunto de datos. Mostraremos en primer lugar el proceso completo
 para una variable, y lo aplicaremos después para todas las demás:
 
-```{r, echo=T, fig.height=4}
+```{r, echo=T, fig.height=3.8}
 ## Leemos el dataset y seleccionamos una columna
 # dataset <- read.csv("dataset/ecoli.data")
 dataset <- as.data.frame(read.mat("dataset/vertebral.mat")$X)
@@ -193,28 +224,37 @@ kable(as.data.frame(t(numero.total.outliers.por.columna)),
 ```
 
 Se pueden extraer varias conclusiones de las gráficas y la tabla
-anteriores. En primer lugar, tenemos que la variable primera no tiene
-outliers de ningún tipo, mientras que en el resto de variables se
-tiene un número bastante considerable. El conjunto tiene unos 3800
-elementos, así que 400 outliers, como llega a tener la variables 2,
-suponen más del 10 % de los valores, lo cual es un número anormalmente
-alto. Un comportamiento curioso que se puede observar también es la
-distribución de los outliers. En todas las variables ocurre que los
-outliers se concentran en los valores altos. Esto nos indica que
-la distribuciones están fuertemente sesgadas a la derecha. El
-caso más extremo lo tenemos para la segunda variable, como podemos
-observar a continuación:
+anteriores. En primer lugar, tenemos que ninguna de las variables
+posee un número muy grande de elementos anómalos, siendo la columna 5
+la que más outliers tiene. A pesar de esto, sólamente 9 de las 240
+medidas son anómalas, lo cual corresponde a menos de un 4 % de los
+valores, lo cual es relativamente poco. Otro fenómenos a remarcar es
+la cantidad tan pequeña de outliers extremos que tienen los datos.
+Cuatro de las columnas no presentan ningún outlier extremo, y las
+otras dos sólamente presentan uno. A pesar de esto, es curioso cómo la
+columna 4 sólo presenta un outlier, pero el mismo es extremo. Esto
+remarca la gran distancia que hay entre este valor y el resto de
+valores de la variable. Otro punto a remarcar es el sesgo a la derecha
+que presentan las medidas. Para todas las columnas (a excepción de la
+quinta) la mayoría de los outliers se agrupan en la parte superior del
+gráfico, en los valores altos. Para la columna 6, en particular, se
+puede observar el fuerte sesgo que presenta en el histograma siguiente:
 
 ```{r}
-ggplot(dataset, aes(x=V2)) + geom_histogram(bins=10)
+ggplot(dataset, aes(x=V6)) + geom_histogram(bins=10)
 ```
 
 Donde tenemos el grueso de los datos agrupado en la parte izquierda
 del gráfico (cercanos a 0) y un pequeño grupo de valores dispersos en
-la parte derecha. Sería interesante conocer el origen de las
-variables, para intentar buscar las causas que producen estas
-desviaciones, pero no se nos proporciona dicha información con el
-conjunto de datos.
+la parte derecha. En la descripción del conjunto de datos, se nos dice
+que esta variable corresponde con el grado de espondilolistesis. Esta
+patología consiste en el desplazamiento de una vértebra de su posición
+original al deslizarse sobre el disco intervertebral que la sujeta.
+Parece lógico pensar que esta variable va a tener un sesgo hacia la
+derecha, ya que al ser positiva y tener su valor normal (sano) en el
+cero, lo más probable es que los valores se agrupen en torno a un
+valor bajo, y se den pocos casos en los que el valor crezca
+significativamente.
 
 Una vez hemos visto cómo podemos detectar valores anómalos utilizando
 el método del rango intercuartílico, vamos a ver cómo podemos dotar
@@ -368,9 +408,24 @@ elemento anómalo al mismo tiempo. Aplicamos a continuación este test a
 nuestro conjunto de datos, para tratar de detectar valores anómalos
 sobre nuestras variables.
 
-```{r}
+```{r, fig.height=3.8}
 apply(dataset, 2, MiPlot_resultados_TestRosner, num_outliers=10)
 ```
+
+Podemos observar que este test nos ha permitido encontrar varios
+outliers en las distintas variables. No obstante, al ser un test
+estadístico y utilizar un nivel de significación $\alpha = 0.05$,
+algunos de los valores anómalos que detectamos con el método IQR
+ahora no son marcados como tales. En particular, para las variables
+2 y 5 no llega a detectarse ningún dato anómalo. Por otra parte,
+este test nos permite detectar de forma simultánea varios outliers,
+como ocurre con la variable 6, en la que se detectan 3 outliers
+(la anomalía extrema y dos de las anomalías normales).
+
+Una vez hemos visto cómo encontrar anomalías univariantes, veremos
+cómo podemos encontrar outliers cuya problemática viene por una
+combinación extraña de los valores de las variables, y no sólo por
+un valor extremo en alguna de ellas.
 
 # Test de hipótesis para detección de anomalías multivariables
 
@@ -703,11 +758,13 @@ para atributos numéricos, suelen usarse distancias de Minkowski, y más
 concretamente la distancia de Minkowski para $k=2$ (distancia
 euclídea). No obstante, para otro tipo de dato, o con el fin de
 aportar información al problema, se puede utilizar otra función de
-distancia. No estudiaremos cómo afecta el cambio de la distancia
-al resultado del algoritmo, ya que carece de interés por el momento.
-Nos limitaremos al uso de la distancia euclídea, la cual está bien
-definida en nuestro problema, ya que todos los atributos de nuestro
-conjunto de datos son atributos numéricos continuos.
+distancia. No estudiaremos cómo afecta el cambio de la distancia al
+resultado del algoritmo, ya que carece de interés por el momento.  En
+primera instancia, nos limitaremos al uso de la distancia euclídea, la
+cual está bien definida en nuestro problema, ya que todos los
+atributos de nuestro conjunto de datos son atributos numéricos
+continuos. Más adelante, trataremos de mejorar los resultados
+utilizando otras funciones de distancia.
 
 Mostramos una ejecución del algoritmo. Trabajaremos con tres clusters
 en primer lugar. En la gráfica puede observarse el resultado de la
@@ -756,9 +813,28 @@ distancias_a_centroides = function (datos.normalizados,
 dist.centroides <- distancias_a_centroides(dataset.scaled, indices.clustering,
                                            centroides.normalizados)
 
-top.outliers <- order(dist.centroides, decreasing = T)[1:15]
+top.outliers <- order(dist.centroides, decreasing = T)[1:30]
 
-kable(t(dist.centroides[top.outliers]), col.names=top.outliers, digits = 2,
+top_clustering_outliers = function(datos.normalizados,
+                                   indices.asignacion.clustering,
+                                   datos.centroides.normalizados,
+                                   numero.de.outliers){
+
+    dist_centroides = distancias_a_centroides (datos.normalizados,
+                                               indices.asignacion.clustering,
+                                               datos.centroides.normalizados)
+
+    indices = order(dist_centroides, decreasing=T)[1:numero.de.outliers]
+
+    list(distancias = dist_centroides[indices]  , indices = indices)
+}
+
+top.outliers.kmeans <- top_clustering_outliers(
+    dataset.scaled, indices.clustering,
+    centroides.normalizados, numero.de.outliers
+)
+
+kable(t(dist.centroides[top.outliers[1:15]]), col.names=top.outliers[1:15], digits = 2,
       caption="Índice y distancia de los 15 puntos más alejados de sus respectivos centroides")
 ```
 
@@ -776,7 +852,7 @@ Mostramos dichos outliers en una gráfica sobre el conjunto de datos completo:
 is.kmeans.outlier <- sapply(1:dim(dataset.scaled)[1], function (x) x %in% top.outliers[1:5])
 
 BIPLOT.isOutlier             = is.kmeans.outlier
-BIPLOT.cluster.colors        = c("blue","red","brown")     # Tantos colores como diga numero.de.clusters
+BIPLOT.cluster.colors        = c("blue","red","green")     # Tantos colores como diga numero.de.clusters
 BIPLOT.asignaciones.clusters = indices.clustering
 MiBiPlot_Clustering_Outliers(dataset, "K-Means Clustering Outliers")
 ```
@@ -794,3 +870,441 @@ rownames(kmeans.outliers.data) <- top.outliers[1:5]
 kable(kmeans.outliers.data, caption="Valores de las características de los \
 primeros 5 outliers encontrados por el algoritmo k-means")
 ```
+
+Esto nos indica que este método no parece una buena alternativa para
+la búsqueda de outliers multivariantes.
+
+// TODO: aumentar el número de outliers
+
+### PAM
+
+En este apartado, utilizaremos una política distinta para la selección
+de los centroides de los clusters. Este método de agrupamiento,
+conocido como particionado alrededor de medioides (_partitioning
+around medioids_, PAM por sus siglas en inglés), selecciona los
+centros entre los puntos que hay en el conjunto, en lugar de generar
+instancias artificiales.
+
+Existen diversos algoritmos que computan soluciones de PAM. El más
+típico es una búsqueda voraz, que no encuentra necesariamente el
+óptimo, pero aporta buenas soluciones. Su funcionamiento es parecido
+al que describimos para el método de las k-medias:
+
+1. Se inicializan aleatoriamente los $k$ medioides
+2. Se asocia cada punto al cluster definido por el mediode más cercano
+3. Mientras el coste final de la configuración decreza:
+- Para cada medioide $m_i$ y cada punto no medioide $o$
+1. Se intercambian los papeles de dichos puntos y se recalcula el
+coste
+2. Si el coste es mejor que el resultado actual, se guarda el
+intercambio
+- Se realiza el mejor intercambio encontrado. Si no se ha
+encontrado un intercambio mejor que el resultado actual, el
+algoritmo termina
+
+El coste de la configuración se define como la suma de las distancias
+de cada punto al medioide de su _cluster_, de la misma manera que
+ocurre en el algoritmo de las k-medias.
+
+A continuación vamos a estudiar cómo podemos utilizar este algoritmo
+para la detección de elementos anómalos en nuestro conjunto de datos.
+Mostramos primero el resultado del algoritmo de clustering sobre el
+conjunto de datos:
+
+```{r}
+set.seed(2)
+modelo.pam <- pam(dataset.scaled, k = numero.de.clusters)
+
+autoplot(modelo.pam, data=dataset)
+```
+
+Como podemos observar, el resultado apenas difiere al obtenido por el
+algoritmo k-means, aunque sí que es posible encontrar algunos puntos
+cuyo cluster ha cambiado. Esto se debe a que el funcionamiento de
+ambos algoritmos es muy similar, y se basan en concepciones similares,
+pero el hecho de forzar que los centros de los clusters sean ejemplos
+del conjunto de datos hace que algunos puntos en las fronteras pasen
+de unos grupos a otros. Al igual que hicimos con el algoritmo
+anterior, vamos a ver las distancias de los puntos más alejados a sus
+respectivos centroides.
+
+```{r}
+top.outliers.pam <- top_clustering_outliers(dataset.scaled,
+                                            modelo.pam$clustering,
+                                            modelo.pam$medoids, 15)
+
+outliers.pam.data <- t(top.outliers.pam$distancias)
+colnames(outliers.pam.data) <- top.outliers.pam$indices
+
+kable(outliers.pam.data, digits = 2,
+      caption="Índice y distancia de los 15 puntos más alejados de sus respectivos medioides")
+```
+
+Podemos ver cómo el resultado obtenido es similar al obtenido por el
+método k-means. Esto se debe a que ambos algoritmos tienen un
+funcionamiento muy similar. Existen pequeñas diferencias entre los
+mismos (por ejemplo, los outliers 2 y 3 han intercambiado sus
+posiciones), pero en general el resultado obtenido es muy parecido.
+Además, las distancias se han modificado muy poco, y siguiendo la misma
+política que antes, seleccionaríamos 5 datos anómalos, que como hemos
+estudiado anteriormente, son outliers univariantes, por lo que no son
+especialmente interesantes.
+
+Estos métodos de clustering, al estar basados en distancias, nos
+permiten cambiar la función de distancia entre dos puntos y obtener
+así distintos resultados, posiblemente más interesantes que los
+obtenidos con la distancia euclídea.
+
+### Otras métricas de distancia
+
+En este apartado, trataremos de estudiar cómo afecta el uso de una
+determinada medida de distancia en el resultado. En lugar de utilizar
+la distancia euclídea, que es menos informativa, utilizaremos la
+distancia de Mahalanobis, que tiene en cuenta las varianzas de las
+variables y sus covarianzas, de forma que la distancia en una variable
+que tiene una varianza pequeña se considera más relevante que una en
+la que la covarianza es mayor. Matemáticamente, la distancia de Mahalanobis
+se define como sigue. Sean $x$ e $y$ dos vectores vectores aleatorios
+provenientes de una misma distribución con matriz de covarianzas $S$,
+se define la distancia de Mahalanobis entre $x$ e $y$ como
+
+\[
+    d_M(x,y) = \sqrt{(x - y)^T S^{-1} (x-y)}
+\]
+
+Podemos observar que, si todas las componentes del vector aleatorio
+son independientes (la covarianza entre ellas es 0), e idénticamente
+distribuidas (sus varianzas coinciden), nos reducimos a la distancia
+euclídea. Vamos a ver a continuación los resultados obtenidos por el
+método PAM al cambiar la función de distancia entre nuestros puntos.
+En primer lugar, mostramos el resultado obtenido por el algoritmo de
+agrupamiento al cambiar la distancia:
+
+```{r, warning=F}
+mah.distances <- as.dist(pairwise.mahalanobis(dataset.scaled, grouping=1:240,
+                                      cov = cov(dataset.scaled))$distance)
+modelo.pam.mahalanobis <- pam(mah.distances, numero.de.clusters, diss=T)
+modelo.pam.mahalanobis$data <- as.data.frame(dataset)
+
+autoplot(modelo.pam.mahalanobis, data=dataset)
+```
+
+Ahora sí que podemos detectar grandes diferencias entre el resultado
+obtenido por los otros dos algoritmos y el resultado actual. El cambio
+en la función de distancia ha hecho que los agrupamientos sean
+significativamente distintos en este caso. Al igual que hicimos
+anteriormente, vamos a mostrar los puntos del conjunto ordenados en
+función de la distancia de Mahalanobis al centroide de su cluster.
+
+```{r}
+top_clustering_outliers_distancia_mahalanobis = function(datos,
+                                                         indices.asignacion.clustering,
+                                                         numero.de.outliers){
+
+  cluster.ids = unique(indices.asignacion.clustering)
+  k           = length(cluster.ids)
+  seleccion   = sapply(1:k, function(x) indices.asignacion.clustering == x)
+
+
+  # Usando medias y covarianzas:
+  # lista.matriz.de.covarianzas   = lapply(1:k, function(x) cov(mis.datos.numericos[seleccion[,x],]))
+  # lista.vector.de.medias        = lapply(1:k, function(x) colMeans(mis.datos.numericos[seleccion[,x],]))
+
+
+  # Usando la estimación robusta de la media y covarianza: (cov.rob del paquete MASS:
+  lista.matriz.de.covarianzas   = lapply(1:k, function(x) cov.rob(datos[seleccion[,x],])$cov)
+  lista.vector.de.medias        = lapply(1:k, function(x) cov.rob(datos[seleccion[,x],])$center)
+
+
+  mah.distances   = lapply(1:k,
+                           function(x) mahalanobis(datos[seleccion[,x],],
+                                                   lista.vector.de.medias[[x]],
+                                                   lista.matriz.de.covarianzas[[x]]))
+
+  todos.juntos = unlist(mah.distances)
+  todos.juntos.ordenados = names(todos.juntos[order(todos.juntos, decreasing=TRUE)])
+  indices.top.mah.outliers = as.numeric(todos.juntos.ordenados[1:numero.de.outliers])
+
+  list(distancias = sort(todos.juntos, decreasing=TRUE)[1:numero.de.outliers],
+       indices = indices.top.mah.outliers)
+}
+
+dataset.scaled <- as.data.frame(dataset.scaled)
+top.outliers.pam.mahalanobis <- top_clustering_outliers_distancia_mahalanobis(
+    dataset.scaled,
+    modelo.pam.mahalanobis$clustering,
+    15
+)
+
+kable(t(top.outliers.pam.mahalanobis$distancias[1:8]), digits = 2,
+      caption="Índice y distancia de los 15 puntos más alejados de sus respectivos medioides")
+kable(t(top.outliers.pam.mahalanobis$distancias[9:15]), digits = 2)
+```
+
+Lo primero que podemos observar es cómo ha variado la magnitud de las
+distancias al cambiar la función que hemos utilizado. Otro detalle
+significativo es que el mayor outlier ha cambiado, pasando a ser un
+punto que ni siquiera estaba entre los 15 mayores outliers de ninguna
+de las ejecuciones anteriores. Este hecho pone de manifiesto las
+grandes diferencias que pueden surgir en un mismo algoritmo cambiando
+simplemente alguno de sus parámetros, en este caso, la función de
+distancia utilizada.
+
+En cuanto al punto en el que dejamos de considerar como outliers a los
+puntos del conjunto, vamos a coger los 9 primeros, ya que consideramos
+que a partir del 10 la distancia parece estabilizarse y desciende más
+lentamente. Dichos puntos, representados en un biplot, son los
+siguientes:
+
+```{r}
+is.pam.outlier <- sapply(1:dim(dataset.scaled)[1],
+                            function (x) x %in% top.outliers.pam.mahalanobis$indices[1:14])
+
+BIPLOT.isOutlier             = is.pam.outlier
+BIPLOT.cluster.colors        = c("blue","red","green")     # Tantos colores como diga numero.de.clusters
+BIPLOT.asignaciones.clusters = modelo.pam.mahalanobis$clustering
+MiBiPlot_Clustering_Outliers(dataset, "PAM Clustering Outliers")
+```
+
+Podemos observar cómo ahora sí que tenemos outliers más interesantes, y no
+outliers univariantes exclusivamente. De hecho, si mostramos los valores
+de las variables para estos outliers:
+
+```{r}
+pam.outliers.data <- as.data.frame(dataset.scaled[
+    top.outliers.pam.mahalanobis$indices[1:9],])
+rownames(pam.outliers.data) <- top.outliers.pam.mahalanobis$indices[1:9]
+
+kable(pam.outliers.data, caption="Valores de las características de los \
+primeros 14 outliers encontrados por el algoritmo PAM")
+```
+
+Podemos observar que los resultados que obtenemos aquí son mucho más
+interesantes que los obtenidos por los anteriores métodos. En primer
+lugar, el outlier de mayor distancia es claramente un outlier
+univariante. Si recordamos los tests estadísticos, era una de las
+anomalías detectadas por el test de Cerioli que no se eliminaban con
+IQR. Para el resto de outliers, tenemos algunos que son claramente
+univariantes (por ejemplo, el punto 116, que ha aparecido en varias
+ocasiones con los métodos anteriores, o el 163, que era el tercer
+outlier más alto para el método PAM con la distancia euclídea), pero
+también hemos conseguido detectar varios outliers con combinaciones
+extrañas de variables, como el elemento 121, que tiene todos sus
+valores en el intervalo $[-1,1]$ (hay que tener en cuenta que estamos
+mostrando los valores normalizados), o el elemento 88, al que le
+ocurre algo similar, aunque en algunas variables el valor es
+ligeramente mayor que 1 o menor que -1.
+
+Parece más interesante, por tanto, el uso de estas distancias a la
+hora de encontrar outliers multivariantes. El uso de la distancia
+euclídea tiene la problemática de que no pondera bien la dispersión
+que existe entre los datos. Aunque trabajemos con las variables
+normalizadas, un valor muy alto para una variable provocado por una
+anomalía muy fuerte en la misma sigue siendo demasiado representativa.
+El uso de la distancia de Mahalanobis reduce aún más esta
+problemática, provocando el fenómeno que hemos visto, en el que
+tenemos variables que, a pesar de tener unos valores más o menos
+normales en todas las variables, tienen una distancia muy grande, dado
+que la combinación de dichos valores es extraña.
+
+Finalmente, vamos a utilizar la distancia relativa como medida de
+distancia. En este caso, lo que se hace es dividir la distancia
+euclídea de cada punto por la mediana de las distancias de su cluster.
+De esta manera, se tiene en cuenta la densidad de los clusters, y no
+se ven penalizados puntos que están en zonas del espacio poco densas,
+mientras que aquellos que se encuentran en zonas con gran densidad
+serán considerados anómalos con una desviación menor. El problema que
+presenta esta métrica es que no podemos calcular el resultado del
+algoritmo de agrupamiento con esta función de distancia, ya que los
+métodos de los que disponemos no permiten especificar la función de
+distancia de la forma en la que pretendemos calcularla. Lo que haremos
+en este caso será utilizar la distancia que hemos especificado sobre
+el resultado obtenido por el algoritmo de clustering que utiliza la
+distancia euclídea estándar. En la siguiente tabla podemos observar
+los nuevos resultados obtenidos:
+
+```{r}
+top_clustering_outliers_distancia_relativa = function(datos.normalizados,
+                                                      indices.asignacion.clustering,
+                                                      datos.centroides.normalizados,
+                                                      numero.de.outliers){
+
+  dist_centroides = distancias_a_centroides (datos.normalizados,
+                                             indices.asignacion.clustering,
+                                             datos.centroides.normalizados)
+
+  cluster.ids = unique(indices.asignacion.clustering)
+  k           = length(cluster.ids)
+
+  distancias.a.centroides.por.cluster    = sapply(1:k ,
+                                                  function(x) dist_centroides [indices.asignacion.clustering  == cluster.ids[x]])
+
+  distancias.medianas.de.cada.cluster    = sapply(1:k ,
+                                                  function(x) median(dist_centroides[[x]]))
+
+  todas.las.distancias.medianas.de.cada.cluster  =  distancias.medianas.de.cada.cluster[indices.asignacion.clustering]
+  ratios = dist_centroides   /  todas.las.distancias.medianas.de.cada.cluster
+
+  indices.top.outliers           = order(ratios, decreasing=T)[1:numero.de.outliers]
+
+  list(distancias = ratios[indices.top.outliers]  , indices = indices.top.outliers)
+}
+
+top.outliers.pam <- top_clustering_outliers_distancia_relativa(dataset.scaled,
+                                                               modelo.pam$clustering,
+                                                               modelo.pam$medoids,
+                                                               15)
+
+outliers.pam.data <- t(top.outliers.pam$distancias)
+colnames(outliers.pam.data) <- top.outliers.pam$indices
+
+kable(outliers.pam.data, digits = 2,
+      caption="Índice y distancia de los 15 puntos más alejados de sus respectivos medioides")
+```
+
+Podemos ver cómo ha cambiado el resultado respecto al obtenido con la
+distancia euclídea. Las distancias han variado ligeramente respecto a
+las que obtuvimos previamente. A pesar de las diferencias, los
+primeros 8 outliers no han variado, por lo que este método no parece
+el más adecuado para el conjunto de datos con el que estamos
+trabajando. Resulta mucho más interesante el enfoque anterior, que nos
+permitió detectar outliers multivariantes.
+
+# Resultados de la detección de anomalías
+
+En este apartado, veremos si los métodos que hemos utilizado para la
+detección de anomalías nos han servido para identificar los verdaderos
+valores marcados como anómalos en nuestro conjunto de datos. Como ya
+dijimos anteriormente, el conjunto de datos viene etiquetado con los
+valores que son anómalos. En concreto, si tomamos el orden de los
+elementos que trae el dataset de partida, los últimos 30 elementos son
+los que corresponden a ejemplos anómalos. Vamos a ver a continuación
+si los métodos que hemos estudiado nos habrían permitido identificar
+correctamente los elementos que se consideran anomalías. Comenzamos
+por los outliers detectados por el método IQR.
+
+```{r}
+outliers <- read.mat("dataset/vertebral.mat")$y
+
+outliers.iqr <- sapply(1:dim(dataset)[1], function (x)
+    x %in% indices.de.outliers.en.alguna.columna)
+
+kable(table(outliers, outliers.iqr),
+      caption="Outliers detectados por IQR frente a los outliers reales")
+```
+
+Podemos comprobar que los resultados obtenidos son bastante malos. No
+hemos conseguido detectar ninguna de las anomalías presentes en el
+conjunto de datos. Esto se debe probablemente a que los elementos
+marcados como anómalos son realmente los normales, los cuales no
+presentarán valores extremos para estas características, ya que las
+pruebas médicas suelen presentar valores anormales en los pacientes
+enfermos y no en los sanos.
+
+Lo mismo nos ocurrirá con los tests estadísticos, por tanto, así que
+no mostraremos los resultados obtenidos por el test de Rosner (todos
+los puntos marcados como outliers por este test habían sido marcados
+previamente por IQR). Pasamos por tanto al test de Cerioli. No estudiaremos
+el outlier encontrado por el test de Cerioli de tipo A, ya que es un
+único punto. Estudiamos por tanto los outliers encontrados por el
+test de Cerioli de tipo B:
+
+```{r}
+kable(table(cerioli$outliers, outliers),
+      caption="Outliers detectados por el test de Cerioli frente a los outliers reales")
+```
+
+De nuevo, el test de cerioli no ha sido capaz de identificar ninguno
+de los elementos anómalos de nuestro conjunto de datos. Pasamos ahora
+a estudiar los resultados obtenidos por los métodos no
+paramétricos. Comenzamos viendo los outliers detectados por
+LOF. Aunque estemos utilizando conocimiento del conjunto de datos,
+dado que nuestra intención es comprobar si los algoritmos que estamos
+utilizando son capaces de marcar como outliers los ejemplos en los que
+estamos interesados, consideraremos como outliers los 30 puntos con un
+valor de outlier mayor, tantos como outliers sabemos que existen en
+nuestro conjunto. Esta aproximación no es del todo correcta, ya que
+estamos utilizando información de la que no dispondríamos a priori,
+pero aceptaremos la aproximación para ver si estos métodos funcionan
+correctamente con nuestro conjunto de datos:
+
+```{r}
+indices.lof.top <- sapply(1:240, function (x) x %in% indices.segun.lof.score.ordenados[1:30])
+
+
+kable(table(indices.lof.top, outliers),
+      caption="30 primeros outliers detectados por LOF frente a los outliers reales")
+```
+
+Tenemos que, de los 30 elementos con una puntuación de LOF más
+elevada, sólamente 3 son realmente valores anómalos. Esto indica que
+este método no funciona tampoco especialmente bien para detectar los
+outliers de nuestro conjunto de datos. Pasamos a ver los métodos
+basados en clustering. Comenzamos con el método de k-means:
+
+```{r}
+kmeans.outliers <- sapply(1:240, function (x) x %in% top.outliers)
+
+kable(table(kmeans.outliers, outliers),
+      caption="30 primeros outliers detectados por k-means frente a los outliers reales")
+```
+
+En este caso, sólamente 1 de los outliers detectados es realmente
+una anomalía. Pasamos al método PAM con la distancia euclídea:
+
+```{r}
+top.outliers.pam <- top_clustering_outliers(dataset.scaled,
+                                            modelo.pam$clustering,
+                                            modelo.pam$medoids, 30)
+
+pam.outliers <- sapply(1:240, function(x) x %in% top.outliers.pam$indices)
+
+kable(table(pam.outliers, outliers),
+      caption="30 primeros outliers detectados por PAM frente a los outliers reales")
+```
+
+Como era esperable, los resultados obtenidos son los mismos que por
+k-means. Como ya dijimos anteriormente, los los algoritmos tienen un
+comportamiento muy parecido, por lo que era de esperar que los
+resultados que obtuviesen en este caso fueran muy similares. Finalmente,
+observamos los resultados obtenidos con las otras distancias:
+
+```{r}
+top.outliers.pam.mahalanobis <- top_clustering_outliers_distancia_mahalanobis(
+    dataset.scaled,
+    modelo.pam.mahalanobis$clustering,
+    30
+)
+
+pam.mahalanobis.outliers <- sapply(1:240, function(x)
+    x %in% top.outliers.pam.mahalanobis$indices)
+
+kable(table(pam.mahalanobis.outliers, outliers),
+      caption="30 primeros outliers detectados con la distancia de Mahalanobis frente a los outliers reales")
+
+top.outliers.pam <- top_clustering_outliers_distancia_relativa(dataset.scaled,
+                                                               modelo.pam$clustering,
+                                                               modelo.pam$medoids,
+                                                               30)
+
+pam.relative.outliers <- sapply(1:240, function(x)
+    x %in% top.outliers.pam$indices)
+
+kable(table(pam.relative.outliers, outliers),
+      caption="30 primeros outliers detectados con la distancia relativa frente a los outliers reales")
+```
+
+De nuevo, los dos resultados coinciden con los obtenidos
+anteriormente. Era natural pensar que iba a darse un resultado similar
+con estos algoritmos también, debido a que, aunque la función de
+distancia fuese distinta, y los resultados obtenidos por los mismos
+fueran diferentes, los puntos que estaban siendo marcados por estos
+algoritmos eran puntos con carácter anómalo. Como ya dijimos
+anteriormente, en este conjunto de datos los puntos marcados como
+anomalías no son aquellos que presentan la enfermedad, sino los
+individuos sanos. Este tipo de ejemplos suelen mostrar valores
+normales en las características, siendo los sujetos que padecen la
+enfermedad los que presentan mediciones anómalas. Por tanto, este
+dataset sería más conveniente abordarlo utilizando técnicas de
+clasificación no balanceada, en lugar de técnicas de detección
+de anomalías.

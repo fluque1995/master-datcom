@@ -486,8 +486,6 @@ BIPLOT.asignaciones.clusters = indices.asignacion.clustering.kmeans
 MiBiPlot_Clustering_Outliers(mis.datos.numericos, "K-Means Clustering Outliers")
 
 
-
-
 ###########################################################################
 # AMPLIACIÓN:
 
