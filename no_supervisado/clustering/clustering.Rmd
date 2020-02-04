@@ -1395,7 +1395,7 @@ variables, las reordenamos en una matriz $8 \times 8$, y mostramos
 esa matriz como un mapa de calor, obtenemos lo siguiente:
 
 ```{r}
-means <- apply(opt.X[opt.tsne$pred.class == 7,], 2, mean)
+means <- apply(opt.X[opt.tsne$pred.class == 6,], 2, mean)
 means.mat <- matrix(means, nrow=8, byrow=T)
 heatmap.2(means.mat, dendrogram = "none", Rowv = FALSE, Colv=FALSE, trace='none')
 ```
