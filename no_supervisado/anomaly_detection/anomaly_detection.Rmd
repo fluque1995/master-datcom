@@ -16,23 +16,18 @@ output:
 ---
 
 ```{r setup, include=F}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 set.seed(0)
-library(ggplot2)
-library(knitr)
-library(rmatio)
-library(GGally)
-library(gridExtra)
-library(ggfortify)
-library(MASS)
-library(HDMD)
-
-## Cargamos las librerías y funciones pertinentes
-source("Outliers_A2_Librerias_a_cargar_en_cada_sesion.R")
-
-source("Outliers_A3_Funciones_a_cargar_en_cada_sesion.R")
 ```
 
+```{r}
+## Package import
+library(caret)
+        library(imbalance) #to be used in the optional part
+        library(dplyr)
+        library(pROC)
+        library(tidyr)
+```
 # Introducción
 
 En este trabajo se va a desarrollar una práctica sobre detección de
