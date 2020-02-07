@@ -1,0 +1,282 @@
+---
+title: "Imbalanced classification"
+subtitle: "Minería de datos: aspectos avanzados"
+author: "Francisco Luque Sánchez"
+date: "21/12/2019"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+```
+
+```{r, include=F}
+## Libraries load
+library(caret)
+library(imbalance) #to be used in the optional part
+library(dplyr)
+library(pROC)
+library(tidyr)
+library(knitr)
+library(ggplot2)
+library(ggvis)
+```
+# Introduction
+
+In this report, the problem of imbalanced classification will be
+addressed. In the first section, we will show a typical workflow to
+solve the imbalance classification problem, using the dataset
+_Subclus_. This dataset is an artificially generated two dimensional
+dataset whose positive class is grouped in a few small subgroups. In
+the second section, the performance of some SMOTE-based oversampling
+methods will be tested over that same dataset. Finally, in the third
+section, we will dig deeper in the classic version of SMOTE, trying
+to understand how the solution of the problem is influenced by its
+parameters.
+
+# Standard imbalanced classification pipeline
+
+In this section, a classical pipeline of imbalanced classification
+will be shown. We begin by loading the dataset and renaming the
+variables properly:
+
+```{r}
+## Dataset loading and column names setting
+dataset <- read.csv("subclus.csv")
+colnames(dataset) <- c("Att1", "Att2", "Class")
+dataset$Class <- relevel(dataset$Class, "positive")
+```
+
+At first, we are interested in knowing about the dataset (variables,
+types, dimensions...):
+
+```{r}
+## DATASET SUMMARY
+## Dimensions
+dim(dataset)
+## Structure and type
+str(dataset)
+## First rows of the data
+kable(head(dataset))
+## Class levels
+levels(dataset$Class)
+```
+
+As we can sy in the output of previous commands, our dataset is
+composed of 599 examples of 3 variables (two numeric and the class).
+It is binary classificacion problem, with classes named _negative_
+and _positive_.
+
+```{r}
+## Columns summarization
+summary(dataset)
+
+## Imbalance ratio
+imbalanceRatio(dataset)
+```
+
+The imbalance ratio of the dataset is not very pronounced
+(approximately 1 to 5). It is far from the 1 to 40 that we had in
+other examples. However, it is important enough to be addressed as an
+imbalanced dataset. Now, we will try and visualize the data. We begin
+with a boxplot of the attributes and a piechart of the classes
+distribution:
+
+```{r}
+## Dataset visualization
+x <- dataset[,1:2]
+y <- dataset[,3]
+
+## Attributes boxplot
+par(mfrow=c(1,2))
+out <- sapply(1:2, function(i) boxplot(x[,i], main=names(dataset)[i]))
+```
+
+The data distribution along the variables is slightly different. The
+second attribute is much sparser than the first, with a range three
+times bigger.
+
+```{r}
+
+## Classes piechart
+ggplot(dataset, aes(x="", y=1, fill=Class))+
+    geom_bar(width = 1, stat = "identity")+
+    coord_polar("y", start=0)+ theme_minimal()+
+    theme(axis.title.x=element_blank(), axis.title.y = element_blank())
+```
+
+As we said before, in the chart can be seen that there are
+approximately 5 times more data in the negative class than
+in the positive one. Now, we will plot the data in a scatter
+plot, marking the examples with the class they belong to:
+
+```{r}
+## Scatterplot
+featurePlot(x=x, y=y, plot="ellipse")
+```
+
+The graph shows that the positive class is placed in the center of the
+variables space, forming a big vertical ellipse. However, if we look
+closely, we can find five smaller groups separated by negative
+examples. This disposition will undermine the performance
+
+```{r}
+## Per class boxplot
+featurePlot(x=x, y=y, plot="box")
+```
+
+```{r}
+set.seed(42) #To ensure the same output
+
+## An easy way to create split "data partitions":
+trainIndex <- createDataPartition(dataset$Class, p = .75,
+                                  list = FALSE,
+                                  times = 1)
+trainData <- dataset[ trainIndex,]
+testData  <- dataset[-trainIndex,]
+
+## Check IR to ensure a stratified partition
+imbalanceRatio(trainData)
+imbalanceRatio(testData)
+```
+
+```{r}
+learn_model <-function(dataset, ctrl, message){
+    model.fit <- train(Class ~ ., data = dataset, method = "knn",
+                       trControl = ctrl, preProcess = c("center","scale"),
+                       metric="ROC", tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+    model.pred <- predict(model.fit,newdata = dataset)
+    ## Get the confusion matrix to see accuracy value and other parameter values
+    model.cm <- confusionMatrix(model.pred, dataset$Class,positive = "positive")
+    model.probs <- predict(model.fit,newdata = dataset, type="prob")
+    model.roc <- roc(dataset$Class,model.probs[,"positive"],color="green")
+    return(model.fit)
+}
+
+test_model <-function(dataset, model.fit,message){
+    model.pred <- predict(model.fit,newdata = dataset)
+                                        #Get the confusion matrix to see accuracy value and other parameter values
+    model.cm <- confusionMatrix(model.pred, dataset$Class,positive = "positive")
+    print(model.cm)
+    model.probs <- predict(model.fit,newdata = dataset, type="prob")
+    model.roc <- roc(dataset$Class,model.probs[,"positive"])
+                                        #print(knn.roc)
+    plot(model.roc, type="S", print.thres= 0.5,main=c("ROC Test",message),col="blue")
+                                        #print(paste0("AUC Test ",message,auc(model.roc)))
+    return(model.cm)
+}
+```
+
+```{r}
+## Execute model ("raw" data)
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+model.raw <- learn_model(trainData,ctrl,"RAW ")
+## We may decide to plot the results from the grid search of the
+## model's parameters
+plot(model.raw,main="Grid Search RAW")
+print(model.raw)
+cm.raw <- test_model(testData,model.raw,"RAW ")
+```
+
+```{r}
+## Execute model ("preprocessed" data)
+## Undersampling
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "down")
+
+model.us <- learn_model(trainData,ctrl,"US ")
+cm.us <- test_model(testData,model.us,"US ")
+```
+
+```{r}
+## Oversampling
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "up")
+model.os <- learn_model(trainData,ctrl,"OS ")
+cm.os <- test_model(testData,model.os,"OS ")
+```
+
+```{r}
+## SMOTE
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "smote")
+model.smt <- learn_model(trainData,ctrl,"SMT ")
+cm.smt <- test_model(testData,model.smt,"SMT ")
+```
+
+```{r}
+## summarize accuracy of models
+models <- list(raw = model.raw,us = model.us,os = model.os,smt = model.smt)
+results <- resamples(models)
+summary(results)
+```
+```{r}
+## Compare accuracy of models
+bwplot(results)
+#dotplot(results)
+```
+
+```{r}
+## Carry out a comparison over all imbalanced metrics
+comparison <- data.frame(model = names(models),
+                         Sensitivity = rep(NA, length(models)),
+                         Specificity = rep(NA, length(models)),
+                         Precision = rep(NA, length(models)),
+                         Recall = rep(NA, length(models)),
+                         F1 = rep(NA, length(models)))
+
+for (name in names(models)) {
+  cm_model <- get(paste0("cm.", name))
+
+  comparison[comparison$model == name, ] <- filter(comparison, model == name) %>%
+    mutate(Sensitivity = cm_model$byClass["Sensitivity"],
+           Specificity = cm_model$byClass["Specificity"],
+           Precision = cm_model$byClass["Precision"],
+           Recall = cm_model$byClass["Recall"],
+           F1 = cm_model$byClass["F1"])
+}
+
+comparison %>%
+  gather(x, y, Sensitivity:F1) %>%
+  ggplot(aes(x = x, y = y, color = model)) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 3)
+```
+
+## Package imbalance utilization
+
+```{r}
+## Oversampling using classic SMOTE
+trainData.smote <- oversample(trainData, ratio=0.4, method="SMOTE")
+
+## TrainControl without
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary)
+
+
+model.smt <- learn_model(trainData.smote, ctrl, "SMOTE")
+cm.smt <- test_model(testData, model.smt, "SMOTE")
+```
+
+```{r}
+## Oversampling using classic
+trainData.smote <- oversample(trainData, ratio=0.6, method="MWMOTE")
+
+## TrainControl without
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary)
+
+
+model.smt <- learn_model(trainData.smote, ctrl, "SMOTE")
+cm.smt <- test_model(testData, model.smt, "SMOTE")
+```

@@ -1,0 +1,524 @@
+---
+title: "Tutorial on Imbalanced Classification Tasks"
+author: "Alberto Fernandez (alberto@decsai.ugr.es)"
+date: "January 27, 2020"
+output: pdf_document
+always_allow_html: true
+---
+
+This is an R Notebook a practical session on "Data Mining: Advanced Aspects" course from the "Master in Data Science and Computer Engineering" at University of Granada.
+
+When you execute code within the notebook, the results appear beneath the code.
+
+#Introduction
+Any dataset with an unequal class distribution is technically imbalanced. However, a dataset is said to be imbalanced when there is a significant, or in some cases extreme, disproportion among the number of examples of each class of the problem. In other words, the class imbalance occurs when the number of examples representing one class is much lower than the ones of the other classes. Hence, one or more classes may be underrepresented in the dataset. Such a simple definition has brought along a lot of attention from researchers and practitioners due to the number of real-world applications where the raw data gathered fulfill this definition.
+
+In this step-by-step tutorial you will:
+
+1. Get the most useful packages for addressing imbalanced classification with machine learning in R.
+2. Load a dataset and understand it's structure using statistical summaries and data visualization.
+3. Create several machine learning models in synergy with pre-processing techniques for imbalanced data, pick the best and build confidence that the predictive performance is reliable.
+
+For the sake of easing this ``hands-on'' session, the document contains chunks of R source code that can be run directly. Try executing this first chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter* (*Ctrl+Shift+Enter* in Windows).
+
+```{r}
+print("Welcome to your first R NoteBook")
+```
+
+If you like to a new chunk, just click the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I* (or *Ctrl+Alt+I* in Windows). This way, you may add your own code if requested.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). This is actually a nice way to compile all the tasks developed during the tutorial.
+
+Here is an overview what we are going to cover in this *Tutorial on Imbalanced Classification*:
+
+1. Installing the R platform.
+2. Loading the dataset.
+3. Summarizing the dataset.
+4. Visualizing the dataset.
+5. Evaluating some algorithms.
+6. Comparison among different solutions.
+
+Take your time. Work through each step.
+
+#Install Required Packages
+Install the packages we are going to use today. Packages are third party add-ons or libraries that we can use in R.
+
+```{r}
+install.packages(c("caret","dplyr","pROC","tidyr","imbalance"),repos = "http://cran.r-project.org")
+
+```
+
+**NOTE:** We may need other packages, but caret should ask us if we want to load them. If you are having problems with packages, you can install the caret packages and all packages that you might need by typing (remove the \# character):
+
+```{r}
+#install.packages("caret", dependencies=c("Depends", "Suggests"),repos = "http://cran.r-project.org")
+```
+
+Now, let's load the packages that we are going to use in this tutorial, the caret and imbalance packages, among others.
+
+```{r}
+library(caret)
+library(imbalance) #to be used in the optional part
+library(dplyr)
+library(pROC)
+library(tidyr)
+```
+
+As you might already know, the caret package provides a consistent interface into hundreds of machine learning algorithms and provides useful convenience methods for data visualization, data resampling, model tuning and model comparison, among other features. It's a must have tool for machine learning projects in R.
+
+One of its advantages for the use of caret is that it directly integrates the use of pre-processing techniques when setting up the control method for the training stage.
+
+For more information about the caret R package see the [caret package homepage](http://topepo.github.io/caret/index.html).
+
+#Step One. Get your data
+
+For the sake of establishing a controlled scenario, we will make use of two different artificial data, namely the "circle" and "subclus" data, which can be found in different studies on imbalanced classification. These are binary problems, both in terms of attributes and classes.
+
+In addition, we can load some data from the imbalance package, such as the glass0 one (see  [Wikipedia](https://www.kaggle.com/uciml/glass)). In this case, we can observe the behavior of the different methods on a real case study.
+
+Here is what we are going to do in this step:
+
+0. Load the glass0 data the easy way (with imbalance package). This will only serve for the individual tasks to be accomplished afterwards.
+1. Load the circle data from CSV (optional, for purists).
+2. Separate the data into a training dataset and a validation dataset.
+
+For the "subclus" data, please follow the same procedure as in the case of "circle".
+
+##Load Data The Easy Way
+Fortunately, the imbalance package provides the glass0 dataset for us, among others. Load the dataset as follows:
+
+```{r}
+# attach the glass0 dataset to the environment
+data(glass0)
+# rename the dataset
+dataset <- glass0
+```
+
+You now have the glass0 loaded in R and accessible via the dataset variable.
+
+I like to name the loaded data "dataset". This is helpful if you want to copy-paste code between projects and the dataset always has the same name.
+
+##Load From CSV
+In the case you have previously downloaded the dataset, you may want to load the data just from a CSV file.
+
+1. Download the circle (and subclus) dataset from PRADO (UGR).
+2. Save the file as circle.csv (and subclus) in your project directory.
+3. Load the dataset from the CSV file as follows:
+
+```{r}
+# load the CSV file from the local or web directory
+dataset <- read.csv("circle.csv",header = FALSE)
+# set the column names in the dataset (you must know them a priori)
+colnames(dataset) <- c("Att1", "Att2", "Class")
+dataset$Class <- relevel(dataset$Class,"positive") #to ensure it appears at the first class
+```
+
+You now have the circle data loaded in R and accessible via the dataset variable.
+
+#Step Two. Know your data: Summarize Dataset
+Now it is time to take a look at the data.
+
+In this step we are going to take a look at the data a few different ways:
+
+1. Dimensions of the dataset.
+2. Types of the attributes.
+3. Peek at the data itself.
+4. Levels of the class attribute.
+5. Breakdown of the instances in each class.
+6. Statistical summary of all attributes.
+
+Don't worry, each look at the data is one command. These are useful commands that you can use again and again on future projects.
+
+##Dimensions of Dataset
+
+We can get a quick idea of how many instances (rows) and how many attributes (columns) the data contains with the dim function.
+
+```{r}
+# dimensions of dataset
+dim(dataset)
+```
+
+You should see 2390 instances and 3 attributes in the case of the "circle" data.
+
+##Types of Attributes
+It is a good idea to get an idea of the types of the attributes. They could be doubles, integers, strings, factors and other types.
+
+Knowing the types is important as it will give you an idea of how to better summarize the data you have and the types of transforms you might need to use to prepare the data before you model it.
+
+In this example, you should see that all of the inputs are double and that the class value is a factor.
+
+```{r}
+# Check the structure and type of each attribute
+str(dataset)
+```
+
+##Peek at the Data
+It is also always a good idea to actually eyeball your data. You should see the first 5 rows of the data:
+
+```{r}
+# take a peek at the first 5 rows of the data
+head(dataset)
+```
+
+##Levels of the Class
+The class variable is a factor. A factor is a class that has multiple class labels or levels. Let's look at the levels. Notice how we can refer to an attribute by name as a property of the dataset. In the results we can see that the class has 3 different labels:
+
+```{r}
+# list the levels for the class
+levels(dataset$Class)
+```
+
+This is a binary classification problem.
+
+##Statistical Summary
+Now finally, we can take a look at a summary of each attribute.
+
+This includes the mean, the min and max values as well as some percentiles (25th, 50th or media and 75th e.g. values at this points if we ordered all the values for an attribute). We can see here the uneven distribution among classes: 2335 vs. 55 (circle data). This is confirmed by computing the Imbalanced Ratio (IR).
+
+```{r}
+# summarize attribute distributions
+summary(dataset)
+
+imbalanceRatio(dataset)
+```
+
+#Visualize Dataset
+We now have a basic idea about the data. We need to extend that with some visualizations.
+
+We are going to look at two types of plots:
+
+1. Univariate plots to better understand each attribute.
+2. Multivariate plots to better understand the relationships between attributes.
+
+##Univariate Plots
+We start with some univariate plots, that is, plots of each individual variable.
+
+It is helpful with visualization to have a way to refer to just the input attributes and just the output attributes. Let's set that up and call the inputs attributes x and the output attribute (or class) y.
+
+```{r}
+# split input and output
+x <- dataset[,1:2]
+y <- dataset[,3]
+```
+
+Given that the input variables are numeric, we can create box and whisker plots of each. This gives us a much clearer idea of the distribution of the input attributes:
+
+```{r}
+# boxplot for each attribute on one image
+par(mfrow=c(1,2))
+  for(i in 1:2) {
+  boxplot(x[,i], main=names(dataset)[i])
+}
+
+```
+
+We can also create a barplot (better a pie chart) of the class variable to get a graphical representation of the class distribution. This confirms what we learned in the last section, that the instances are unevenly distributed across the two classes.
+
+```{r}
+# barplot for class breakdown
+# plot(y)
+
+# A pie chart is best
+n_classes <- c(sum(y=="positive"),sum(y=="negative"))
+pct <- round(n_classes/sum(n_classes)*100,digits=2)
+
+lbls <- levels(dataset$Class)
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+
+pie(n_classes,labels = lbls, main="Class distribution")
+```
+
+##Multivariate Plots
+Now we can look at the interactions between the variables.
+
+First let's look at scatterplots of all pairs of attributes and color the points by class. In addition, because the scatterplots show that points for each class are generally separate, we can draw ellipses around them. We aim to see relationships between the input attributes (trends) and between attributes and the class values (ellipses). In this case the data is so simple that there is no clear conclusion.
+
+```{r}
+# scatterplot matrix
+featurePlot(x=x, y=y, plot="ellipse")
+```
+
+We can also look at box and whisker plots of each input variable again, but this time broken down into separate plots for each class. This can help to tease out obvious linear separations between the classes.
+
+```{r}
+# box and whisker plots for each attribute
+featurePlot(x=x, y=y, plot="box")
+```
+
+Scatter plots can give you a great idea of what you’re dealing with: it can be interesting to see how much one variable is affected by another. In other words, you want to see if there is any correlation between two variables. You can make scatterplots with the [ggvis](http://www.rdocumentation.org/packages/ggvis) package, for example.
+
+```{r}
+# Load in `ggvis`
+library(ggvis)
+
+# Dataset scatter plot
+dataset %>% ggvis(~Att1, ~Att2, fill = ~Class) %>% layer_points()
+```
+
+#Evaluate Some Algorithms
+Now it is time to create some models of the data and estimate their predictive ability on unseen data.
+
+Here is what we are going to cover in this step:
+
+1. Set-up the test harness to use hold-out validation. It is not the best practice, but will serve us for teaching purposes.
+2. Apply different pre-processing approaches to the training data. Test must be kept unchanged.
+3. Build a kNN model to predict the class from each different training data.
+4. Compare and select the best methodology.
+
+##Test Harness
+
+As previously commented, we will focus on a hold-out partiton. This way, we will have just one training and one test split, which may cause a bias in our conclusions. However, it is shown how to proceed with a proper cross validation procedure.
+
+We must reset the random number seed before each run to ensure that the evaluation of each algorithm is performed using exactly the same data splits. It ensures the results are directly comparable.
+
+```{r}
+set.seed(42) #To ensure the same output
+
+#An easy way to create split "data partitions":
+trainIndex <- createDataPartition(dataset$Class, p = .75,
+                                  list = FALSE,
+                                  times = 1)
+trainData <- dataset[ trainIndex,]
+testData  <- dataset[-trainIndex,]
+
+#Check IR to ensure a stratified partition
+imbalanceRatio(trainData)
+imbalanceRatio(testData)
+
+#Ad hoc FCV
+#testIndices <- createFolds(dataset$Class, k=5)
+#First partition
+#dataTrain <- dataset[-testIndices[[1]],]
+#dataTest  <- dataset[testIndices[[1]],]
+```
+
+##Build Models
+We don't know which algorithms would be good on this problem or what configurations to use.
+
+Let's evaluate 3 different methodologies with kNN:
+
+1. Original dataset (raw data)
+2. Trivial sampling techniques (random over and under sampling).
+3. SMOTE oversampling.
+
+First of all, we need to create two auxiliar functions for the learning and estimation stages. Please take into account that we are optimising the k parameter of kNN via "grid search". If we remove this part, we may also build a general function for any possible classification algorithm.
+
+1) Learning
+
+```{r}
+# a) Learning function
+learn_model <-function(dataset, ctrl,message){
+  model.fit <- train(Class ~ ., data = dataset, method = "knn",
+                   trControl = ctrl, preProcess = c("center","scale"), metric="ROC",
+                   tuneGrid = expand.grid(k = c(1,3,5,7,9,11)))
+  model.pred <- predict(model.fit,newdata = dataset)
+  #Get the confusion matrix to see accuracy value and other parameter values
+  model.cm <- confusionMatrix(model.pred, dataset$Class,positive = "positive")
+  model.probs <- predict(model.fit,newdata = dataset, type="prob")
+  model.roc <- roc(dataset$Class,model.probs[,"positive"],color="green")
+  return(model.fit)
+}
+```
+
+2) Prediction:
+
+```{r}
+# b) Estimation function
+test_model <-function(dataset, model.fit,message){
+  model.pred <- predict(model.fit,newdata = dataset)
+  #Get the confusion matrix to see accuracy value and other parameter values
+  model.cm <- confusionMatrix(model.pred, dataset$Class,positive = "positive")
+  print(model.cm)
+  model.probs <- predict(model.fit,newdata = dataset, type="prob")
+  model.roc <- roc(dataset$Class,model.probs[,"positive"])
+  #print(knn.roc)
+  plot(model.roc, type="S", print.thres= 0.5,main=c("ROC Test",message),col="blue")
+  #print(paste0("AUC Test ",message,auc(model.roc)))
+  return(model.cm)
+}
+```
+
+##Learn and store different models of the data
+
+First, we check the obtain the results from original data. Please recall that an internal CV validation is used to set the best parameters for the kNN model (see above). This is stated in the trainControl call.
+
+```{r}
+#Execute model ("raw" data)
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary)
+model.raw <- learn_model(trainData,ctrl,"RAW ")
+#We may decide to plot the results from the grid search of the model's parameters
+plot(model.raw,main="Grid Search RAW")
+print(model.raw)
+cm.raw <- test_model(testData,model.raw,"RAW ")
+```
+
+Now, we include the preprocessing stage into the control method of caret and obtain new models. First with a simple undersampling technique. The use of RUS should obtain a training set that is perfectly balanced by removing instances from the majority class in a random way.
+
+
+```{r}
+#Execute model ("preprocessed" data)
+#Undersampling
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "down")
+
+model.us <- learn_model(trainData,ctrl,"US ")
+cm.us <- test_model(testData,model.us,"US ")
+```
+
+Now we must check the behavior of the random oversampling approach. The use of ROS should obtain a training set that is perfectly balanced by replicating instances from the minority class in a random way.
+
+```{r}
+#Oversampling
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "up")
+model.os <- learn_model(trainData,ctrl,"OS ")
+cm.os <- test_model(testData,model.os,"OS ")
+```
+
+Finally we test the SMOTE state-of-the-art solution. La aplicación de SMOTE debería obtener un conjunto de entrenamiento perfectamente equilibrado, creando nuevas instancias de la clase minoritaria
+
+```{r}
+#SMOTE
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "smote")
+model.smt <- learn_model(trainData,ctrl,"SMT ")
+cm.smt <- test_model(testData,model.smt,"SMT ")
+```
+
+##Select Best Model
+We now have 4 models learned from the same dataset but with different pre-processing options. Each model comprises a different accuracy estimation, and thus we need to compare the models to each other and select the most "accurate" in terms of imbalanced performance metrics, of course.
+
+We can report on the performance of each model by first creating a list of the created models and using the summary function:
+
+```{r}
+## summarize accuracy of models
+models <- list(raw = model.raw,us = model.us,os = model.os,smt = model.smt)
+results <- resamples(models)
+summary(results)
+```
+
+We can also create a plot of the model evaluation results and compare the spread and the mean performance of each model. In the case of circle data, all preprocessing methods are equallly good in terms of sensitivity (positive class recognition), but oversampling is a bit better for specificity (negative class recognition).
+
+The ideal procedure is to get a population of performance measures for each algorithm because each algorithm when evaluating several times (k fold cross validation).
+
+```{r}
+# compare accuracy of models
+bwplot(results)
+#dotplot(results)
+```
+
+We can finally make another different plot to compare additional metrics for imbalanced classification, such as precision, recall and F1.
+
+```{r}
+#Carry out a comparison over all imbalanced metrics
+comparison <- data.frame(model = names(models),
+                         Sensitivity = rep(NA, length(models)),
+                         Specificity = rep(NA, length(models)),
+                         Precision = rep(NA, length(models)),
+                         Recall = rep(NA, length(models)),
+                         F1 = rep(NA, length(models)))
+
+for (name in names(models)) {
+  cm_model <- get(paste0("cm.", name))
+
+  comparison[comparison$model == name, ] <- filter(comparison, model == name) %>%
+    mutate(Sensitivity = cm_model$byClass["Sensitivity"],
+           Specificity = cm_model$byClass["Specificity"],
+           Precision = cm_model$byClass["Precision"],
+           Recall = cm_model$byClass["Recall"],
+           F1 = cm_model$byClass["F1"])
+}
+
+comparison %>%
+  gather(x, y, Sensitivity:F1) %>%
+  ggplot(aes(x = x, y = y, color = model)) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 3)
+
+```
+
+#Additional activities
+
+The former tutorial served as a guide to understand the whole procedure to be carried out when addressing a classification problem that presents an uneven class distribution. Below, several tasks are proposed for extending this Rmd file to check whether all concepts have been acquired correctly.
+
+## Activity 1: Extension with additional datasets. (mandatory)
+
+Repeat the whole procedure carried out with "circle" data using now the subclus problem. Please be sure to avoid unnecesary operations / R code chunks.
+
+```{r}
+# load the CSV file from the local directory
+
+# set the column names in the dataset
+
+# summarize statistical values
+
+# Dataset scatter plot
+
+# Create split "data partitions":
+
+```
+
+```{r}
+# Execute models
+
+# Summarize performance of models
+
+# Carry out a visual comparison over all imbalanced metrics
+
+```
+
+Write a short comment on the main conclusions obtained throughout the experimental analysis. Focus on the most interesting behavior achieved by the methods applied, observing whether there are some special capabilities to be stressed by any particular approach.
+
+
+## Activity 2: Using the "imbalance" library (mandatory)
+
+As we have commented, there exists a CRAN package named as "imbalance" that implements some of the most well-known data preprocesing techniques for imbalanced classification. We must take a closer look to the documentation in both the [imbalance package homepage](https://github.com/ncordon/imbalance). or the help function
+
+```{r}
+help("imbalance") #see documentation in the right botton corner
+```
+
+By using the "imbalance" library we may consider the application of advanced techniques based on SMOTE. For that purpose, we must focus on the "oversample" function:
+
+```{r}
+help("oversample") #see documentation in the right botton corner
+```
+
+It is your turn to select up to four different SMOTE techniques and apply them over some of the datasets provided by the package (ecoli1, glass0, haberman or yeast4, for example). Are there any significant differences among the results?
+
+```{r}
+# Load the data
+
+# Apply preprocessing with oversample function
+
+# Check results with kNN, DT or any other classifier
+
+```
+
+Now, make a plot comparison between the original and preprocessed dataset (only for SMOTE, for example). Recall that, being a 2D plot, you must only two of the input columns. Alternatively, you can carry out a "tsne" prior to the plot.
+
+```{r}
+# Visualize the data distribution between original and preprocess data.
+
+```
+
+
+## Activity 3: Analyze the behavior of SMOTE preprocessing (optional)
+
+In this last part of the practice, we intend to analyse the influence of the different parameters of SMOTE. In fact, during the theoretical classes, it was indicated that many of the SMOTE parameters could have a certain importance in terms of the quality of the new synthetic examples generated on the training set.
+
+Therefore, the objective of this task is to contrast some of them to see which ones can have more influence, or which ones can be significant values to observe differences in the results.
+
+To carry out this activity, the first issue is to determine the experimental framework. As for the datasets to be used, "subclus" and "circle" can be selected by default, although the study will be more relevant when the number of problems, both synthetic and real, is greater. In any case, the student should use a cross validation technique to check the results.
+
+As a base classifier to analyze the behavior, the student may use by default kNN with K = 1 or K = 3. It could also be interesting to analyze the results with the C4.5 decision tree or even Random Forest or any other quality technique that the student consider to be appropriate.
+
+Finally, it would remain to be discussed which parameters are appropriate for the study, and what range of values to use. The most direct parameters would be K for the number of neighbors chosen (for example, between K = 1, K = 5, K = N/2 with N number of positive instances, etc.), and the percentage of oversampling (double the minority class, 50-50 class ratio, 50% minority over majority class, among others).
+
+To do so, you can either perform an ad hoc implementation of SMOTE, or analyze among those available in the different R packages, the one that allows you to perform a "Racing" of the parameters (clue: check the current available imbalanced packages in CRAN).
+
+Build the corresponding tables of results and make a brief analysis if any interesting patterns are observed during the experimental analysis.
+
+#Final Comments
+Hope you enjoyed this tutorial about Imbalanced Classification in Machine Learning. If you need further details on how to perform any kind of task, please ask me via email at alberto@decsai.ugr.es
