@@ -5,3 +5,9 @@
 *.csv
 *.dat
 
+# Stop tracking elvira program
+elvira
+Elvira.jar
+first-steps
+manual
+
