@@ -1,0 +1,18 @@
+* Trabajo pendiente
+** Modelos gráficos probabilísticos
+** TODO Construcción de redes bayesianas con Elvira
+   DEADLINE: <2020-03-13 vie>
+** Minería de datos: aspectos avanzados
+** TODO Tutorial de clasificación no balanceada
+   DEADLINE: <2020-02-16 dom>
+** Big data I
+** TODO Examen
+   SCHEDULED: <2020-02-07 vie>
+** Extracción de características en imágenes
+** TODO Reducción de dimensionalidad con PCA
+   DEADLINE: <2020-02-07 vie>
+** Minería de datos: preprocesamiento y clasificación:
+** TODO Competición Pump It Up
+   DEADLINE: <2020-02-16 dom>
+** TODO Diapositivas explicación competición
+   DEADLINE: <2020-02-18 mar>

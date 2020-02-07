@@ -2,12 +2,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt
-import os
-if os.path.basename(os.getcwd()) != "trabajo_final":
-    os.chdir("clasificacion/trabajo_final")
 
-dataset = pd.read_csv("dataset/train_set.csv")
-labels = pd.read_csv("dataset/train_labels.csv")
+dataset = pd.read_csv("data/training.csv")
+labels = pd.read_csv("data/train-labels.csv")
 full_dataset = pd.merge(dataset, labels)
 
 numeric_vars = full_dataset.select_dtypes(include=np.number)
