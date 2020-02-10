@@ -30,6 +30,7 @@ library(tidyr)
 library(knitr)
 library(ggplot2)
 library(ggvis)
+library(Rtsne)
 ```
 # Introduction
 
@@ -128,27 +129,60 @@ featurePlot(x=x, y=y, plot="ellipse")
 The graph shows that the positive class is placed in the center of the
 variables space, forming a big vertical ellipse. However, if we look
 closely, we can find five smaller groups separated by negative
-examples. This disposition will undermine the performance
+examples. This disposition will undermine the performance of the
+classical SMOTE method for oversampling, since some of the artificial
+instances will lay outside the boundaries of the minority class.
 
 ```{r}
 ## Per class boxplot
 featurePlot(x=x, y=y, plot="box")
 ```
 
+The previous boxplot exhibits the distribution of variables depending
+on the class. As we have previously observed in the scatter plot, data
+restricted to the minority class covers a less wide range of points,
+and thus they form a group op points in the center of the space.
+
+After a first step of data exploration, a phase of models evaluation
+will be performed. Our aim is to conclude which balancing criteria
+produces better results with our dataset. At first, we will compare
+four different approaches:
+
+- No balancing: Training the model with raw data
+- Undersampling: Randomly deleting elements of the majority class
+- Oversampling: Randomly replicating elements of the minority class
+- SMOTE: Classical implementation of SMOTE to generate synthetic
+  examples of the minority class
+
+Since we are interested in testing the influence of sampling methods,
+we will fix the data preprocessing step and the learning algorithm,
+together with the evaluation criteria. Specifically, we will split the
+dataset into train and test using stratified sampling, keeping 75 % of
+the data for training, and the rest for testing. The data
+preprocessing will be an standardization, and the learning algorithm
+will be a k-NN with $k \in [1,3,5,7,9,11]$. This parameter will be
+inferred using 5 fold cross validation with three repetitions (meaning
+that the whole procedure of CV will be repeated three times).
+
+We begin by separating the dataset into train and test and checking
+that the imbalance ratio remains similar in both subsets, so the
+stratification is correct:
+
+
 ```{r}
 set.seed(42) #To ensure the same output
-
 ## An easy way to create split "data partitions":
 trainIndex <- createDataPartition(dataset$Class, p = .75,
-                                  list = FALSE,
-                                  times = 1)
+                                  list = FALSE, times = 1)
 trainData <- dataset[ trainIndex,]
 testData  <- dataset[-trainIndex,]
-
 ## Check IR to ensure a stratified partition
 imbalanceRatio(trainData)
 imbalanceRatio(testData)
 ```
+
+Afterwards, we define two functions to perform the model training and
+testing respectively.
 
 ```{r}
 learn_model <-function(dataset, ctrl, message){
@@ -165,72 +199,127 @@ learn_model <-function(dataset, ctrl, message){
 
 test_model <-function(dataset, model.fit,message){
     model.pred <- predict(model.fit,newdata = dataset)
-                                        #Get the confusion matrix to see accuracy value and other parameter values
+    ## Get the confusion matrix to see accuracy value and other parameter values
     model.cm <- confusionMatrix(model.pred, dataset$Class,positive = "positive")
     print(model.cm)
+
     model.probs <- predict(model.fit,newdata = dataset, type="prob")
     model.roc <- roc(dataset$Class,model.probs[,"positive"])
-                                        #print(knn.roc)
-    plot(model.roc, type="S", print.thres= 0.5,main=c("ROC Test",message),col="blue")
-                                        #print(paste0("AUC Test ",message,auc(model.roc)))
+    plot(model.roc, type="S", print.thres= 0.5,main=c("ROC Test",message),
+         col="blue")
+
     return(model.cm)
 }
 ```
 
-```{r}
+After both functions are defined, we will use them to train and test the
+defined pipelines. We begin with the raw data model:
+
+```{r, warnings=F, message=F}
 ## Execute model ("raw" data)
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
-                     classProbs=TRUE,summaryFunction = twoClassSummary)
-model.raw <- learn_model(trainData,ctrl,"RAW ")
-## We may decide to plot the results from the grid search of the
-## model's parameters
+ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                     classProbs=TRUE, summaryFunction=twoClassSummary)
+model.raw <- learn_model(trainData,ctrl,"Raw Data")
 plot(model.raw,main="Grid Search RAW")
 print(model.raw)
-cm.raw <- test_model(testData,model.raw,"RAW ")
 ```
 
-```{r}
-## Execute model ("preprocessed" data)
+With the previous information (evolution of ROC in the graph and
+summary of the model), we can have an idea of the model
+performance). The specific value of k used in the inference phase is
+selected using one of the previous calculated metrics over cross
+validation. In this case, area under ROC for $k = 5$ is the highest
+value, and then 5 is the selected $k$. It is interesting to point out
+that depending on the chosen metric, the election could have been
+different. For example, the model with the highest specificity is the
+obtained for $k=1$, so we would have chosen $k=1$ if the important
+metric for our specific problem was that one.
+
+After the model is trained, we can perform inference over our test
+set:
+
+```{r, message=F}
+cm.raw <- test_model(testData,model.raw,"Raw Data")
+```
+
+The output of the function shows different performance information
+related to the model. At first, we have the confusion matrix of the
+prediction. In it, we can observe an important number of false
+negatives (10, close to the 14 true positives detected), and some
+false positives also, but in a much more reduced number. After that
+matrix, some performance metrics are calculated (accuracy, sensitivity,
+specificity...), and plots de ROC curve.
+
+For the following models, we won't comment the output since it will be
+the same for all of them. We will collect the results for the models
+and compare them afterwards. We perform next the evaluation over the
+random undersampling strategy.
+
+```{r, message=F}
 ## Undersampling
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
-                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "down")
-
-model.us <- learn_model(trainData,ctrl,"US ")
-cm.us <- test_model(testData,model.us,"US ")
+ctrl <- trainControl(method="repeatedcv", number=5, repeats=3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary,
+                     sampling = "down")
+model.us <- learn_model(trainData,ctrl,"Undersampling")
+cm.us <- test_model(testData,model.us,"Undersampling")
 ```
 
-```{r}
+Then, oversampling politic:
+
+```{r, message=F}
 ## Oversampling
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
-                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "up")
-model.os <- learn_model(trainData,ctrl,"OS ")
-cm.os <- test_model(testData,model.os,"OS ")
+ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary,
+                     sampling = "up")
+model.os <- learn_model(trainData,ctrl,"Oversampling")
+cm.os <- test_model(testData,model.os,"Oversampling")
 ```
 
-```{r}
+And finally, classic SMOTE:
+
+```{r, message=F, fig.height=4.2}
 ## SMOTE
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
-                     classProbs=TRUE,summaryFunction = twoClassSummary,sampling = "smote")
-model.smt <- learn_model(trainData,ctrl,"SMT ")
-cm.smt <- test_model(testData,model.smt,"SMT ")
+ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3, classProbs=TRUE,
+                     summaryFunction = twoClassSummary,sampling = "smote")
+model.smt <- learn_model(trainData,ctrl,"SMOTE")
+cm.smt <- test_model(testData,model.smt,"SMOTE")
 ```
+
+Now that we have performed training over all of the proposed methods,
+we will try to compare the obtained results in order to decide which
+model is the best. Using the function `resamples` from `caret`
+package, we can group and analyze the performance of the trained
+models:
 
 ```{r}
 ## summarize accuracy of models
-models <- list(raw = model.raw,us = model.us,os = model.os,smt = model.smt)
+models <- list(raw = model.raw, us = model.us,
+               os = model.os, smt = model.smt)
 results <- resamples(models)
 summary(results)
 ```
+
+By default, the stored information is ROC area, sensitivity and
+specificity of the models for all the cross validation executions (15
+in total per model, since we performed 3 repetitions of 5-CV for
+each). We can also plot that information in a boxplot, so we get the
+information in a visual way:
+
 ```{r}
 ## Compare accuracy of models
 bwplot(results)
-#dotplot(results)
 ```
+
+For the moment, the information shown relates to the training set. It
+is more interesting to study the performance of the model in test set,
+since it will give us a more realistic view of the model performance
+over unseen data. The information of performance metrics is stored in a
+dataframe and represented in a plot:
 
 ```{r}
 ## Carry out a comparison over all imbalanced metrics
 comparison <- data.frame(model = names(models),
-                         Sensitivity = rep(NA, length(models)),
+                         BalancedAccuracy = rep(NA, length(models)),
                          Specificity = rep(NA, length(models)),
                          Precision = rep(NA, length(models)),
                          Recall = rep(NA, length(models)),
@@ -238,9 +327,9 @@ comparison <- data.frame(model = names(models),
 
 for (name in names(models)) {
   cm_model <- get(paste0("cm.", name))
-
-  comparison[comparison$model == name, ] <- filter(comparison, model == name) %>%
-    mutate(Sensitivity = cm_model$byClass["Sensitivity"],
+  comparison[comparison$model == name, ] <- filter(comparison,
+                                                   model == name) %>%
+    mutate(BalancedAccuracy = cm_model$byClass["Balanced Accuracy"],
            Specificity = cm_model$byClass["Specificity"],
            Precision = cm_model$byClass["Precision"],
            Recall = cm_model$byClass["Recall"],
@@ -248,18 +337,135 @@ for (name in names(models)) {
 }
 
 comparison %>%
-  gather(x, y, Sensitivity:F1) %>%
+  gather(x, y, BalancedAccuracy:F1) %>%
   ggplot(aes(x = x, y = y, color = model)) +
   geom_jitter(width = 0.2, alpha = 0.5, size = 3)
 ```
 
-## Package imbalance utilization
+In the previous plot, some performance metrics obtained by the models
+in the test set are shown. The most basic displayed metrics are recall
+and specificity. These metrics show the proportion of elements of each
+class that are correctly identified (recall for positive examples and
+specificity for negative ones). A high recall means that the algorithm
+is capable to detect elements in the positive class when they belong
+to it. A high specificity shows that the algorithm detects properly
+elements in the negative class.
+
+Similar to this metrics, precision shows the proportion of elements
+classified as positive class that actually belong to that class. A
+high precision score shows that the model discriminates well when
+enclosing an example in the positive class, not committing much false
+positives.
+
+Finally, we have the combined metrics. Those metrics are statistical
+summaries of the simple metrics before. The first one shown is the
+balanced accuracy.  That metric is a correction of the classical
+accuracy metric that takes into account the imbalance present in the
+dataset. Instead of calculating the classic ratio of correctly
+classified examples by the total number of examples, the balanced
+accuracy is defined by the mean of specificity and recall. This
+correction improves the accuracy score by giving the same importance
+to both classes. If the dataset is balanced, both scores are the
+same. If not, the balanced accuracy penalizes the score stronger than
+the classical accuracy if the minority class is misclassified.
+
+The other combined metric is $F_1$ score. This metric calculates the
+harmonic mean between recall and specificity, instead of arithmetic
+mean, as balanced accuracy did. It is usually the most employed
+measure for imbalanced classification.
+
+Now that we have commented the metrics we will use to analyze our
+models, we will comment the results obtained. For the raw data model,
+we can see that the specificity is the highest among all models. This
+is because k-NN overfits a lot in presence of imbalance. Since a lot
+of examples belong to the negative class, most of the neighbors of a
+given point will be of that class, and thus most of examples will be
+classified as such. Because of that, most of the negative examples in
+the test set will be correctly classified and the specificity is high.
+On the other hand, recall drops significantly for the same reason, and
+this model is the one with the worst score in this column.
+
+The case of precision is curious. Despite the fact that not many
+positive examples are correctly identified, the number of examples
+incorrectly classified as positive is low, because the distribution of
+the data remains the same. This is not the case of the other models,
+which suffer from the modification in the data distribution, provoking
+an augment of false negatives, and thus an important drop in the
+precision. Talking about the composed metrics, due to the bad
+performance in terms of recall when we train with raw data, the model
+is the worst when balanced accuracy is measured. $F_1$ score, however,
+is not too low, being the second model in this case.
+
+Now, for the random undersampling model, we can observe an important
+drop in specificity. This is because the boundaries of the majority
+data are modified when random undersampling is performed, and because
+of that a lot of points in that zone are incorrectly classified as
+belonging to the minority class. Recall, on the other hand, is greatly
+improved, because the zone occupied by the positive class gets cleaned
+of negative points, making the classification of points of this class
+much easier. Nevertheless, precision is too bad, because a lot of
+points from the negative class are misclassified. Due to the bad
+performance in specificity, combined metrics are poor, specially
+$F_1$. Balanced accuracy is fairly good, because of the high recall
+value.
+
+For the random oversampling model we obtain the worst
+results. Specificity is a bit better than the one obtained by
+undersampling, but in return the recall drops significantly.  Also,
+the precision is the worst one, and the combined metrics are bad in
+both cases. The problem here lies in the learning model. Neighboring
+based algorithms are not much affected by oversampling, because the
+only effect the replication has is replicating the same neighbor for
+some points. Points that aren't related with a multiplied point before
+oversampling are unaffected afterwards, and then the result is not
+specially good.
+
+SMOTE, by contrast, improves the results significantly. Comparing it
+to the raw model, specificity is a bit lower, but the vast improvement
+in recall measure justifies the loss. Not loosing 10 percent points in
+specificity, recall rises more than 30 points. Precision score is
+reduced, but not to the extent of undersampling or oversampling. Finally,
+the improvement in basic measures produces that SMOTE is the best
+algorithm in both combined metrics, and then we can conclude that it
+greatly improves the results in our dataset.
+
+In the next section, we will further study some extensions to SMOTE
+algorithm that overcome some of the problem produced by the random
+sample of the original points.
+
+# SMOTE variants using the `imbalance` library
+
+In this section we will explore some of the variants of the SMOTE
+algorithm. This extensions try to fix some of the problems that
+present the original algorithm, produced by the random selection
+of the points, mostly.
+
+```{r}
+dataset <- banana
+dataset <- unique(dataset)
+
+if (dim(dataset)[2] > 3) {
+    cls <- dataset$Class
+    tsne.res <- Rtsne(dataset[,-length(dataset)])
+    repr.data <- data.frame(x=tsne.res$Y[,1], y=tsne.res$Y[,2], Class=cls)
+} else {
+    repr.data <- data.frame(x=dataset[,1], y=dataset[,2], Class=dataset$Class)
+}
+
+ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class))
+
+trainIndex <- createDataPartition(dataset$Class, p = .75,
+                                  list = FALSE, times = 1)
+
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+```
 
 ```{r}
 ## Oversampling using classic SMOTE
 trainData.smote <- oversample(trainData, ratio=0.4, method="SMOTE")
 
-## TrainControl without
+## TrainControl without sampling politic, since we have performed it previously
 ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
                      classProbs=TRUE, summaryFunction = twoClassSummary)
 
@@ -269,14 +475,65 @@ cm.smt <- test_model(testData, model.smt, "SMOTE")
 ```
 
 ```{r}
-## Oversampling using classic
-trainData.smote <- oversample(trainData, ratio=0.6, method="MWMOTE")
+## Oversampling using MWMOTE
+trainData.mwmt <- oversample(trainData, ratio=0.6, method="MWMOTE")
 
-## TrainControl without
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
+ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
                      classProbs=TRUE, summaryFunction = twoClassSummary)
 
 
-model.smt <- learn_model(trainData.smote, ctrl, "SMOTE")
-cm.smt <- test_model(testData, model.smt, "SMOTE")
+model.mwmt <- learn_model(trainData.mwmt, ctrl, "MWMOTE")
+cm.mwmt <- test_model(testData, model.mwmt, "MWMOTE")
+```
+
+```{r}
+## Oversampling using SLMOTE
+trainData.slmt <- oversample(trainData, ratio=0.6, method="SLMOTE")
+
+ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary)
+
+
+model.slmt <- learn_model(trainData.slmt, ctrl, "SLMOTE")
+cm.slmt <- test_model(testData, model.slmt, "SLMOTE")
+```
+
+```{r}
+## Oversampling using SLMOTE
+trainData.dbsmt <- oversample(trainData, ratio=0.6, method="DBSMOTE")
+
+ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                     classProbs=TRUE, summaryFunction = twoClassSummary)
+
+
+model.dbsmt <- learn_model(trainData.dbsmt, ctrl, "DBSMOTE")
+cm.dbsmt <- test_model(testData, model.dbsmt, "DBSMOTE")
+```
+
+```{r}
+models <- list(smt = model.smt, mwmt = model.mwmt, slmt=model.slmt,
+               dbsmt=model.dbsmt)
+## Carry out a comparison over all imbalanced metrics
+comparison <- data.frame(model = names(models),
+                         BalancedAccuracy = rep(NA, length(models)),
+                         Specificity = rep(NA, length(models)),
+                         Precision = rep(NA, length(models)),
+                         Recall = rep(NA, length(models)),
+                         F1 = rep(NA, length(models)))
+
+for (name in names(models)) {
+  cm_model <- get(paste0("cm.", name))
+  comparison[comparison$model == name, ] <- filter(comparison,
+                                                   model == name) %>%
+    mutate(BalancedAccuracy = cm_model$byClass["Balanced Accuracy"],
+           Specificity = cm_model$byClass["Specificity"],
+           Precision = cm_model$byClass["Precision"],
+           Recall = cm_model$byClass["Recall"],
+           F1 = cm_model$byClass["F1"])
+}
+
+comparison %>%
+  gather(x, y, BalancedAccuracy:F1) %>%
+  ggplot(aes(x = x, y = y, color = model)) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 3)
 ```
