@@ -5,6 +5,8 @@
 ** Minería de datos: aspectos avanzados
 *** IN PROGRESS Tutorial de clasificación no balanceada
     DEADLINE: <2020-02-16 dom>
+    haberman -> DBSMOTE 0.7
+
 *** TODO Laboratorio de clasificación monotónica y ordinal
     DEADLINE: <2020-02-24 lun>
 ** Big data I

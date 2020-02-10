@@ -16,7 +16,7 @@ output:
 ---
 
 ```{r setup, include=F}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 set.seed(0)
 ```
 
@@ -30,6 +30,7 @@ library(tidyr)
 library(knitr)
 library(ggplot2)
 library(ggvis)
+library(ggpubr)
 library(Rtsne)
 ```
 # Introduction
@@ -440,100 +441,103 @@ algorithm. This extensions try to fix some of the problems that
 present the original algorithm, produced by the random selection
 of the points, mostly.
 
-```{r}
-dataset <- banana
-dataset <- unique(dataset)
+In order to perform the comparison, we will encapsulate the pipeline
+in a function that receives the dataset, the target imbalance ratio,
+and a list of methods, performs stratified train-test sampling, and
+then for each specified method performs data augmentation, trains a
+kNN, and predicts the test set. Afterwards, the comparison dataframe
+is constructed with the metrics we used in the previous section. Also,
+classification using the raw data is given as a baseline. The function
+is the following:
 
-if (dim(dataset)[2] > 3) {
-    cls <- dataset$Class
-    tsne.res <- Rtsne(dataset[,-length(dataset)])
-    repr.data <- data.frame(x=tsne.res$Y[,1], y=tsne.res$Y[,2], Class=cls)
+```{r}
+perform.comparison.smote <- function(dataset, imb.ratio, methods){
+    ## Train index generation
+    trainIndex <- createDataPartition(dataset$Class, p = .75,
+                                      list = FALSE, times = 1)
+    ## train-test separation
+    trainData <- dataset[trainIndex,]
+    testData <- dataset[-trainIndex,]
+
+    ## Model training with each data generation politic
+    cm.models <- sapply(methods, function (x) {
+        aug.trainData <- oversample(trainData, ratio=imb.ratio, method=x)
+        ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                             classProbs=TRUE, summaryFunction = twoClassSummary)
+        model <- learn_model(aug.trainData, ctrl, x)
+        test_model(testData, model, x)
+    }, simplify = F)
+
+    ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                         classProbs=TRUE, summaryFunction = twoClassSummary)
+    basic.model <- learn_model(trainData, ctrl, "RAW")
+    basic.model <- test_model(testData, basic.model, "RAW")
+
+    cm.models$RAW <- basic.model
+
+    ## Metrics gathering
+    comparison <- lapply(cm.models, function(x){
+        x$byClass[c("Balanced Accuracy", "F1", "Precision",
+                    "Recall", "Specificity")]
+    })
+
+    ## Transformation into dataframe
+    comparison <- as.data.frame(do.call(rbind, comparison))
+    comparison$model <- rownames(comparison)
+    comparison
+}
+```
+
+Now that our function is built, model comparison is easy. At first, we
+will perform the comparison over the banana dataset. The distributions
+of points in the dataset set is the following:
+
+```{r}
+dataset <- haberman
+dataset <- unique(dataset)
+dataset[,-length(dataset)] <- sapply(dataset[,-length(dataset)], as.numeric)
+
+if (length(dataset) > 3){
+    tsne.suitable.ind <- !duplicated(dataset[,-length(dataset)])
+    repr.data <- as.data.frame(Rtsne(
+        dataset[tsne.suitable.ind,-length(dataset)])$Y
+        )
+    colnames(repr.data) <- c("x", "y")
+    repr.data$Class <- dataset$Class[tsne.suitable.ind]
 } else {
-    repr.data <- data.frame(x=dataset[,1], y=dataset[,2], Class=dataset$Class)
+    repr.data <- dataset
+    colnames(repr.data) <- c("x", "y", "Class")
 }
 
 ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class))
-
-trainIndex <- createDataPartition(dataset$Class, p = .75,
-                                  list = FALSE, times = 1)
-
-trainData <- dataset[trainIndex,]
-testData <- dataset[-trainIndex,]
 ```
 
-```{r}
-## Oversampling using classic SMOTE
-trainData.smote <- oversample(trainData, ratio=0.4, method="SMOTE")
-
-## TrainControl without sampling politic, since we have performed it previously
-ctrl <- trainControl(method="repeatedcv",number=5,repeats = 3,
-                     classProbs=TRUE, summaryFunction = twoClassSummary)
-
-
-model.smt <- learn_model(trainData.smote, ctrl, "SMOTE")
-cm.smt <- test_model(testData, model.smt, "SMOTE")
-```
-
-```{r}
-## Oversampling using MWMOTE
-trainData.mwmt <- oversample(trainData, ratio=0.6, method="MWMOTE")
-
-ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
-                     classProbs=TRUE, summaryFunction = twoClassSummary)
-
-
-model.mwmt <- learn_model(trainData.mwmt, ctrl, "MWMOTE")
-cm.mwmt <- test_model(testData, model.mwmt, "MWMOTE")
-```
+Its name comes from the shape of the minority class, which resembles a
+banana in its origin. Actually, this version of the dataset is an
+imbalanced one, not the original. As we can observe, the minority
+class is placed between two big clusters of the majority one, and a
+small group of points in the top part. One of the problems of SMOTE is
+when it selects points randomly is the possibility of polluting the
+boundaries of data. In this case, for example, we have two clear
+clusters of minority points. If SMOTE selects two points, one in each
+cluster, and generates a sample in the joining segment, it is likely
+that the point lies in the cluster of majority points at the top,
+introducing undesired overlapping between classes.
 
 ```{r}
-## Oversampling using SLMOTE
-trainData.slmt <- oversample(trainData, ratio=0.6, method="SLMOTE")
+imb.ratio <- 0.65
+methods <- c("SMOTE", "MWMOTE", "DBSMOTE", "BLSMOTE")
+comparison <- perform.comparison.smote(dataset, imb.ratio, methods)
 
-ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
-                     classProbs=TRUE, summaryFunction = twoClassSummary)
+graphs <- lapply(methods, function(x) {
+    repr.data.smt <- oversample(repr.data, imb.ratio, x)
+    ggplot(repr.data.smt) + geom_point(aes(x=x, y=y, color=Class))
+})
 
-
-model.slmt <- learn_model(trainData.slmt, ctrl, "SLMOTE")
-cm.slmt <- test_model(testData, model.slmt, "SLMOTE")
-```
-
-```{r}
-## Oversampling using SLMOTE
-trainData.dbsmt <- oversample(trainData, ratio=0.6, method="DBSMOTE")
-
-ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
-                     classProbs=TRUE, summaryFunction = twoClassSummary)
-
-
-model.dbsmt <- learn_model(trainData.dbsmt, ctrl, "DBSMOTE")
-cm.dbsmt <- test_model(testData, model.dbsmt, "DBSMOTE")
-```
-
-```{r}
-models <- list(smt = model.smt, mwmt = model.mwmt, slmt=model.slmt,
-               dbsmt=model.dbsmt)
-## Carry out a comparison over all imbalanced metrics
-comparison <- data.frame(model = names(models),
-                         BalancedAccuracy = rep(NA, length(models)),
-                         Specificity = rep(NA, length(models)),
-                         Precision = rep(NA, length(models)),
-                         Recall = rep(NA, length(models)),
-                         F1 = rep(NA, length(models)))
-
-for (name in names(models)) {
-  cm_model <- get(paste0("cm.", name))
-  comparison[comparison$model == name, ] <- filter(comparison,
-                                                   model == name) %>%
-    mutate(BalancedAccuracy = cm_model$byClass["Balanced Accuracy"],
-           Specificity = cm_model$byClass["Specificity"],
-           Precision = cm_model$byClass["Precision"],
-           Recall = cm_model$byClass["Recall"],
-           F1 = cm_model$byClass["F1"])
-}
+ggarrange(plotlist=graphs, labels=methods)
 
 comparison %>%
-  gather(x, y, BalancedAccuracy:F1) %>%
-  ggplot(aes(x = x, y = y, color = model)) +
-  geom_jitter(width = 0.2, alpha = 0.5, size = 3)
+    gather(x, y, "Balanced Accuracy":"Specificity") %>%
+    ggplot(aes(x = x, y = y, color = model)) +
+    geom_jitter(width = 0.2, alpha = 0.5, size = 3)
 ```
