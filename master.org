@@ -10,8 +10,8 @@
 *** TODO Laboratorio de clasificación monotónica y ordinal
     DEADLINE: <2020-02-24 lun>
 ** Big data I
-*** TODO Examen
-    SCHEDULED: <2020-02-07 vie>
+*** DONE Examen
+    CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
 ** Extracción de características en imágenes
 *** DONE Reducción de dimensionalidad con PCA
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
