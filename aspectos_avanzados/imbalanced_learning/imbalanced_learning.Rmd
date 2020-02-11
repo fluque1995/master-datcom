@@ -32,6 +32,7 @@ library(ggplot2)
 library(ggvis)
 library(ggpubr)
 library(Rtsne)
+library(rlist)
 ```
 # Introduction
 
@@ -459,21 +460,23 @@ perform.comparison.smote <- function(dataset, imb.ratio, methods){
     trainData <- dataset[trainIndex,]
     testData <- dataset[-trainIndex,]
 
+    ## Basic model training
+    ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
+                         classProbs=TRUE, summaryFunction = twoClassSummary)
+    basic.model <- learn_model(trainData, ctrl, "RAW")
+    basic.model <- test_model(testData, basic.model, "RAW")
+
+
     ## Model training with each data generation politic
     cm.models <- sapply(methods, function (x) {
-        aug.trainData <- oversample(trainData, ratio=imb.ratio, method=x)
+        aug.trainData <- oversample(trainData, ratio=imb.ratio, method=x, )
         ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
                              classProbs=TRUE, summaryFunction = twoClassSummary)
         model <- learn_model(aug.trainData, ctrl, x)
         test_model(testData, model, x)
     }, simplify = F)
 
-    ctrl <- trainControl(method="repeatedcv", number=5, repeats = 3,
-                         classProbs=TRUE, summaryFunction = twoClassSummary)
-    basic.model <- learn_model(trainData, ctrl, "RAW")
-    basic.model <- test_model(testData, basic.model, "RAW")
-
-    cm.models$RAW <- basic.model
+    cm.models <- list.prepend(cm.models, RAW=basic.model)
 
     ## Metrics gathering
     comparison <- lapply(cm.models, function(x){
@@ -488,12 +491,93 @@ perform.comparison.smote <- function(dataset, imb.ratio, methods){
 }
 ```
 
-Now that our function is built, model comparison is easy. At first, we
-will perform the comparison over the banana dataset. The distributions
-of points in the dataset set is the following:
+Now that our function is built, model comparison is easy. We will compare
+the performance of SMOTE with other three variants:
+
+- BLSMOTE (Borderline SMOTE): One of the earliest modifications
+  of SMOTE, which only creates examples using the minority class
+  examples close to the class boundary.
+- DBSMOTE (Density-Based SMOTE): This method combines the DBSCAN
+  clustering algorithm with the SMOTE algorithm, by creating instances
+  in the segment joining the original data with the centroid of the
+  clusters discovered in the minority class with DBSCAN.
+- MWMOTE (Majority Weighted Minority Oversample): This modification
+  generates examples by assigning weights to the minority examples by
+  the difficulty to classify them (by checking its distance to the
+  majority class examples). Afterwards, it generates synthetic data
+  using a clustering approach to select close original points.
+
+Also, the results with the raw data will be reported as baseline. We
+will test the algorithms over different dataset, in order to highlight
+its differences.
+
+At first, we will perform the comparison over the banana dataset. The
+distributions of points in the dataset set is the following:
 
 ```{r}
-dataset <- haberman
+dataset <- banana
+dataset <- unique(dataset)
+dataset[,-length(dataset)] <- sapply(dataset[,-length(dataset)], as.numeric)
+
+repr.data <- dataset
+colnames(repr.data) <- c("x", "y", "Class")
+
+ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class))
+```
+
+Its name comes from the shape of the minority class, which resembles a
+banana in its origin. Actually, this version of the dataset is an
+imbalanced one, not the original. As we can observe, the minority
+class is placed between two big clusters of the majority one, and a
+small group of points in the top part. We have to be careful with our
+synthetic instances generation, in order to avoid creating instances
+inside the majority cluster at the top. If our algorithm chooses the
+original points completely at random, the joining segment between them
+will likely lie inside that cluster, and then the synthetic data will
+pollute the boundaries of our classes, undermining the performance.
+
+As we have stated, we will now execute the models commented before
+over the banana dataset. Code and output is not shown because some
+of the methods employed print a lot of undesired information. Only
+the resulting ROC curve will be shown.
+
+
+```{r, results="hide", message=F, fig.height=3.9}
+imb.ratio <- 0.65
+methods <- c("SMOTE", "BLSMOTE", "DBSMOTE", "MWMOTE")
+comparison <- perform.comparison.smote(dataset, imb.ratio, methods)
+```
+
+The results obtained by the models are the following:
+
+```{r}
+comparison$model <- factor(comparison$model, levels=comparison$model)
+comparison %>%
+    gather(x, y, "Balanced Accuracy":"Specificity") %>%
+    ggplot(aes(x = x, y = y, color = model)) +
+    geom_jitter(width = 0.2, alpha = 0.5, size = 3)
+```
+
+We can now analyze the results over our dataset. The first thing we can
+observe is that the behavior of the raw data model is similar to the one
+we observed in the previous section. Specificity of the model is great,
+but recall is poor. This is due to the overfitting in favor of the
+majority class (negative one). Precision is good because the number of
+false positives is low, since data boundaries haven't been modified and
+there is not much overlap. Talking about the combined metrics, the good
+result in specificity produces the
+
+```{r, echo=F, results="hide"}
+graphs <- lapply(methods, function(x) {
+    repr.data.smt <- oversample(repr.data, imb.ratio, x)
+    ggplot(repr.data.smt) + geom_point(aes(x=x, y=y, color=Class))
+})
+
+ggarrange(plotlist=graphs, labels=methods)
+```
+
+```{r}
+dataset <- banana
 dataset <- unique(dataset)
 dataset[,-length(dataset)] <- sapply(dataset[,-length(dataset)], as.numeric)
 
@@ -510,34 +594,4 @@ if (length(dataset) > 3){
 }
 
 ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class))
-```
-
-Its name comes from the shape of the minority class, which resembles a
-banana in its origin. Actually, this version of the dataset is an
-imbalanced one, not the original. As we can observe, the minority
-class is placed between two big clusters of the majority one, and a
-small group of points in the top part. One of the problems of SMOTE is
-when it selects points randomly is the possibility of polluting the
-boundaries of data. In this case, for example, we have two clear
-clusters of minority points. If SMOTE selects two points, one in each
-cluster, and generates a sample in the joining segment, it is likely
-that the point lies in the cluster of majority points at the top,
-introducing undesired overlapping between classes.
-
-```{r}
-imb.ratio <- 0.65
-methods <- c("SMOTE", "MWMOTE", "DBSMOTE", "BLSMOTE")
-comparison <- perform.comparison.smote(dataset, imb.ratio, methods)
-
-graphs <- lapply(methods, function(x) {
-    repr.data.smt <- oversample(repr.data, imb.ratio, x)
-    ggplot(repr.data.smt) + geom_point(aes(x=x, y=y, color=Class))
-})
-
-ggarrange(plotlist=graphs, labels=methods)
-
-comparison %>%
-    gather(x, y, "Balanced Accuracy":"Specificity") %>%
-    ggplot(aes(x = x, y = y, color = model)) +
-    geom_jitter(width = 0.2, alpha = 0.5, size = 3)
 ```
