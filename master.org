@@ -3,8 +3,8 @@
 *** TODO Construcción de redes bayesianas con Elvira
     DEADLINE: <2020-03-13 vie>
 ** Minería de datos: aspectos avanzados
-*** IN PROGRESS Tutorial de clasificación no balanceada
-    DEADLINE: <2020-02-16 dom>
+*** DONE Tutorial de clasificación no balanceada
+    CLOSED: [2020-02-12 mié 12:54] DEADLINE: <2020-02-16 dom>
     haberman -> DBSMOTE 0.7
 
 *** TODO Laboratorio de clasificación monotónica y ordinal

@@ -42,10 +42,9 @@ solve the imbalance classification problem, using the dataset
 _Subclus_. This dataset is an artificially generated two dimensional
 dataset whose positive class is grouped in a few small subgroups. In
 the second section, the performance of some SMOTE-based oversampling
-methods will be tested over that same dataset. Finally, in the third
-section, we will dig deeper in the classic version of SMOTE, trying
-to understand how the solution of the problem is influenced by its
-parameters.
+methods will be tested over differents dataset, in order to understand
+its differences and identify if some of them performs better in
+general setups.
 
 # Standard imbalanced classification pipeline
 
@@ -533,7 +532,7 @@ small group of points in the top part. We have to be careful with our
 synthetic instances generation, in order to avoid creating instances
 inside the majority cluster at the top. If our algorithm chooses the
 original points completely at random, the joining segment between them
-will likely lie inside that cluster, and then the synthetic data will
+will likely fall into that cluster, and then the synthetic data will
 pollute the boundaries of our classes, undermining the performance.
 
 As we have stated, we will now execute the models commented before
@@ -614,14 +613,19 @@ joins examples and centroids. The main centroid of the algorithm is
 the point at the bottom center of the minority class, and the
 synthetic data resemble a tree structure with that point as root.
 
-We will test our oversampling politics over other datasets. The next
-explored dataset is haberman. Since there are three variables, we
-cannot represent the information in a 2D graph. We will perform TSNE
-over the data previously in order to obtain a 2D representation of
-the dataset. After TSNE, the obtained dataset is the following:
+We will test our oversampling politics over other dataset. The next
+explored dataset is ecoli1. To begin with, there are two numerical
+columns with exactly two different values each. We will discard these
+two columns because they are not very informative and they will
+introduce noise in our task. After the romval, there are five
+variables remaining, excluding the class. Hence we cannot represent
+the information in a 2D graph. We will perform TSNE over the data
+previously in order to obtain a 2D representation of the
+dataset. After TSNE, the obtained dataset is the following:
 
 ```{r}
-dataset <- haberman
+dataset <-  ecoli1
+dataset <- subset(dataset, select=-c(Lip, Chg))
 dataset <- unique(dataset)
 dataset[,-length(dataset)] <- sapply(dataset[,-length(dataset)], as.numeric)
 
@@ -636,18 +640,14 @@ ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class)) +
     labs(title="Raw data with TSNE")
 ```
 
-As we can observe in this dataset, the problem is not the scarcity
-of data but the dispersion of it.
-
-```{r}
-imbalanceRatio(dataset)
-```
-
-In fact, the imbalance ratio is close to the double of the first dataset
-we used. In banana, the imbalance ratio is $0.11$, so the problem here is
-less relevant. As we have done before, we will train five different models
-over this dataset, one with the raw data, and four with the different
-SMOTE modifications we are testing. The obtained results are the following:
+As we can observe in this dataset, there is a big cluster of positive
+examples with some noise from the majority class, and some positive
+points isolated in the main negative clusters. Probably, the positive
+cluster will be fairly well classified, since it is quite compact and
+the proportion of positive points in it is important. It will be
+harder to identify the isolated points, since they are placed very close
+to a lot of negative examples. Using the same data augmentation politics
+than before, the obtained results are the following:
 
 ```{r, results="hide", message=F, fig.height=3.9}
 imb.ratio <- 0.6
@@ -662,3 +662,77 @@ comparison %>%
     ggplot(aes(x = x, y = y, color = model)) +
     geom_jitter(width = 0.2, alpha = 0.5, size = 3)
 ```
+
+In the same way as before, the raw data model is the best in terms of
+specificity, but the worst by far in recall. Surely, the isolated
+points and the right part of the positive cluster (where the negatives
+examples are situated) had been misclassified by this model. In this
+case, BLSMOTE is the best data augmentation approach, since it
+generates synthetic data using exclusively borderline points. The most
+difficult points to be classified in this set are the isolated ones,
+but they are not very far from each other. If two of these points are
+placed in the training set, they will be used to generate a lot of
+examples in this region of the variables space, and thus the examples
+in the test set placed in this region will be well classified more
+likely.
+
+The performance of the other three politics is similar. DBSMOTE works
+slightly better than SMOTE and MWMOTE, because recall is similar
+for the three methods, but specificity is better in the former.
+
+Again, we will try to infer how the points distribution have influenced
+the results of the models:
+
+```{r, results="hide", message=F, fig.height=4, echo=F}
+ggplot(repr.data) + geom_point(aes(x=x, y=y, color=Class)) +
+    labs(title="Original dataset")
+
+lapply(methods, function(x) {
+    os.dataset <- oversample(dataset, imb.ratio, x)
+    tsne.suitable.ind <- !duplicated(os.dataset[,-length(os.dataset)])
+    repr.data.smt <- as.data.frame(Rtsne(
+        os.dataset[tsne.suitable.ind,-length(os.dataset)])$Y
+        )
+    colnames(repr.data.smt) <- c("x", "y")
+    repr.data.smt$Class <- os.dataset$Class[tsne.suitable.ind]
+    ggplot(repr.data.smt) + geom_point(aes(x=x, y=y, color=Class)) +
+        labs(title=x)
+})
+```
+
+The first comment we have to do comes from the data reduction
+algorithm. As we can observe, the representation of data in two
+dimensions varies from one synthetic dataset to another, despite
+coming from the same base data. It can be problematic in certain
+setups for the comparison of models. However, in our case, the
+obtained representation is similar except for rotations. The
+difference between representations comes from two sources, which are
+the randomness of the method (in the end, it is an optimization
+algorithm solved by stochastic gradient descent), and the differences
+in the synthetic data, which is generated before the dimensionality
+reduction.
+
+Observing the data, we can justify the obtained results. On the one
+hand, all the algorithms have covered with positive examples the
+negative points of the positive cluster, improving the true positive
+rate (recall), but undermining true negative rate and precision. On
+the other hand, only BLSMOTE have generated an important number of
+elements in the boundary of the negative class, improving the
+performance of the algorithm with the isolated positive examples,
+and thus scoring a higher recall.
+
+# Conclusion
+
+In this report we have studied how the classification task in
+imbalanced dataset can be approached. In the first section, we have
+explained how a typical pipeline of imbalanced classification is
+structured, comparing on a simple dataset different balancing politics
+(training with raw data, oversampling and undersampling), noticing
+that the generation of synthetic data from original samples tend to
+perform better than naive replication or elimination. In the second
+section, different modifications of SMOTE are compared, whose main
+difference comes from the selection of data. From the experiments we
+can conclude that depending on the original structure of our data,
+these variants behave in different ways, and only through
+experimentation we can check which one performs better for an specific
+dataset.
