@@ -15,7 +15,7 @@
 ** Extracción de características en imágenes
 *** DONE Reducción de dimensionalidad con PCA
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
-** Minería de datos: preprocesamiento y clasificación:
+** Minería de datos: preprocesamiento y clasificación
 *** IN PROGRESS Competición Pump It Up
     DEADLINE: <2020-02-16 dom>
 *** TODO Diapositivas explicación competición
