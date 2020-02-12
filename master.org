@@ -12,10 +12,20 @@
 ** Big data I
 *** DONE Examen
     CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
+*** TODO Despliegue de contenedores Docker
+    DEADLINE: <2020-03-23 lun> SCHEDULED: <2020-02-15 sáb>
 ** Extracción de características en imágenes
 *** DONE Reducción de dimensionalidad con PCA
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
-** Minería de datos: preprocesamiento y clasificación
+*** TODO Extracción de rasgos y clasificación
+    DEADLINE: <2020-03-06 vie>
+*** TODO Procesos gaussianos para clasificación
+    DEADLINE: <2020-03-10 mar>
+*** TODO Defensa de las prácticas
+    SCHEDULED: <2020-03-13 vie>
+*** TODO Examen teoría
+    SCHEDULED: <2020-03-20 vie>
+** Minería de datos: preprocesamiento y clasificación:
 *** IN PROGRESS Competición Pump It Up
     DEADLINE: <2020-02-16 dom>
 *** TODO Diapositivas explicación competición
