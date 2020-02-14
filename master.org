@@ -26,7 +26,7 @@
 *** TODO Examen teoría
     SCHEDULED: <2020-03-20 vie>
 ** Minería de datos: preprocesamiento y clasificación:
-*** IN PROGRESS Competición Pump It Up
-    DEADLINE: <2020-02-16 dom>
-*** TODO Diapositivas explicación competición
-    DEADLINE: <2020-02-18 mar>
+*** DONE Competición Pump It Up
+    CLOSED: [2020-02-19 mié 10:05] DEADLINE: <2020-02-16 dom>
+*** DONE Diapositivas explicación competición
+    CLOSED: [2020-02-19 mié 10:05] DEADLINE: <2020-02-18 mar>
