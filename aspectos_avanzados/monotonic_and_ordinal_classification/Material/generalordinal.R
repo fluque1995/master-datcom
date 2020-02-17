@@ -14,6 +14,6 @@ test.data <- dataset[test.idx,]
 
 classes <- sort(unique(as.numeric(dataset$out1)))
 
-predict.lesesr <- function(value, train, test){
+predict.lesser <- function(value, train, test){
 
 }
