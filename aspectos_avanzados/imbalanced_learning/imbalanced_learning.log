@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2019.12.28)  11 FEB 2020 15:31
+=======
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.11.13)  12 FEB 2020 12:35
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -710,7 +714,11 @@ Package: footnotehyper 2018/01/23 v1.1 hyperref aware footnote.sty (JFB)
 ) (/usr/share/texlive/texmf-dist/tex/latex/footnotebackref/footnotebackref.sty
 Package: footnotebackref 2012/07/01 v1.0 Backreferences for footnotes (Holger L
 ange)
+<<<<<<< HEAD
 \c@BackrefHyperFootnoteCounter=\count149
+=======
+\c@BackrefHyperFootnoteCounter=\count145
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 ) (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count150
@@ -725,9 +733,15 @@ File: switch.def 2019/06/03 3.32 Babel switching mechanism
 ) (/usr/share/texlive/texmf-dist/tex/generic/babel-english/english.ldf
 Language: english 2017/06/06 v3.3r English support from the babel system
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.def
+<<<<<<< HEAD
 File: babel.def 2019/06/03 3.32 Babel common definitions
 \babel@savecnt=\count151
 \U@D=\dimen157
+=======
+File: babel.def 2018/02/14 3.18 Babel common definitions
+\babel@savecnt=\count147
+\U@D=\dimen148
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@dirlevel=\count152
 )
@@ -747,9 +761,15 @@ Package: afterpage 2014/10/28 v1.08 After-Page Package (DPC)
 re/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/share/texlive/texm
 f-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/share/texlive/texmf-dist/tex/ge
 neric/pgf/utilities/pgfutil-common.tex
+<<<<<<< HEAD
 \pgfutil@everybye=\toks32
 \pgfutil@tempdima=\dimen158
 \pgfutil@tempdimb=\dimen159
+=======
+\pgfutil@everybye=\toks31
+\pgfutil@tempdima=\dimen149
+\pgfutil@tempdimb=\dimen150
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common-lists.t
 ex)) (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
@@ -773,11 +793,19 @@ File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 99.
 )
+<<<<<<< HEAD
 \Gin@req@height=\dimen160
 \Gin@req@width=\dimen161
 ) (/usr/share/texlive/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/usr/sha
 re/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
 Package: pgfsys 2019/05/09 v3.1.3 (3.1.3)
+=======
+\Gin@req@height=\dimen151
+\Gin@req@width=\dimen152
+) (/usr/share/texlive/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/usr/sha
+re/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2014/07/09 v3.0.1a (rcs-revision 1.48)
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
 \pgfkeys@pathtoks=\toks33
 \pgfkeys@temptoks=\toks34
@@ -1508,7 +1536,11 @@ Class scrartcl Warning: Usage of package `fancyhdr' together
 (scrartcl)              `\addtokomafont' for the page style elements need
 (scrartcl)              explicite user intervention to work.
 (scrartcl)              Nevertheless, using requested
+<<<<<<< HEAD
 (scrartcl)              package `fancyhdr' on input line 332.
+=======
+(scrartcl)              package `fancyhdr' on input line 329.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2019/01/31 v3.10 Extensive control of page headers and footer
@@ -1530,6 +1562,7 @@ Package csquotes Info: Redefining alias 'default' -> 'english'.
 (./imbalanced_learning.aux)
 \openout1 = `imbalanced_learning.aux'.
 
+<<<<<<< HEAD
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 351.
 LaTeX Font Info:    ... okay on input line 351.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 351.
@@ -1544,10 +1577,27 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 351.
 LaTeX Font Info:    ... okay on input line 351.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 351.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 351.
+=======
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 350.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 350.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
+<<<<<<< HEAD
 LaTeX Font Info:    ... okay on input line 351.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 351.
 LaTeX Font Info:    ... okay on input line 351.
@@ -1555,20 +1605,40 @@ LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 351.
 LaTeX Font Info:    ... okay on input line 351.
 LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 351.
 LaTeX Font Info:    Try loading font information for LY1+ptm on input line 351.
+=======
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 350.
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 350.
+LaTeX Font Info:    Try loading font information for LY1+ptm on input line 350.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texlive/texmf-dist/tex/latex/ly1/ly1ptm.fd
 File: ly1ptm.fd 2001/02/01 font definitions for LY1/ptm using Berry names.
 )
+<<<<<<< HEAD
 LaTeX Font Info:    ... okay on input line 351.
 LaTeX Font Info:    Try loading font information for T1+SourceSansPro-LF on inp
 ut line 351.
+=======
+LaTeX Font Info:    ... okay on input line 350.
+LaTeX Font Info:    Try loading font information for T1+SourceSansPro-LF on inp
+ut line 350.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/sourcesanspro/T1SourceSansPro-LF.fd
 File: T1SourceSansPro-LF.fd 2016/12/03 (autoinst) Font definitions for T1/Sourc
 eSansPro-LF.
 )
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+<<<<<<< HEAD
 (Font)              scaled to size 10.95pt on input line 351.
 LaTeX Info: Redefining \microtypecontext on input line 351.
+=======
+(Font)              scaled to size 10.95pt on input line 350.
+LaTeX Info: Redefining \microtypecontext on input line 350.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
@@ -1610,8 +1680,13 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
+<<<<<<< HEAD
 \AtBeginShipoutBox=\box84
 Package hyperref Info: Link coloring ON on input line 351.
+=======
+\AtBeginShipoutBox=\box78
+Package hyperref Info: Link coloring ON on input line 350.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
@@ -1619,9 +1694,23 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count355
 )
+<<<<<<< HEAD
 LaTeX Info: Redefining \ref on input line 351.
 LaTeX Info: Redefining \pageref on input line 351.
 LaTeX Info: Redefining \nameref on input line 351.
+=======
+LaTeX Info: Redefining \ref on input line 350.
+LaTeX Info: Redefining \pageref on input line 350.
+LaTeX Info: Redefining \nameref on input line 350.
+
+Package footnotehyper Warning: 
+ The footnote environment will not be fully functional, sorry.
+ You may try to email the author with the following information:.
+
+\long macro:#1->\renewcommand \@makefnmark {\mbox {\textsuperscript {\normalfon
+t \hyperref [\BackrefFootnoteTag ]{\@thefnmark }}}\,}\BHFN@OldMakefntext {#1}
+ABD: EveryShipout initializing macros
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -1703,6 +1792,7 @@ Package caption Info: End \AtBeginDocument code.
 <background.pdf, id=7, 597.50786pt x 845.04686pt>
 File: background.pdf Graphic file (type pdf)
 <use background.pdf>
+<<<<<<< HEAD
 Package pdftex.def Info: background.pdf  used on input line 358.
 (pdftex.def)             Requested size: 597.5064pt x 845.08348pt.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
@@ -1711,11 +1801,22 @@ LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
 (Font)              scaled to size 20.74pt on input line 373.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
 (Font)              scaled to size 14.4pt on input line 375.
+=======
+Package pdftex.def Info: background.pdf  used on input line 357.
+(pdftex.def)             Requested size: 597.5064pt x 845.08348pt.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 20.74pt on input line 372.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+(Font)              scaled to size 20.74pt on input line 372.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 14.4pt on input line 374.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 [1
 
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./background.pdf>]
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+<<<<<<< HEAD
 (Font)              scaled to size 10.95pt on input line 393.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
 (Font)              scaled to size 14.4pt on input line 393.
@@ -1725,11 +1826,23 @@ LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
 (Font)              scaled to size 10.0pt on input line 415.
 LaTeX Font Info:    Try loading font information for T1+SourceCodePro-TLF on in
 put line 415.
+=======
+(Font)              scaled to size 10.95pt on input line 391.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+(Font)              scaled to size 14.4pt on input line 391.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/it' will be
+(Font)              scaled to size 10.95pt on input line 396.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 10.0pt on input line 411.
+LaTeX Font Info:    Try loading font information for T1+SourceCodePro-TLF on in
+put line 411.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/sourcecodepro/T1SourceCodePro-TLF.fd
 File: T1SourceCodePro-TLF.fd 2018/02/18 (autoinst) Font definitions for T1/Sour
 ceCodePro-TLF.
 )
 LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+<<<<<<< HEAD
 (Font)              scaled to size 10.0pt on input line 415.
 LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/it' will be
 (Font)              scaled to size 10.0pt on input line 416.
@@ -1741,12 +1854,37 @@ LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
 (Font)              scaled to size 8.0pt on input line 434.
 LaTeX Font Info:    Try loading font information for TS1+SourceCodePro-TLF on i
 nput line 450.
+=======
+(Font)              scaled to size 10.0pt on input line 411.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/b/n' will be
+(Font)              scaled to size 10.0pt on input line 413.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 10.95pt on input line 430.
+LaTeX Font Info:    Try loading font information for TS1+SourceCodePro-TLF on i
+nput line 446.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/sourcecodepro/TS1SourceCodePro-TLF.fd
 File: TS1SourceCodePro-TLF.fd 2018/02/18 (autoinst) Font definitions for TS1/So
 urceCodePro-TLF.
 )
 LaTeX Font Info:    Font shape `TS1/SourceCodePro-TLF/m/n' will be
+<<<<<<< HEAD
 (Font)              scaled to size 8.0pt on input line 450.
+=======
+(Font)              scaled to size 10.95pt on input line 446.
+
+Overfull \hbox (57.21527pt too wide) in paragraph at lines 446--446
+[]\T1/SourceCodePro-TLF/m/n/10.95 ##  $ Class: Factor w/ 2 levels "positive","n
+egative": 1 1 1 1 1 1 1 1 1 1 ...[] 
+ []
+
+
+Package Fancyhdr Warning: \headheight is too small (17.0pt): 
+ Make it at least 23.11996pt.
+ We now make it that large for the rest of the document.
+ This may cause the page layout to be inconsistent, however.
+
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 [2
 
 ] [3]
@@ -1756,6 +1894,7 @@ File: imbalanced_learning_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file
  (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-5-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-5
+<<<<<<< HEAD
 -1.pdf  used on input line 535.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1763,6 +1902,10 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 535--535
  [] 
  []
 
+=======
+-1.pdf  used on input line 531.
+(pdftex.def)             Requested size: 407.5215pt x 238.8919pt.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 [4 <./imbalanced_learning_files/figure-latex/unnamed-chunk-5-1.pdf>]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-6-1.pdf, id=46, 469.755pt
  x 325.215pt>
@@ -1770,6 +1913,7 @@ File: imbalanced_learning_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file
  (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-6-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-6
+<<<<<<< HEAD
 -1.pdf  used on input line 551.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1779,10 +1923,17 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 551--551
 
 <imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf, id=47, 469.755pt
  x 325.215pt>
+=======
+-1.pdf  used on input line 547.
+(pdftex.def)             Requested size: 366.36784pt x 284.06053pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf, id=46, 283.0575p
+t x 300.12125pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file
  (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-7
+<<<<<<< HEAD
 -1.pdf  used on input line 565.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1793,10 +1944,18 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 565--565
 [5 <./imbalanced_learning_files/figure-latex/unnamed-chunk-6-1.pdf>]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-8-1.pdf, id=57, 469.755pt
  x 325.215pt>
+=======
+-1.pdf  used on input line 561.
+(pdftex.def)             Requested size: 283.0568pt x 300.12051pt.
+[5 <./imbalanced_learning_files/figure-latex/unnamed-chunk-6-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-8-1.pdf, id=58, 429.605pt
+ x 286.06876pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file
  (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-8
+<<<<<<< HEAD
 -1.pdf  used on input line 581.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1807,13 +1966,25 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 581--581
 [6 <./imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf>]
 LaTeX Font Info:    Try loading font information for TS1+SourceSansPro-LF on in
 put line 596.
+=======
+-1.pdf  used on input line 577.
+(pdftex.def)             Requested size: 429.60394pt x 286.06805pt.
+[6 <./imbalanced_learning_files/figure-latex/unnamed-chunk-7-1.pdf>]
+LaTeX Font Info:    Try loading font information for TS1+SourceSansPro-LF on in
+put line 592.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/sourcesanspro/TS1SourceSansPro-LF.fd
 File: TS1SourceSansPro-LF.fd 2016/12/03 (autoinst) Font definitions for TS1/Sou
 rceSansPro-LF.
 )
 LaTeX Font Info:    Font shape `TS1/SourceSansPro-LF/m/n' will be
+<<<<<<< HEAD
 (Font)              scaled to size 10.95pt on input line 596.
 LaTeX Font Info:    Try loading font information for OT1+lmr on input line 612.
+=======
+(Font)              scaled to size 10.95pt on input line 592.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 608.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
@@ -1821,39 +1992,65 @@ File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
+<<<<<<< HEAD
 LaTeX Font Info:    Try loading font information for OML+lmm on input line 612.
+=======
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 608.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
+<<<<<<< HEAD
 LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 612
+=======
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 608
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 .
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
+<<<<<<< HEAD
 LaTeX Font Info:    Try loading font information for OMX+lmex on input line 612
+=======
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 608
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 .
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
+<<<<<<< HEAD
 (Font)              <10.95> on input line 612.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 612.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 612.
 LaTeX Font Info:    Try loading font information for U+msa on input line 612.
+=======
+(Font)              <10.95> on input line 608.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 608.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 608.
+LaTeX Font Info:    Try loading font information for U+msa on input line 608.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
+<<<<<<< HEAD
 LaTeX Font Info:    Try loading font information for U+msb on input line 612.
+=======
+LaTeX Font Info:    Try loading font information for U+msb on input line 608.
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 ) [7 <./imbalanced_learning_files/figure-latex/unnamed-chunk-8-1.pdf>]
+<<<<<<< HEAD
 LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
 (Font)              scaled to size 6.0pt on input line 655.
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -1863,10 +2060,24 @@ LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
 [8]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf, id=87, 469.755p
 t x 325.215pt>
+=======
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/it' will be
+(Font)              scaled to size 10.0pt on input line 618.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 6.0pt on input line 651.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 651.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 6.0pt on input line 651.
+[8]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf, id=93, 446.6687
+5pt x 311.1625pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf Graphic fil
 e (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+<<<<<<< HEAD
 1-1.pdf  used on input line 693.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1877,10 +2088,18 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 693--693
 [9] [10 <./imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf>]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf, id=102, 469.755
 pt x 325.215pt>
+=======
+1-1.pdf  used on input line 689.
+(pdftex.def)             Requested size: 446.66765pt x 311.16174pt.
+[9 <./imbalanced_learning_files/figure-latex/unnamed-chunk-11-1.pdf>] [10]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf, id=110, 429.605
+pt x 315.1775pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf Graphic fil
 e (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+<<<<<<< HEAD
 2-1.pdf  used on input line 774.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -1894,15 +2113,50 @@ LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
 [12 <./imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf>]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf, id=117, 469.755
 pt x 325.215pt>
+=======
+2-1.pdf  used on input line 770.
+(pdftex.def)             Requested size: 429.60394pt x 315.17673pt.
+[11] [12 <./imbalanced_learning_files/figure-latex/unnamed-chunk-12-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf, id=127, 429.605
+pt x 315.1775pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf Graphic fil
 e (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+<<<<<<< HEAD
 3-1.pdf  used on input line 830.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 830--830
  [] 
+=======
+3-1.pdf  used on input line 826.
+(pdftex.def)             Requested size: 429.60394pt x 315.17673pt.
+[13] [14 <./imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-14-1.pdf, id=145, 429.605
+pt x 315.1775pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-14-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-14-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+4-1.pdf  used on input line 871.
+(pdftex.def)             Requested size: 429.60394pt x 315.17673pt.
+[15 <./imbalanced_learning_files/figure-latex/unnamed-chunk-14-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-15-1.pdf, id=158, 429.605
+pt x 293.095pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-15-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-15-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+5-1.pdf  used on input line 915.
+(pdftex.def)             Requested size: 429.60394pt x 293.09427pt.
+[16]
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ##          Min.   1st Qu.    Median      Mea
+n   3rd Qu.      Max. NA\TS1/SourceCodePro-TLF/m/n/10.95 '\T1/SourceCodePro-TLF
+/m/n/10.95 s[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [13] [14 <./imbalanced_learning_files/figure-latex/unnamed-chunk-13-1.pdf>]
@@ -1915,6 +2169,7 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
 4-1.pdf  used on input line 875.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 875--875
  [] 
  []
@@ -1931,6 +2186,17 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
 
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 919--919
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## raw 0.8773333 0.9333333 0.9475556 0.946251
+9 0.9735556 0.9831111    0[] 
+ []
+
+[17 <./imbalanced_learning_files/figure-latex/unnamed-chunk-15-1.pdf>]
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## us  0.8711111 0.8942222 0.9271111 0.918844
+4 0.9373333 0.9724444    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [16] [17 <./imbalanced_learning_files/figure-latex/unnamed-chunk-15-1.pdf>]
@@ -1943,8 +2209,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
 7-1.pdf  used on input line 979.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 979--979
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## os  0.9400000 0.9446667 0.9542222 0.959081
+5 0.9673333 0.9951111    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [18] [19 <./imbalanced_learning_files/figure-latex/unnamed-chunk-17-1.pdf>]
@@ -1957,6 +2229,7 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
 8-1.pdf  used on input line 1015.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1015--1015
  [] 
  []
@@ -1976,6 +2249,18 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1206--1206
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## smt 0.8733333 0.9406667 0.9546667 0.948059
+3 0.9635556 0.9857778    0[] 
+ []
+
+
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ##          Min.   1st Qu.    Median      Mea
+n   3rd Qu.      Max. NA\TS1/SourceCodePro-TLF/m/n/10.95 '\T1/SourceCodePro-TLF
+/m/n/10.95 s[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [24 <./imbalanced_learning_files/figure-latex/unnamed-chunk-20-1.pdf>]
@@ -1988,8 +2273,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 1-1.pdf  used on input line 1232.
 (pdftex.def)             Requested size: 469.75386pt x 281.0493pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1232--1232
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## raw 0.4666667 0.6333333 0.6666667 0.697777
+8 0.8000000 0.8666667    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 <imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf, id=215, 469.755
@@ -2001,8 +2292,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 1-2.pdf  used on input line 1234.
 (pdftex.def)             Requested size: 469.75386pt x 281.0493pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1234--1234
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## us  0.7333333 0.9000000 1.0000000 0.933333
+3 1.0000000 1.0000000    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [25 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-1.pdf>]
@@ -2015,8 +2312,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 1-3.pdf  used on input line 1236.
 (pdftex.def)             Requested size: 469.75386pt x 281.0493pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1236--1236
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## os  0.8666667 0.9333333 1.0000000 0.973333
+3 1.0000000 1.0000000    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 <imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf, id=228, 469.755
@@ -2028,8 +2331,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 1-4.pdf  used on input line 1238.
 (pdftex.def)             Requested size: 469.75386pt x 281.0493pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1238--1238
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## smt 0.8000000 0.8333333 0.8666667 0.880000
+0 0.9333333 1.0000000    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [26 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf> <./imbala
@@ -2043,8 +2352,15 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 1-5.pdf  used on input line 1240.
 (pdftex.def)             Requested size: 469.75386pt x 281.0493pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1240--1240
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ##          Min.   1st Qu.    Median      Mea
+n   3rd Qu.      Max. NA\TS1/SourceCodePro-TLF/m/n/10.95 '\T1/SourceCodePro-TLF
+/m/n/10.95 s[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [27 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf> <./imbala
@@ -2058,8 +2374,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 2-1.pdf  used on input line 1254.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1254--1254
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## raw 0.8533333 0.9266667 0.9600000 0.947555
+6 0.9733333 0.9866667    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [28 <./imbalanced_learning_files/figure-latex/unnamed-chunk-22-1.pdf>]
@@ -2072,8 +2394,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 3-1.pdf  used on input line 1281.
 (pdftex.def)             Requested size: 469.75386pt x 289.07928pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1281--1281
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## us  0.7066667 0.7266667 0.7733333 0.768888
+9 0.7933333 0.8400000    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 <imbalanced_learning_files/figure-latex/unnamed-chunk-23-2.pdf, id=277, 469.755
@@ -2085,8 +2413,14 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 3-2.pdf  used on input line 1283.
 (pdftex.def)             Requested size: 469.75386pt x 289.07928pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1283--1283
  [] 
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## os  0.7466667 0.8066667 0.8266667 0.822222
+2 0.8400000 0.8666667    0[] 
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
  []
 
 [29 <./imbalanced_learning_files/figure-latex/unnamed-chunk-23-1.pdf>]
@@ -2099,6 +2433,7 @@ Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
 3-3.pdf  used on input line 1285.
 (pdftex.def)             Requested size: 469.75386pt x 289.07928pt.
 
+<<<<<<< HEAD
 Overfull \hbox (14.50975pt too wide) in paragraph at lines 1285--1285
  [] 
  []
@@ -2219,10 +2554,212 @@ Overfull \hbox (14.50975pt too wide) in paragraph at lines 1373--1373
 nced_learning_files/figure-latex/unnamed-chunk-26-5.pdf>]
 <imbalanced_learning_files/figure-latex/unnamed-chunk-27-1.pdf, id=381, 469.755
 pt x 325.215pt>
+=======
+Overfull \hbox (11.22533pt too wide) in paragraph at lines 960--960
+[]\T1/SourceCodePro-TLF/m/n/10.95 ## smt 0.8266667 0.8600000 0.8933333 0.891555
+6 0.9266667 0.9466667    0[] 
+ []
+
+<imbalanced_learning_files/figure-latex/unnamed-chunk-17-1.pdf, id=176, 430.608
+75pt x 279.0425pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-17-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-17-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+7-1.pdf  used on input line 975.
+(pdftex.def)             Requested size: 430.60768pt x 279.04181pt.
+[18] [19 <./imbalanced_learning_files/figure-latex/unnamed-chunk-17-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-18-1.pdf, id=193, 451.687
+5pt x 313.17pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-18-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-18-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-1
+8-1.pdf  used on input line 1011.
+(pdftex.def)             Requested size: 451.68639pt x 313.16922pt.
+[20 <./imbalanced_learning_files/figure-latex/unnamed-chunk-18-1.pdf>] [21]
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/b/n' will be
+(Font)              scaled to size 14.4pt on input line 1102.
+[22] [23]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-20-1.pdf, id=223, 451.687
+5pt x 313.17pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-20-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-20-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+0-1.pdf  used on input line 1201.
+(pdftex.def)             Requested size: 451.68639pt x 313.16922pt.
+[24 <./imbalanced_learning_files/figure-latex/unnamed-chunk-20-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-21-1.pdf, id=235, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-21-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-21-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+1-1.pdf  used on input line 1227.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf, id=236, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+1-2.pdf  used on input line 1229.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[25 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-21-3.pdf, id=250, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-21-3.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-21-3.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+1-3.pdf  used on input line 1231.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf, id=251, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+1-4.pdf  used on input line 1233.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[26 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-2.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-21-3.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-21-5.pdf, id=272, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-21-5.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-21-5.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+1-5.pdf  used on input line 1235.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[27 <./imbalanced_learning_files/figure-latex/unnamed-chunk-21-4.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-21-5.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-22-1.pdf, id=293, 451.687
+5pt x 313.17pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-22-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-22-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+2-1.pdf  used on input line 1249.
+(pdftex.def)             Requested size: 451.68639pt x 313.16922pt.
+[28 <./imbalanced_learning_files/figure-latex/unnamed-chunk-22-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-23-1.pdf, id=310, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-23-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-23-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+3-1.pdf  used on input line 1276.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-23-2.pdf, id=311, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-23-2.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-23-2.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+3-2.pdf  used on input line 1278.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[29 <./imbalanced_learning_files/figure-latex/unnamed-chunk-23-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-23-3.pdf, id=323, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-23-3.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-23-3.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+3-3.pdf  used on input line 1280.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-23-4.pdf, id=324, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-23-4.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-23-4.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+3-4.pdf  used on input line 1282.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[30 <./imbalanced_learning_files/figure-latex/unnamed-chunk-23-2.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-23-3.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-23-5.pdf, id=343, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-23-5.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-23-5.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+3-5.pdf  used on input line 1284.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[31 <./imbalanced_learning_files/figure-latex/unnamed-chunk-23-4.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-23-5.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-24-1.pdf, id=363, 451.687
+5pt x 313.17pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-24-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-24-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+4-1.pdf  used on input line 1335.
+(pdftex.def)             Requested size: 451.68639pt x 313.16922pt.
+[32]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-25-1.pdf, id=368, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-25-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-25-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+5-1.pdf  used on input line 1354.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[33 <./imbalanced_learning_files/figure-latex/unnamed-chunk-24-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-25-2.pdf, id=380, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-25-2.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-25-2.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+5-2.pdf  used on input line 1356.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-25-3.pdf, id=381, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-25-3.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-25-3.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+5-3.pdf  used on input line 1358.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[34 <./imbalanced_learning_files/figure-latex/unnamed-chunk-25-1.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-25-2.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-25-4.pdf, id=402, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-25-4.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-25-4.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+5-4.pdf  used on input line 1360.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-25-5.pdf, id=403, 429.605
+pt x 272.01625pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-25-5.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-25-5.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+5-5.pdf  used on input line 1362.
+(pdftex.def)             Requested size: 429.60394pt x 272.01558pt.
+[35 <./imbalanced_learning_files/figure-latex/unnamed-chunk-25-3.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-25-4.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-26-1.pdf, id=424, 451.687
+5pt x 313.17pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-26-1.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-26-1.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+6-1.pdf  used on input line 1374.
+(pdftex.def)             Requested size: 451.68639pt x 313.16922pt.
+[36 <./imbalanced_learning_files/figure-latex/unnamed-chunk-25-5.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-27-1.pdf, id=437, 451.687
+5pt x 277.035pt>
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 File: imbalanced_learning_files/figure-latex/unnamed-chunk-27-1.pdf Graphic fil
 e (type pdf)
 <use imbalanced_learning_files/figure-latex/unnamed-chunk-27-1.pdf>
 Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+<<<<<<< HEAD
 7-1.pdf  used on input line 1385.
 (pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
@@ -2251,6 +2788,68 @@ ips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/s
 hare/texlive/texmf-dist/fonts/enc/dvips/sourcesanspro/a_sd7igg.enc}{/usr/share/
 texlive/texmf-dist/fonts/enc/dvips/sourcecodepro/a_bzs6pp.enc}{/usr/share/texli
 ve/texmf-dist/fonts/enc/dvips/sourcecodepro/a_lutrty.enc}{/usr/share/texlive/te
+=======
+7-1.pdf  used on input line 1395.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[37 <./imbalanced_learning_files/figure-latex/unnamed-chunk-26-1.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-27-2.pdf, id=454, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-27-2.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-27-2.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+7-2.pdf  used on input line 1397.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-27-3.pdf, id=455, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-27-3.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-27-3.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+7-3.pdf  used on input line 1399.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[38 <./imbalanced_learning_files/figure-latex/unnamed-chunk-27-1.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-27-2.pdf>]
+<imbalanced_learning_files/figure-latex/unnamed-chunk-27-4.pdf, id=475, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-27-4.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-27-4.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+7-4.pdf  used on input line 1401.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+<imbalanced_learning_files/figure-latex/unnamed-chunk-27-5.pdf, id=476, 451.687
+5pt x 277.035pt>
+File: imbalanced_learning_files/figure-latex/unnamed-chunk-27-5.pdf Graphic fil
+e (type pdf)
+<use imbalanced_learning_files/figure-latex/unnamed-chunk-27-5.pdf>
+Package pdftex.def Info: imbalanced_learning_files/figure-latex/unnamed-chunk-2
+7-5.pdf  used on input line 1403.
+(pdftex.def)             Requested size: 451.68639pt x 277.03432pt.
+[39 <./imbalanced_learning_files/figure-latex/unnamed-chunk-27-3.pdf> <./imbala
+nced_learning_files/figure-latex/unnamed-chunk-27-4.pdf>] [40 <./imbalanced_lea
+rning_files/figure-latex/unnamed-chunk-27-5.pdf>] [41]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1440.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1440.
+(./imbalanced_learning.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1440.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 1440.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1440.
+ ) 
+Here is how much of TeX's memory you used:
+ 38888 strings out of 492982
+ 726042 string characters out of 6134895
+ 889430 words of memory out of 5000000
+ 41616 multiletter control sequences out of 15000+600000
+ 652457 words of font info for 166 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 64i,12n,60p,10544b,767s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dv
+ips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/s
+hare/texlive/texmf-dist/fonts/enc/dvips/sourcecodepro/a_ind2fo.enc}{/usr/share/
+texlive/texmf-dist/fonts/enc/dvips/sourcesanspro/a_sd7igg.enc}{/usr/share/texli
+ve/texmf-dist/fonts/enc/dvips/sourcecodepro/a_24hhf2.enc}{/usr/share/texlive/te
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 xmf-dist/fonts/enc/dvips/sourcesanspro/a_5tbsmu.enc}{/usr/share/texlive/texmf-d
 ist/fonts/enc/dvips/sourcesanspro/a_ggs4wk.enc}</usr/share/texlive/texmf-dist/f
 onts/type1/adobe/sourcecodepro/SourceCodePro-Bold.pfb></usr/share/texlive/texmf
@@ -2263,10 +2862,19 @@ Regular.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10
 .pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/t
 ype1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb>
+<<<<<<< HEAD
 Output written on imbalanced_learning.pdf (37 pages, 1895945 bytes).
 PDF statistics:
  470 PDF objects out of 1000 (max. 8388607)
  354 compressed objects within 4 object streams
  45 named destinations out of 1000 (max. 500000)
  12480 words of extra memory for PDF output out of 14400 (max. 10000000)
+=======
+Output written on imbalanced_learning.pdf (41 pages, 2028758 bytes).
+PDF statistics:
+ 588 PDF objects out of 1000 (max. 8388607)
+ 422 compressed objects within 5 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 12513 words of extra memory for PDF output out of 14400 (max. 10000000)
+>>>>>>> 502db8c5a8fa477bb5c764db750a1eff57cf1a40
 

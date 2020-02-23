@@ -3,6 +3,7 @@
 
 # Stop tracking datasets (usually big files)
 *.csv
+data
 *.dat
 
 # Stop tracking elvira program
@@ -11,3 +12,14 @@ Elvira.jar
 first-steps
 manual
 
+# Stop tracking pycache
+__pycache__
+*.pyc
+
+# Stop tracking compressed files
+*.zip
+*.mat
+
+# Stop tracking latex aux files
+*.log
+*.aux
