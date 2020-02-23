@@ -32,10 +32,10 @@ build.datasets <- function(train.set, class.col = "Class",
     #' clasificación ordinal
 
     ## Si los valores máximo y mínimo no se especifican, se calculan
-    if (missing(class.min)) {
+    if (is.null(class.min)) {
         class.min = min(train.set[,class.col])
     }
-    if (missing(class.max)) {
+    if (is.null(class.max)) {
         class.max = max(train.set[,class.col])
     }
 
