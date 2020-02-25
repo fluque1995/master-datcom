@@ -30,13 +30,78 @@ use_virtualenv("master")
 
 # Introducción
 
+En esta práctica se va a implementar un clasificador de peatones, que
+nos permita distinguir imágenes de personas de imágenes de fondo. En
+la primera parte se estudiarán distintas propuestas de clasificadores
+de peatones, para tratar de determinar qué modelo nos permite obtener
+mejores resultados a la hora de resolver este problema. Concretamente,
+compararemos las características que se extraen de una imagen,
+utilizando el histograma de gradientes orientados (HOG) y los patrones
+binarios locales (LBP), para ver qué descriptores son más informativos
+en este problema, y propondremos distintos clasificadores basados en
+SVM, alterando sus parámetros.
+
+En una segunda fase, estudiaremos algunas mejoras que pueden hacerse
+al descriptor basado en LBP, combinando por un lado la información
+extraída por ambos descriptores, y por otro calculando una extensión
+de LBP conocida como LBP uniforme, la cual agrupa algunos de los
+valores de LBP que son poco representativos con el fin de ahorrar
+memoria.
+
+Una vez seleccionado el mejor clasificador, se implementará un
+detector de peatones en imágenes arbitrarias, basado en el modelo que
+se haya escogido. Dicho detector recibirá una imagen de entrada
+de cualquier tamaño,
+
 ## Aspectos de implementación
 
-```{python}
+El código se ha desarrollado en Python3, utilizando `numpy` como
+librería para cálculo numérico eficiente. La implementación base de
+Python no está pensada para realizar cálculos computacionalmente
+costosos, si no para simplificar la escritura de código al
+programador. Esto hace que muchas operaciones no sean eficientes
+cuando se implementan directamente en Python, utilizando los tipos
+de datos originales del lenguaje.
+
+La ventaja de utilizar `numpy` a la hora de realizar cálculos es la
+simplicidad con la que se manejan cálculos matriciales. A fin de
+cuentas, una imagen puede verse simplemente como una matriz de números
+enteros (si la imagen es blanco y negro) o como un tensor (una matriz
+con tres canales, si la imagen es en color). Por tanto, las
+operaciones que tendremos que realizar en la mayoría de los casos
+serán operaciones matriciales, las cuales podremos paralelizar
+utilizando esta librería.
+
+```{python, include=F}
 TRAIN_IMAGES_FOLDER = "data/train"
 TEST_IMAGES_FOLDER = "data/test"
 IMG_EXTENSION = ".png"
 ```
+
+El código está organizado de la siguiente manera. En el archivo
+`LBP.py` se implementa el descriptor LBP y el detector basado en LBP
+uniforme, cada uno de ellos estructurado como una clase.  En el
+archivo `utils.py` se incluyen funciones genéricas que simplifican el
+código que se adjunta en este documento (funciones para carga de
+datos, cómputo de los descriptores dada una lista de imágenes,
+entrenamiento y test del modelo, validación cruzada...). Este PDF
+contiene los fragmentos de código que se han utilizado para generar
+los resultados que en él aparecen. Para la generación de la
+documentación se ha utilizado Rmarkdown junto con la librería
+`reticulate`, la cual ofrece soporte para la ejecución de fragmentos
+de código en Python desde Rmarkdown. Se adjunta también el código
+fuente utilizado para generar este PDF, para hacer replicable la
+experimentación. Además, se adjuntan tres ficheros de código Python
+ejecutables:
+
+- `hog_test.py`: Se realiza la validación cruzada utilizando el
+descriptor HOG
+- `lbp_test.py`: Se realiza la validación cruzada utilizando el
+descriptor LBP (hay un parámetro arriba que indica si se utiliza
+o no el uniforme)
+- `lbp_detect.py`: Se entrena el clasificador LBP uniforme utilizando
+toda la base de datos, y se detectan peatones sobre tres imágenes
+distintas.
 
 # Clasificador basado en HOG
 
@@ -1164,3 +1229,171 @@ nuestro clasificador, y clasificarlas con el mismo. Si el modelo
 clasifica el parche dentro de la clase de peatones, significa que en
 dicho parche se ha detectado una persona, y se añade dicho parche
 a la salida del algoritmo.
+
+## Entrenamiento del clasificador
+
+El detector que hemos implementado se basa en el uso de un
+clasificador sobre una ventana deslizante sobre la imagen. Haciendo
+uso de los estudios de los apartados previos, se ha decidido que el
+mejor modelo encontrado es el que utiliza el descriptor LBP uniforme
+con un kernel polinómico de segundo grado. Para aprovechar toda la
+información posible, se utiliza como conjunto de entrenamiento la
+unión de los conjuntos de entrenamiento y test que se nos
+proporcionaron originalmente. De esta forma, el clasificador estará
+entrenado con la máxima información disponible, una vez que hemos
+fijado qué clasificador tiene un mejor comportamiento con nuestros
+datos.
+
+## Implementación del detector
+
+El detector está implementado dentro del archivo `LBP.py`, con el
+nombre de `LBPDetector`. Cuando se inicializa el detector, se deben
+especificar los mismos parámetros que indicábamos para el extractor
+del descriptor HOG (tamaño de bloque, ventana y desplazamiento para
+los bloques tanto en la dirección de X como la dirección de Y), junto
+con el slide que va a utilizarse sobre la imagen, y el detector basado
+en LBP uniforme preentrenado.
+
+El funcionamiento básico del detector es sencillo. Dada una imagen de
+entrada, se itera sobre ventanas de tamaño $128 \times 64$ (tamaño de
+las imágenes de entrenamiento). Se clasifica cada ventana utilizando
+el clasificador preentrenado, y se conservan las coordenadas de las
+ventanas que se han clasificado dentro de la clase positiva. Con este
+primer clasificador, el resultado obtenido es el siguiente:
+
+![Primer detector implementado](img/abbey_road_dets_non_suppression.jpeg)[ width=80% }
+
+Podemos observar que hay un claro problema. Parece que el detector
+funciona más o menos correctamente, aunque no ha sido capaz de
+detectar al último peatón. No obstante, tenemos multitud de ventanas
+para cada uno de los peatones detectados. Esto se debe a que hay un
+porcentaje importante de solapamiento entre una ventana y la siguiente
+(la ventana tiene un tamaño de $128 \times 64$, y en el ejemplo
+anterior se desplaza 8 píxeles en horizontal y vertical mientras se
+itera). Esto implica que la misma persona ocupará múltiples ventanas
+que se predecirán como clase positiva. La forma de afrontar esta
+problemática ha sido la supresión de no-máximos.
+
+## Supresión de no-máximos
+
+El enfoque que se ha dado a esta problemática es el siguiente. El
+clasificador basado en SVM es capaz de predecir no sólo la clase de la
+ventana con la que se trabaja, si no dar una medida de distancia entre
+el ejemplo que estamos clasificando y la frontera de decisión
+aprendida. De esta manera, podemos obtener, no sólo una clasificación,
+sino una forma de ordenar las detecciones.
+
+En particular, haciendo un estudio sobre nuestro clasificador, los
+ejemplos que pertenecen a la clase positiva tienen una distancia
+negativa a la frontera de clasificación. Por tanto, cuanto menor sea
+este valor, más lejos nos encontraremos del 0, y por tanto más seguros
+estaremos de la clase que hemos asignado. Lo que hacemos para eliminar
+las detecciones sobrantes es lo siguiente:
+
+- Llevamos a cabo la detección en toda la imagen.
+- Para las detecciones que se han clasificado en la clase positiva,
+  calculamos el ratio de solapamiento entre cada par de detecciones
+    - Si dos detecciones están solapadas más de un cierto valor,
+    conservamos la detección que tiene mayor distancia a la frontera
+    de clasificación
+    - Si el solapamiento es menor, conservamos ambas
+
+De esta manera, podemos eliminar todas las detecciones que engloban
+a un mismo individuo salvo una, que es la que se ha predicho con
+una seguridad mayor. Una vez llevamos a cabo esta etapa, el resultado
+sobre la imagen anterior es el siguiente:
+
+![Detección seguida de supresión de no-máximos](img/abbey_road_dets_suppression.jpeg){ width=80% }
+
+Podemos comprobar que ha mejorado sustancialmente el resultado del
+modelo. Ahora pasamos a tener una única caja por individuo, en lugar
+de las múltiples cajas que teníamos previamente. No obstante, el
+modelo sigue sin detectar al primero de los peatones, ya que no hemos
+añadido ninguna directiva que aumente el número de detecciones.
+
+En la siguiente sección veremos cómo podemos mejorar el resultado
+obtenido por el modelo buscando a diferentes escalas en la imagen.
+
+## Búsqueda de peatones a distintas escalas
+
+En el modelo que hemos desarrollado hasta el momento, sólamente se
+encontraban peatones a escala original, es decir, sólo se buscaban
+peatones en la imagen de entrada, sin tener en cuenta que puede
+haber personas con distintos tamaños presentes en la imagen. Esto
+puede dar lugar a que no encontremos algunos individuos por aparecer
+demasiado pequeños o demasiado grandes en la imagen.
+
+Para evitar esta problemática, se ha implementado un detector a varias
+escalas. En el método de detección se permite especificar una lista de
+tamaños a los que se escalará la imagen para buscar individuos.  Para
+cada tamaño especificado, se reescala la imagen, se lleva a cabo la
+detección en dicho tamaño, y para los peatones detectados se traduce
+la caja detectada a coordenadas de la imagen original. Cabe remarcar
+que el proceso de detección es el mismo en todos los casos, es decir,
+la ventana que se desliza por la imagen, independientemente de la
+escala, es del mismo tamaño. De esta manera, si se escala la imagen
+a un tamaño menor, la ventana tenderá a ocupar una porción más grande
+de la imagen, y por tanto podremos detectar peatones de gran tamaño
+en la imagen original. Si por el contrario, la imagen se transforma
+a un tamaño mayor, conseguiremos encontrar peatones de tamaño pequeño
+en la imagen original.
+
+Ahora, la supresión de no-máximos se realiza al final. Una vez se han
+llevado a cabo las detecciones en todas las escalas, se unifican las
+cajas obtenidas en un único vector, con las coordenadas de las mismas
+adaptadas al tamaño original de la imagen. Una vez unificadas, se
+realiza la supresión de no-máximos, para eliminar posibles detecciones
+de un mismo individuo a diferentes escalas. En la imagen siguiente
+puede verse el resultado obtenido tras implementar el clasificador
+multiescala:
+
+![Detección multiescala](img/abbey_road_dets_multiscale.jpeg){ width=80% }
+
+En la imagen podemos observar que se han encontrado los cuatro
+peatones, aunque el resultado es mejorable para el primero y el
+último, ya que la caja que los señala no los engloba perfectamente.
+
+Estudiamos el comportamiento del detector sobre otras imágenes:
+
+![Detección multiescala](img/street_dets.jpeg){ width=80% }
+
+Podemos observar que el clasificador tiene un comportamiento bastante
+aceptable, y es capaz de detectar a un número importante de individuos
+en la imagen anterior. No obstante, podemos observar que comete
+algunos errores. A las personas de la parte derecha, las coloca a las
+tres (el niño de la mano del padre y la mujer con el carro) dentro de
+la misma caja. Esto se puede deber a que no se ha establecido un nivel
+de zoom lo suficientemente fino como para encontrar cajas que los
+engloben por separado. Por otra parte, hay dos individuos, el central
+de camiseta oscura y el chico de más a la izquierda, que no son
+detectados. Probablemente, esto se deba a la etapa de supresión de
+no-máximos. Dado que hay personas que están muy cerca, es probable que
+el grado de solapamiento entre sus cajas sea alto, y por tanto, el
+algoritmo de supresión de no-máximos elimine alguna de las cajas
+erróneamente. Además, se ha colado un falso positivo en la parte
+derecha de la imagen, probablemente provocado por la cantidad de
+líneas verticales que hay en esa zona de la imagen. Si observamos el
+resto del fondo, está poblado de líneas horizontales, que son menos
+comunes en una persona de pie. En cambio, las líneas de orientación
+vertical aparecen con cierta frecuencia.
+
+Finalmente, vamos a estudiar cómo la distorsión de la imagen puede
+producir un empeoramiento significativo en la capacidad de predicción
+del modelo:
+
+![Detección sobre una imagen distorsionada](img/pedestrian_dets.jpeg){ width=80% }
+
+En la imagen anterior, podemos observar cómo la presencia de distintas
+distorsiones provoca un empeoramiento significativo en los resultados
+obtenidos. En primer lugar, la imagen anterior presenta cierto grado
+de emborronamiento, lo que hace que las líneas estén menos definidas.
+Además, la perspectiva en la que se ha tomado la imagen es distinta a
+la que teníamos hasta el momento. Esta imagen está tomada con cierta
+inclinación desde arriba, mientras que todas las imágenes anteriores
+estaban tomadas de frente. Probablemente, en el conjunto de datos, la
+mayoría de las imágenes de las que se dispone sean de personas tomadas
+de frente, aunque no se ha hecho un estudio exhaustivo como para poder
+confirmar esta teoría. La presencia de estas distorsiones hace que los
+resultados obtenidos sobre esta imagen sean bastante mejorables,
+detectándose sólamente a tres de las nueve personas que hay presentes
+en la imagen, y obteniendo el peor resultado hasta el momento.

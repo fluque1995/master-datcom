@@ -14,12 +14,10 @@ print("Calculando los descriptores HOG")
 train_descriptors = utils.compute_hog(train_images)
 test_descriptors = utils.compute_hog(test_images)
 
-print("Entrenando el clasificador")
-classifier = utils.train(train_descriptors, train_classes)
+descriptors = np.vstack((train_descriptors, test_descriptors))
+labels = np.concatenate((train_classes, test_classes))
 
-print("Prediciendo sobre el conjunto de test")
-predictions = utils.test(test_descriptors, classifier)
+results = utils.cross_validation(descriptors, labels)
 
-print("La precisión del modelo es {0:.5f}".format(
-    sklearn.metrics.accuracy_score(test_classes, predictions)
-))
+for k, v in results.items():
+    print("{} media: {}".format(k, v[-1]))
