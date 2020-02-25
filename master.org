@@ -2,22 +2,26 @@
 ** Modelos gráficos probabilísticos
 *** TODO Construcción de redes bayesianas con Elvira
     DEADLINE: <2020-03-13 vie>
-** Minería de datos: aspectos avanzados
-*** DONE Tutorial de clasificación no balanceada
-    CLOSED: [2020-02-12 mié 12:54] DEADLINE: <2020-02-16 dom>
-    haberman -> DBSMOTE 0.7
-
-*** TODO Laboratorio de clasificación monotónica y ordinal
-    DEADLINE: <2020-02-24 lun>
+*** TODO Construcción e inferencia en redes bayesianas con R
+    DEADLINE: <2020-03-27 vie>
+*** TODO Aprendizaje de redes bayesianas con bnlearn
+    DEADLINE: <2020-03-21 sáb>
+*** TODO Clasificación con redes bayesianas
 ** Big data I
 *** DONE Examen
     CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
 *** TODO Despliegue de contenedores Docker
     DEADLINE: <2020-03-23 lun> SCHEDULED: <2020-02-15 sáb>
+*** TODO Consultas en BD NoSQL - MongoDB
+    DEADLINE: <2020-03-22 dom>
+*** TODO Selección de base de datos para experimentación ETL
+    DEADLINE: <2020-03-20 vie>
+*** TODO Experimento ETL usando Apache Impala
+    DEADLINE: <2020-03-22 dom>
 ** Extracción de características en imágenes
 *** DONE Reducción de dimensionalidad con PCA
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
-*** TODO Extracción de rasgos y clasificación
+*** IN PROGRESS Extracción de rasgos y clasificación
     DEADLINE: <2020-03-06 vie>
 *** TODO Procesos gaussianos para clasificación
     DEADLINE: <2020-03-10 mar>
@@ -25,7 +29,14 @@
     SCHEDULED: <2020-03-13 vie>
 *** TODO Examen teoría
     SCHEDULED: <2020-03-20 vie>
-** Minería de datos: preprocesamiento y clasificación:
+** Minería de datos: aspectos avanzados
+*** DONE Tutorial de clasificación no balanceada
+    CLOSED: [2020-02-12 mié 12:54] DEADLINE: <2020-02-16 dom>
+    haberman -> DBSMOTE 0.7
+
+*** DONE Laboratorio de clasificación monotónica y ordinal
+    CLOSED: [2020-02-24 lun 11:47] DEADLINE: <2020-02-24 lun>
+** Minería de datos: preprocesamiento y clasificación
 *** DONE Competición Pump It Up
     CLOSED: [2020-02-19 mié 10:05] DEADLINE: <2020-02-16 dom>
 *** DONE Diapositivas explicación competición

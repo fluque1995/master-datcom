@@ -1,10 +1,10 @@
-### LABORATORIO DE CLASIFICACIÓN ORDINAL
+### LABORATORIO DE CLASIFICACIÓN MONOTÓNICA
 ### Cargamos las librerías necesarias
 library(RWeka)
+library(xgboost)
 library(caret)
 set.seed(0)
 
-## FUNCIONES DEFINIDAS
 build.datasets <- function(train.set, class.col = "Class",
                            class.min = NULL, class.max = NULL){
 
@@ -29,16 +29,19 @@ build.datasets <- function(train.set, class.col = "Class",
     ## Se transforma la columna objetivo en función de los valores
     ## de la clase
     lapply(class.min:(class.max - 1), function (x){
-        train.set[,class.col] <- as.factor(
-            ifelse(train.set[,class.col] > x, 1, 0)
-        )
+        train.set[,class.col] <- ifelse(train.set[,class.col] > x, 1, 0)
         train.set
     })
 }
 
 ## Wrapper para entrenamiento del modelo
-build.model <- function(dataset, model, class.name = "Class"){
-    train(as.formula(paste(class.name, "~ .")), dataset, method=model, )
+build.model <- function(dataset, class.name = "Class"){
+    labels <- dataset[,class.name]
+    data <- dataset[,!(names(dataset) == class.name)]
+
+    ## Se entrena un modelo de xgboost con restricciones monotónicas
+    xgboost(data=as.matrix(data), label=labels, nrounds=5,
+            monotone_constraints=1)
 }
 
 predict.test <- function(test.set, models){
@@ -48,35 +51,25 @@ predict.test <- function(test.set, models){
     #' @param test.set Conjunto de test a predecir
     #' @param models Lista de modelos a utilizar para la predicción
     #'
-    #' @return Probabilidades obtenidas por los modelos para cada una de
-    #' las clases
+    #' @return Clase para cada elemento del conjunto
 
     ## Se calculan las predicciones para el conjunto de test con todos
-    ## los modelos, y se conserva la probabilidad de la clase 1 (probabilidad
-    ## de que la etiqueta de dicho ejemplo sea mayor que la etiqueta límite
-    ## para ese clasificador)
-    predictions <- lapply(models, function(x)
-        predict(x, test.set, type = "prob")[, "1"]
-        )
+    ## los modelos
+    predictions <- lapply(models, function(x) predict(x, as.matrix(test.set)))
 
-    ## Se ajustan las probabilidades para todas las clases, como probabilidad
-    ## condicionada utilizando la predicción por el modelo anterior
-    probs <- sapply(1:length(predictions), function(x){
-        if(x == 1){
-            1 - predictions[[x]]
-        } else {
-            predictions[[x-1]] * (1 - predictions[[x]])
-        }
-    }, simplify=TRUE)
+    ## La lista de valores se convierte a una matriz
+    predictions.mat <- matrix(unlist(predictions), ncol=length(predictions))
 
-    ## Se adjunta la probabilidad del último modelo
-    probs <- cbind(probs, predictions[[length(predictions)]])
+    ## Las predicciones se convierten de regresión a clasificación binaria
+    rounded.preds <- predictions.mat > 0.5
+
+    ## Se suman por filas las predicciones para calcular la etiqueta final
+    apply(rounded.preds, 1, sum)
 }
 
 
-predict.ordinal <- function(train.set, test.set, model, class.col = "Class",
-                            class.min = NULL, class.max = NULL){
-
+predict.monotonic <- function(train.data, test.data, class.col = "Class",
+                              class.min = NULL, class.max = NULL){
     #' Wrapper para el pipeline previo
     #'
     #' Función que permite aplicar todas las funciones anteriores
@@ -85,19 +78,16 @@ predict.ordinal <- function(train.set, test.set, model, class.col = "Class",
     #'
     #' @param train.set Conjunto de entrenamiento
     #' @param train.set Conjunto de test
-    #' @param model Modelo de aprendizaje utilizado
     #' @param class.col Nombre de la columna a predecir
     #' @param class.min Valor mínimo para la columna de clase
     #' @param class.max Valor máximo para la columna de clase
     #'
-    #' @return Matriz de probabilidades para el conjunto de test.
+    #' @return Clases calculadas para cada ejemplo del test
+    train.sets <- build.datasets(train.data, class.col, class.min, class.max)
 
-    train.sets <- build.datasets(train.set, class.col = class.col,
-                                 class.min, class.max)
-    models <- lapply(train.sets, build.model, model = model,
-                     class.name=class.col)
+    models <- lapply(train.sets, build.model, class.name=class.col)
 
-    predict.test(test.set, models)
+    predict.test(test.data, models)
 }
 
 datasets.list <- c("era.arff", "esl.arff", "lev.arff", "swd.arff")
@@ -117,22 +107,21 @@ conf.matrices <- lapply(datasets.list, function (x) {
     ## (por defecto, se toma la última columna del conjunto)
     class.col <- colnames(dataset)[length(dataset)]
 
+    ## Ejemplo de ejecución
+    test.labels <- test.data[,class.col]
+    test.data[class.col] <- NULL
 
-    ## Utilización del pipeline previo para obtener la matriz de probabilidades
-    predictions.prob <- predict.ordinal(train.data, test.data,
-                                        "kknn", class.col=class.col)
+    predictions <- predict.monotonic(train.data, test.data, class.col=class.col)
 
     ## Para obtener la clase, es suficiente con buscar el índice máximo de cada
     ## fila
     min.class <- min(train.data[,class.col])
 
-    ## Sumamos el mínimo menos 1 para adecuar la predicción a las
-    ## etiquetas reales
-    predictions.class <- apply(predictions.prob, 1, which.max) + min.class - 1
+    predictions <- predictions + min.class
 
     ## Ahora, podemos construir la matriz de confusión del modelo
-    real.labels <- as.factor(test.data[,class.col])
-    predicted.labels <- factor(predictions.class, levels=levels(real.labels))
+    real.labels <- as.factor(test.labels)
+    predicted.labels <- factor(predictions, levels=levels(real.labels))
     confusionMatrix(predicted.labels, real.labels)[c("table", "overall")]
 })
 
