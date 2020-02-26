@@ -1261,7 +1261,7 @@ el clasificador preentrenado, y se conservan las coordenadas de las
 ventanas que se han clasificado dentro de la clase positiva. Con este
 primer clasificador, el resultado obtenido es el siguiente:
 
-![Primer detector implementado](img/abbey_road_dets_non_suppression.jpeg)[ width=80% }
+![Primer detector implementado](img/abbey_road_dets_non_suppression.jpeg){ width=80% }
 
 Podemos observar que hay un claro problema. Parece que el detector
 funciona más o menos correctamente, aunque no ha sido capaz de
@@ -1381,7 +1381,7 @@ Finalmente, vamos a estudiar cómo la distorsión de la imagen puede
 producir un empeoramiento significativo en la capacidad de predicción
 del modelo:
 
-![Detección sobre una imagen distorsionada](img/pedestrian_dets.jpeg){ width=80% }
+![Detección sobre una imagen distorsionada](img/pedestrians_dets.jpeg){ width=80% }
 
 En la imagen anterior, podemos observar cómo la presencia de distintas
 distorsiones provoca un empeoramiento significativo en los resultados
@@ -1397,3 +1397,5 @@ confirmar esta teoría. La presencia de estas distorsiones hace que los
 resultados obtenidos sobre esta imagen sean bastante mejorables,
 detectándose sólamente a tres de las nueve personas que hay presentes
 en la imagen, y obteniendo el peor resultado hasta el momento.
+
+# Referencias
