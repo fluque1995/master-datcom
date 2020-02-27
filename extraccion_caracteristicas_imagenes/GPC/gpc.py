@@ -100,21 +100,21 @@ def draw_roc_curve(real_labels, probs, filename):
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
+    plt.title('ROC curve')
     plt.legend(loc="lower right")
     plt.savefig(filename)
     plt.clf()
 
 def draw_prc_curve(real_labels, probs, filename):
-    pr, re, thresh = sklearn.metrics.roc_curve(real_labels, probs)
+    pr, re, thresh = sklearn.metrics.precision_recall_curve(real_labels, probs)
 
     plt.plot(pr, re, color='darkorange',
              label='Precision-recall curve')
-    plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
     plt.xlabel('Precision')
     plt.ylabel('Recall')
-    plt.title('Receiver operating characteristic example')
+    plt.title('Precision-recall curve')
     plt.legend(loc="lower right")
     plt.savefig(filename)
     plt.clf()

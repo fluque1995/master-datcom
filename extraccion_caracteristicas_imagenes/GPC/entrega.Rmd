@@ -18,9 +18,100 @@ output:
 
 # Procesos gaussianos
 
+Un proceso gaussiano es una generalización del concepto de
+distribución normal multivariante. Una colección (no necesariamente
+finita) de variables aleatorias es un proceso gaussiano si para
+cualquier subconjunto finito de estas, la distribución conjunta es
+gaussiana. Para parametrizar una distribución normal, necesitamos un
+vector de medias y una matriz de covarianzas. En el caso de los
+procesos gaussianos, al trabajar en espacios infinito-dimensionales,
+necesitaremos una función de media $\mu (x): \mathcal{X} \to
+\mathbb{R}$, y una función de covarianza, $K (x,x'): \mathcal{X}
+\times \mathcal{X} \to \mathbb{R}$ (usualmente, supondremos $\mu = 0$)
+
+Dado un conjunto de observaciones, $\mathcal{D} = \{(x_i, y_i)
+\}_{i=1}^n$, podemos construir el modelo de observación
+\begin{align*}
+y_i &= f(x_i)+ \varepsilon \\
+f &\sim \mathcal{GP} (0, K) \\
+\varepsilon &\sim \mathcal{N} (0, \sigma^2I)
+\end{align*}
+Que nos induce la función de verosimilitud
+\[p(y \vert f) = \mathcal{N}(y \vert f, \sigma^2I)\]
+
+Y esto nos permite definir $p(y \vert x)$, lo que nos permite estimar
+los parámetros del modelo. Una vez optimizados los parámetros (los
+cual podemos calcular analíticamente porque estamos trabajando con
+distribuciones normales en todo momento), podemos calcular, dado un
+nuevo valor $x^*$, $p(y^* \vert x^*, \mathcal{D})$, y dar el $y$ más
+probable para el $x^*$ dado para el modelo ajustado.
+
+En nuestro problema, en lugar de tener un modelo de observación para
+regresión, como el anterior, tendremos un modelo a priori de
+Bernoulli, lo cual nos complicará la optimización de nuestro modelo
+porque dejaremos de tener ecuaciones analíticamente tratables. Por el
+contrario, nos encontraremos con ecuaciones que tendremos que
+optimizar numéricamente, pero siguiendo un procedimiento similar al
+que hemos explicado anteriormente.
+
+A grandes rasgos, lo que obtenemos es un modelo no paramétrico de
+nuestros datos. En lugar de definir una clase de funciones sobre la
+que optimizar un conjunto de parámetros, trabajamos con un conjunto de
+funciones más amplio, en el que imponemos restricciones menos fuertes,
+restringiendo su forma sólo con la función kernel que utilicemos para
+definir la matriz de covarianzas. No nos interesará conocer el
+comportamiento de nuestra función de forma exacta fuera de nuestras
+observaciones, si no que definiremos una distribución de probabilidad
+sobre las funciones a raíz de las covarianzas que definamos a priori
+(función kernel), y las restringiremos a posteriori tras observar
+nuestros datos. Una vez optimizado dicho modelo, podemos realizar
+predicciones en función de nuevas observaciones estudiando la
+distribución a posteriori en el punto de la nueva observación.
+
 # Software implementado
 
+La práctica ha sido implementada en Python, utilizando la librería
+`GPFlow` para la construcción de los procesos gaussianos, y
+`scikit-learn` para la extracción de métricas. Se han utilizado tres
+kernels distintos (
+
 # Resultados experimentales
+
+## Kernel lineal
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+{} &   TN &   FP &  FN &  TP \\
+\midrule
+1 &  171 &   32 &   0 &  54 \\
+2 &   91 &  119 &   0 &  72 \\
+3 &  191 &   15 &  16 &  37 \\
+4 &  173 &   23 &  10 &  40 \\
+5 &  140 &   59 &  13 &  56 \\
+\bottomrule
+\end{tabular}
+\caption{Matrices de confusión para las cinco particiones usando el kernel lineal}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccccc}
+\toprule
+{} &  Accuracy (\%) &  Precision (\%) &  Recall (\%) &  Specificity (\%) &  F1 score (\%) \\
+\midrule
+1 & 87.549 & 62.791 & 100.000 & 84.236 & 77.143 \\
+2 & 57.801 & 37.696 & 100.000 & 43.333 & 54.753 \\
+3 & 88.031 & 71.154 & 69.811 & 92.718 & 70.476 \\
+4 & 86.585 & 63.492 & 80.000 & 88.265 & 70.796 \\
+5 & 73.134 & 48.696 & 81.159 & 70.352 & 60.870 \\
+\midrule
+Means & 78.620 & 56.766 & 86.194 & 75.781 & 66.808 \\
+\bottomrule
+\end{tabular}
+\caption{Métricas calculadas para el kernel lineal}
+\end{table}
 
 ## Kernel gaussiano
 
@@ -61,4 +152,95 @@ Means & 85.084 & 65.859 & 85.627 & 85.025 & 73.332 \\
 
 # Clasificación de un nuevo dato
 
+Una vez fijado el mejor modelo para resolver nuestro problema por
+medio de la validación cruzada, para clasificar datos nuevos habría
+que reentrenar los clasificadores. Debido al enfoque de validación
+cruzada que hemos utilizado previamente, los modelos entrenados hasta
+el momento no son óptimos, ya que han sido entrenados con información
+incompleta. Habría reentrenar el sistema utilizando todos los datos
+de los que se disponen, es decir:
+
+- Unificar los folds de ejemplos benignos y malignos.
+- Particionar el conjunto de ejemplos benignos en cuatro
+- Entrenar un clasificador con cada partición benigna enfrentada contra
+todos los ejemplos malignos (se obtienen cuatro clasificadores)
+- Dados los cuatro clasificadores, el dato nuevo se clasifica
+prediciendo la probabilidad de que el mismo pertenezca a la clase
+positiva, haciendo la media de todas las probabilidades, y comprobando
+si se encuentra por encima de un umbral.
+
+Quedaría discutir el umbral utilizado. En los ejemplos anteriores, el
+umbral que hemos escogido ha sido $0.5$. La elección de este umbral
+viene justificada simplemente por ser el valor medio que puede tomar
+la salida de los clasificadores. De esta manera, los resultados que
+obtenemos no están sesgados a priori en favor de ninguna de las
+clases. No obstante, estamos hablando de un problema en el que el
+falso positivo no es un problema excesivamente grave, ya que se daría
+como positivo en cáncer a un paciente sano, lo cual es subsanable con
+pruebas más específicas, pero el falso negativo puede ser
+extremadamente grave, ya que implicaría considerar sano a un paciente
+enfermo de cáncer, lo que puede retrasar el tratamiento que se
+suministra a dicho paciente, y agravar la enfermedad. Por este motivo,
+podría ser interesante reducir el valor del umbral a partir del cual
+se considera un individuo como positivo. De esta manera,
+probabilidades más bajas pasarían a considerarse como clase positiva,
+provocando probablemente un aumento en el número de falsos positivos,
+pero reduciendo de igual forma la cantidad de falsos negativos.
+
 # Diseño de un experimento adicional
+
+En cuanto al diseño de un experimento adicional que compense la falta
+de datos de la clase minoritaria, hemos de tener especial cuidado a la
+hora de balancear las clases debido a la naturaleza de los datos con
+los que estamos tratando. La generación de instancias artificiales
+utilizando métodos que trabajen sobre las características de los datos
+puede ser peligroso. Un ejemplo de este tipo de técnicas sería el uso
+de SMOTE, que a grandes rasgos genera datos sintéticos en los
+segmentos que unen ejemplos de nuestro conjunto de datos. En nuestro
+caso, generaríamos nuevos histogramas como combinaciones lineales
+convexas de histogramas propios de ejemplos cancerígenos. El problema
+de esta técnica es que está suponiendo que en el espacio de
+características los ejemplos de las dos clases se distribuyen en grupos
+disjuntos y convexos de elementos, lo cual es una asunción bastante
+fuerte. Esta técnica produciría probablemente un ruido significativo
+en el conjunto de datos, empeorando los resultados finales.
+
+Otra posible aproximación sería tratar de aprender la distribución de
+probabilidad de las características condicionado a la clase positiva.
+De esta forma, se podrían tomar muestras de dicha distribución para
+generar nuevos ejemplos en la clase minoritaria (construir un modelo
+generativo para dicha clase). No obstante, debido a la escasez de
+ejemplos de positivos, la distribución de probabilidad aprendida
+podría ser poco significativa, y se obtendrían malos resultados por
+esta vía.
+
+La aproximación que parece más coherente requiere las imágenes
+originales para poder llevarse a cabo. Dado que lo que se ha calculado
+sobre las imágenes es el descriptor LBP uniforme invariante ante
+rotaciones, podríamos generar nuevos ejemplos de la clase minoritaria
+reescalando las imágenes. De esta manera, obtendríamos ejemplos de
+imágenes cancerígenas con un descriptor distinto a los que ya tenemos.
+Es importante remarcar que, aunque la rotación de ejemplos suele ser
+un buen enfoque para generar datos sintéticos a partir de imágenes, en
+nuestro caso no sería útil, ya que el descriptor que estamos
+utilizando es invariante a rotaciones, y por tanto los histogramas que
+obtendríamos serían aproximadamente iguales. Lo mismo ocurre con las
+simetrías, ya que para las nueve clases de equivalencia bajo
+rotaciones con las que trabajamos, la simetría respecto a rectas
+horizontales, verticales y diagonales provoca que la imagen por la
+simetría de un descriptor pertenezca a la misma clase que el
+descriptor original.
+
+Otro enfoque posible consistiría en eliminar aleatoriamente algunas
+instancias de la clase minoritaria, y entrenar el clasificador con un
+subconjunto de los datos originales, pero usualmente el submuestreo
+aleatorio produce malos resultados.
+
+Una vez nivelado el número de ejemplos de cada clase, no sería
+necesario entrenar cuatro clasificadores distintos para realizar
+la predicción. Se entrenaría un único proceso gaussiano sobre todos
+los datos de entrada, y se utilizaría dicho clasificador para hacer
+una única predicción de la probabilidad de un nuevo ejemplo de
+pertenecer a la clase positiva, aplicándose aquí la misma política
+de decisión de clase que discutimos en el apartado anterior con el
+valor correcto de umbral que debemos tomar.
