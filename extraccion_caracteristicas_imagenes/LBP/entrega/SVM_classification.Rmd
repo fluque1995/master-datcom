@@ -50,8 +50,14 @@ memoria.
 
 Una vez seleccionado el mejor clasificador, se implementará un
 detector de peatones en imágenes arbitrarias, basado en el modelo que
-se haya escogido. Dicho detector recibirá una imagen de entrada
-de cualquier tamaño,
+se haya escogido. Dicho detector recibirá una imagen de entrada de
+cualquier tamaño, y aplicará una ventana deslizante sobre la misma,
+clasificando los distintos parches que se extraigan. Para los parches
+que se clasifiquen como peatones, se marcará la ventana con un
+rectángulo en la imagen. Una vez implementado el detector básico,
+veremos cómo evitar que se muestre más de una caja para un mismo
+individuo, que estará presente en más de una ventana, y como encontrar
+peatones a distintos tamaños por medio de un reescalado de la imagen.
 
 ## Aspectos de implementación
 

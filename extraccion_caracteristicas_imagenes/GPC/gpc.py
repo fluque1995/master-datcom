@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sklearn
 
+kernel_fun = gpflow.kernels.Linear
+img_str = "Linear"
+data_file = "Datos.mat"
+
 def accuracy(conf_mat):
     return (conf_mat[0,0] + conf_mat[1,1]) / np.sum(conf_mat)
 
@@ -74,7 +78,7 @@ def get_probs_fold(fold):
 
         model = gpflow.models.VGP(
             train_data, train_labels,
-            kern=gpflow.kernels.RBF(10),
+            kern=kernel_fun(10),
             likelihood=gpflow.likelihoods.Bernoulli(),
         )
 
@@ -108,7 +112,7 @@ def draw_roc_curve(real_labels, probs, filename):
 def draw_prc_curve(real_labels, probs, filename):
     pr, re, thresh = sklearn.metrics.precision_recall_curve(real_labels, probs)
 
-    plt.plot(pr, re, color='darkorange',
+    plt.plot(re, pr, color='lightblue',
              label='Precision-recall curve')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
@@ -125,7 +129,7 @@ def get_confusion_matrix(real_labels, probs, thr):
 
     return sklearn.metrics.confusion_matrix(real_labels, pred_labels)
 
-healthy_folds, malign_folds = read_data("Datos.mat")
+healthy_folds, malign_folds = read_data(data_file)
 folds = build_folds(healthy_folds, malign_folds)
 
 confusion_matrices = []
@@ -137,10 +141,15 @@ for i, fold in enumerate(folds):
     real_labels = fold['test']['labels']
 
     draw_roc_curve(
-        real_labels, prob_means, "imgs/roc-fold{}.png".format(i)
+        real_labels, prob_means, os.path.join("imgs","{}-roc-fold{}.png".format(
+            img_str, i
+        ))
     )
+
     draw_prc_curve(
-        real_labels, prob_means, "imgs/prc-fold{}.png".format(i)
+        real_labels, prob_means, os.path.join("imgs","{}-prc-fold{}.png".format(
+            img_str, i
+        ))
     )
 
     confusion_matrices.append(

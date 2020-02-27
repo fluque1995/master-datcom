@@ -2,7 +2,7 @@
 title: "Procesos gaussianos para clasificación"
 subtitle: "Extracción de características en imágenes"
 author: "Francisco Luque Sánchez"
-date: "19/02/2020"
+date: "27/02/2020"
 titlepage: true
 tables: true
 titlepage-background: "background.pdf"
@@ -72,12 +72,172 @@ distribución a posteriori en el punto de la nueva observación.
 
 La práctica ha sido implementada en Python, utilizando la librería
 `GPFlow` para la construcción de los procesos gaussianos, y
-`scikit-learn` para la extracción de métricas. Se han utilizado tres
-kernels distintos (
+`scikit-learn` para la extracción de métricas. Se han utilizado dos
+kernels distintos, el kernel lineal ($K(x_1, x_2) = \sigma^2 x_1 x_2)$
+y el kernel gaussiano ($K(x_1, x_2) = \sigma^2 e^{l(x_1 - x_2)^2/2}$).
+Durante el proceso de entrenamiento, tendremos que optimizar los
+parámetros $\sigma$ para ambos modelos, y el parámetro $l$ para el
+modelo gaussiano.
+
+Dado que nos enfrentamos ante un problema de clasificación binaria, la
+función de verosimilitud empleada es la distribución de
+Bernoulli. Durante la etapa de entrenamiento, debemos encontrar los
+parámetros que maximicen la log-verosimilitud. Debido a que el
+problema suele presentarse como un problema de minimización,
+minimizaremos la log-verosimilitud cambiada de signo.
+
+El inconveniente que se nos presenta a la hora de realizar esta
+optimización es que no podemos resolver el problema analíticamente de
+forma exacta, como sí ocurre en el caso en el que suponemos la
+verosimilitud como una distribución gaussiana (para el caso de la
+regresión). Por tanto, se han tenido que estimar los parámetros del
+modelo utilizando optimización numérica. Concretamente, en todos los
+casos se ha empleado un optimizador implementado en $GPflow$, el cual
+utiliza la librería `scipy` de cálculo numérico para realizar la
+optimización.  En particular, dicho optimizador utiliza el algoritmo
+L-BFGS-B para minimizar la función que se pasa como argumento. El
+algoritmo L-BFGS-B es un algoritmo de optimización quasi-Newtoniano
+(algoritmo de optimización que no necesita calcular completamente la
+matriz hessiana respecto de los parámetros que se optimiza en cada
+paso del algoritmo), el cual hace uso de una cantidad de memoria
+limitada, y puede gestionar restricciones sobre los parámetros. El
+número de iteraciones para la optimización es de 1000 en cada caso.
+
+Para la repetición de los experimentos, se adjunta el archivo
+`gpc.py`. En la parte superior del mismo, se puede especificar el
+núcleo utilizado por el algoritmo, así como la ruta al archivo de
+datos, y una cadena de texto que identifique a la ejecución.  Dicha
+cadeja de texto se utilizará a la hora de guardar las curvas ROC y PRC
+de las distintas ejecuciones en disco (se guardan en una carpeta
+`imgs`, que debe existir previamente en el directorio en el que se
+ejecute el script)
 
 # Resultados experimentales
 
+En esta sección, estudiaremos los resultados experimentales que hemos
+obtenido para ambos modelos. Comenzaremos con los resultados para el
+kernel lineal, y a continuación los obtenidos por el kernel gaussiano.
+Para cada modelo, mostraremos la curva ROC y la curva precision-recall
+en cada una de las divisiones del conjunto de datos que hemos hecho
+(se evalúan los modelos utilizando una estrategia de validación cruzada
+en cinco particiones), y a continuación se muestran las matrices de
+confusión y la siguientes medidas:
+
+- Accuracy: Porcentaje de ejemplos del total correctamente clasificados
+- Precision: Porcentaje de verdaderos positivos entre el total de
+ejemplos clasificados como clase positiva.
+- Recall: Porcentaje del total de ejemplos positivos que han sido
+correctamente clasificados.
+- Specificity: Porcenaje del total de ejemplos negativos correctamente
+clasificados.
+- F_1: Media armónica entre precision y recall. Da una idea de cómo se
+comporta el clasificador a la hora de evitar falsos positivos y falsos
+negativos en relación con la capacidad de detectar verdaderos
+positivos.
+
+Dado que nos encontramos ante un clasificador probabilístico, es
+decir, su salida no es una etiqueta de la clase, si no la probabilidad
+de que un elemento pertenezca a la clase positiva, tomaremos como
+umbral el valor $0.5$, considerando que si la probabilidad está por
+encima de este valor el ejemplo pertenece a la clase positiva, y si
+está por debajo pertenece a la clase negativa.
+
+Comenzamos mostrando los resultados obtenidos con el kernel lineal.
+
 ## Kernel lineal
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-prc-fold0.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-roc-fold0.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 1 - Kernel lineal}
+\label{fig:f1kl}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-prc-fold1.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-roc-fold1.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 2 - Kernel lineal}
+\label{fig:f2kl}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-prc-fold2.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-roc-fold2.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 3 - Kernel lineal}
+\label{fig:f3kl}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-prc-fold3.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-roc-fold3.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 4 - Kernel lineal}
+\label{fig:f4kl}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-prc-fold4.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/Linear-roc-fold4.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 5 - Kernel lineal}
+\label{fig:f5kl}
+\end{figure}
+
+La primera conclusión que podemos sacar es que nuestro clasificador no
+es especialmente robusto. Si observamos la curva ROC para la primera
+partición, podemos observar un clasificador casi perfecto, con un área
+bajo la curva muy cercana a 1, valor máximo que puede tomar. En cambio,
+para el último fold, tenemos un área inferior a $0.9$, lo que indica un
+clasificador mucho más pobre. Aun así, la tónica general del modelo
+es bastante aceptable.
+
+Observando las curvas de precision-recall, obtenemos una sensación
+bastante similar. En el primer conjunto podemos llegar a un
+clasificador con precisión perfecta teniendo una tasa de acierto sobre
+la clase positiva de más de $0.6$. En el último, necesitamos bajar
+este umbral hasta $0.4$.
+
+Usualmente, un clasificador tan dependiente del conjunto de datos con
+el que se encuentre puede ser poco deseable, ya que los resultados
+obtenidos estarán muy influenciados por la calidad de la base de datos
+con la que se trabaje, y eso en entornos reales puede no ser fácil de
+conseguir.
+
+Pasamos a ver la matriz de confusión y los resultados en las métricas
+obtenidas.
 
 \begin{table}[H]
 \centering
@@ -85,11 +245,11 @@ kernels distintos (
 \toprule
 {} &   TN &   FP &  FN &  TP \\
 \midrule
-1 &  171 &   32 &   0 &  54 \\
-2 &   91 &  119 &   0 &  72 \\
-3 &  191 &   15 &  16 &  37 \\
-4 &  173 &   23 &  10 &  40 \\
-5 &  140 &   59 &  13 &  56 \\
+1 &  169 &   34 &   0 &  54 \\
+2 &   94 &  116 &   0 &  72 \\
+3 &  192 &   14 &  16 &  37 \\
+4 &  173 &   23 &   9 &  41 \\
+5 &  139 &   60 &  13 &  56 \\
 \bottomrule
 \end{tabular}
 \caption{Matrices de confusión para las cinco particiones usando el kernel lineal}
@@ -99,21 +259,113 @@ kernels distintos (
 \centering
 \begin{tabular}{lccccc}
 \toprule
-{} &  Accuracy (\%) &  Precision (\%) &  Recall (\%) &  Specificity (\%) &  F1 score (\%) \\
+  & Accuracy (\%) & Precision (\%) & Recall (\%) & Specificity (\%) & F1 score (\%) \\
 \midrule
-1 & 87.549 & 62.791 & 100.000 & 84.236 & 77.143 \\
-2 & 57.801 & 37.696 & 100.000 & 43.333 & 54.753 \\
-3 & 88.031 & 71.154 & 69.811 & 92.718 & 70.476 \\
-4 & 86.585 & 63.492 & 80.000 & 88.265 & 70.796 \\
-5 & 73.134 & 48.696 & 81.159 & 70.352 & 60.870 \\
+1 & 86.770 & 61.364 & 100.000 & 83.251 & 76.056 \\
+2 & 58.865 & 38.298 & 100.000 & 44.762 & 55.385 \\
+3 & 88.417 & 72.549 & 69.811 & 93.204 & 71.154 \\
+4 & 86.992 & 64.062 & 82.000 & 88.265 & 71.930 \\
+5 & 72.761 & 48.276 & 81.159 & 69.849 & 60.541 \\
 \midrule
-Means & 78.620 & 56.766 & 86.194 & 75.781 & 66.808 \\
+Means & 78.761 & 56.910 & 86.594 & 75.866 & 67.013 \\
 \bottomrule
 \end{tabular}
 \caption{Métricas calculadas para el kernel lineal}
 \end{table}
 
+De nuevo podemos comentar aquí la baja robustez del clasificador
+obtenido. Existe una variabilidad muy alta en los resultados,
+especialmente a la hora de evaluar la precisión. Tenemos subconjuntos
+en los que se obtienen valores por encima del 80 %, y otros en los que
+se desploma por debajo del 50 %. No obstante, el modelo tiene una
+sensibilidad bastante razonable. Esto se traduce en que no se cometen
+muchos falsos negativos (puede observarse en la matriz de confusión),
+lo cual es especialmente deseable en una aplicación médica. No
+obstante, la métrica $F_1$ es ligeramente baja debido a la mala
+precisión del modelo, y la precisión no es especialmente alta, lo
+que significa que globalmente el clasificador comete un número
+importante de errores, aunque como ya hemos comentado en su mayoría
+son falsos positivos, que en este contexto son menos preocupantes.
+
+Pasamos a comentar los resultados obtenidos por el kernel gaussiano.
+
 ## Kernel gaussiano
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-prc-fold0.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-roc-fold0.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 1 - Kernel gaussiano}
+\label{fig:f1kl}
+\end{figure}
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-prc-fold1.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-roc-fold1.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 2 - Kernel gaussiano}
+\label{fig:f2kl}
+\end{figure}
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-prc-fold2.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-roc-fold2.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 3 - Kernel gaussiano}
+\label{fig:f3kl}
+\end{figure}
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-prc-fold3.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-roc-fold3.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 4 - Kernel gaussiano}
+\label{fig:f4kl}
+\end{figure}
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-prc-fold4.png}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{imgs/RBF-roc-fold4.png}
+\end{subfigure}
+\caption{Curva precision-recall y Curva ROC - Fold 5 - Kernel gaussiano}
+\label{fig:f5kl}
+\end{figure}
+
+Ahora nos encontramos con un clasificador mucho más robusto que en el
+caso anterior. En ninguna de las curvas tenemos un resultado tan bueno
+como en el primer subconjunto con el kernel lineal, pero en media los
+resultados obtenidos son significativamente mejores (podríamos poner
+como excepción la segunda partición, que es similar a la peor de las
+anteriores).
+
+Pasamos a ver si estas conclusiones quedan reflejadas también en las
+matrices de confusión y las medidas de bondad:
 
 \begin{table}[H]
 \centering
@@ -121,34 +373,65 @@ Means & 78.620 & 56.766 & 86.194 & 75.781 & 66.808 \\
 \toprule
 {} &   TN &  FP &  FN &  TP \\
 \midrule
-1 &  152 &  51 &   0 &  54 \\
+1 &  155 &  48 &   0 &  54 \\
 2 &  153 &  57 &  19 &  53 \\
 3 &  195 &  11 &   9 &  44 \\
 4 &  172 &  24 &   7 &  43 \\
-5 &  189 &  10 &  10 &  59 \\
+5 &  188 &  11 &  10 &  59 \\
 \bottomrule
 \end{tabular}
 \caption{Matrices de confusión para las cinco particiones usando el kernel gaussiano}
 \end{table}
 
-
 \begin{table}[H]
 \centering
 \begin{tabular}{lccccc}
 \toprule
-{} &  Accuracy (\%) &  Precision (\%) &  Recall (\%) &  Specificity (\%) &  F1 score (\%) \\
+{} & Accuracy (\%) & Precision (\%) & Recall (\%) & Specificity (\%) & F1 score (\%) \\
 \midrule
-1 & 80.156 & 51.429 & 100.000 & 74.877 & 67.925 \\
+1 & 81.323 & 52.941 & 100.000 & 76.355 & 69.231 \\
 2 & 73.050 & 48.182 & 73.611 & 72.857 & 58.242 \\
 3 & 92.278 & 80.000 & 83.019 & 94.660 & 81.481 \\
 4 & 87.398 & 64.179 & 86.000 & 87.755 & 73.504 \\
-5 & 92.537 & 85.507 & 85.507 & 94.975 & 85.507 \\
+5 & 92.164 & 84.286 & 85.507 & 94.472 & 84.892 \\
 \midrule
-Means & 85.084 & 65.859 & 85.627 & 85.025 & 73.332 \\
+Means & 85.243 & 65.918 & 85.627 & 85.220 & 73.470 \\
 \bottomrule
 \end{tabular}
 \caption{Métricas calculadas para el kernel gaussiano}
 \end{table}
+
+Al igual que ocurría anteriormente, podemos observar un clasificador
+más robusto. Los rangos en los que se mueven los valores de todas las
+medidas son más estrechos en el caso del kernel gaussiano que en el
+kernel lineal, siendo la única excepción la puntuación $F_1$. Dados
+los malos resultados del modelo gaussiano para el segundo fold, en
+esta métrica el rango de valores que toma el kernel gaussiano es
+ligeramente superior que en el kernel lineal. Esta robustez en el
+clasificador es una característica bastante deseable, porque garantiza
+en cierta manera que los resultados en entornos menos controlados van
+a ser similares a los obtenidos durante la fase de evaluación del
+modelo.
+
+Ocurre, sin embargo, un comportamiento interesante al comparar los dos
+clasificadores. En todas las métricas que hemos calculado, la
+puntuación media que consigue el modelo con kernel gaussiano es mayor
+que la que consigue el modelo con kernel lineal, a excepción de la
+sensibilidad. En un contexto arbitrario, y debido a que la diferencia
+en la sensibilidad es de menos de un punto porcentual mientras que en
+el resto de medidas es superior a cinco puntos, sería bastante
+inmediato decidir que el mejor clasificador es el del núcleo
+gaussiano. Por el contrario, en el contexto de una aplicación médica
+como la que nos ocupa, la sensibilidad puede ser la métrica de calidad
+más relevante, ya que nos indica que la cantidad de falsos negativos
+es baja. De hecho, si sumamos el número de falsos negativos cometidos
+por los modelos en las cinco particiones que hemos establecido,
+tenemos que el kernel lineal sólo ha cometido 38, mientras que el
+kernel gaussiano comete 45 errores de este tipo. Esto obligaría a
+plantearse de forma más concreta qué clasificador sería el óptimo en
+este caso. No obstante, debido a la diferencia sustancial que hay para
+el resto de métricas, en este contexto decidiremos también que es
+preferible el clasificador basado en el núcleo gaussiano.
 
 # Clasificación de un nuevo dato
 

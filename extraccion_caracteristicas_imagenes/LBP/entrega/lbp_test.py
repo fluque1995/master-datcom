@@ -22,8 +22,9 @@ test_descriptors = utils.compute_lbp(test_images, uniform = uniform)
 descriptors = np.vstack((train_descriptors, test_descriptors))
 labels = np.concatenate((train_classes, test_classes))
 
-results = utils.cross_validation(descriptors, labels, kernel=cv2.KERNEL_RBF,
-                                 params={"gamma":0.5})
+results = utils.cross_validation(descriptors, labels,
+                                 svm_kernel=cv2.ml.SVM_POLY,
+                                 params={"degree":2})
 
 for k, v in results.items():
     print("{} media: {}".format(k, v[-1]))

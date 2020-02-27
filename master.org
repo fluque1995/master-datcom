@@ -23,8 +23,8 @@
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
 *** IN PROGRESS Extracción de rasgos y clasificación
     DEADLINE: <2020-03-06 vie>
-*** TODO Procesos gaussianos para clasificación
-    DEADLINE: <2020-03-10 mar>
+*** DONE Procesos gaussianos para clasificación
+    CLOSED: [2020-02-27 jue 17:13] DEADLINE: <2020-03-10 mar>
 *** TODO Defensa de las prácticas
     SCHEDULED: <2020-03-13 vie>
 *** TODO Examen teoría
