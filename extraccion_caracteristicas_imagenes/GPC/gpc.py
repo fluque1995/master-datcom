@@ -74,7 +74,7 @@ def get_probs_fold(fold):
 
         model = gpflow.models.VGP(
             train_data, train_labels,
-            kern=gpflow.kernels.Linear(10),
+            kern=gpflow.kernels.RBF(10),
             likelihood=gpflow.likelihoods.Bernoulli(),
         )
 
