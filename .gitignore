@@ -23,3 +23,9 @@ __pycache__
 # Stop tracking latex aux files
 *.log
 *.aux
+
+# Stop tracking octave-workspace
+octave-workspace
+
+# Stop tracking PDFs
+*.pdf
