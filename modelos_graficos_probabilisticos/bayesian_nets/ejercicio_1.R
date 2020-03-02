@@ -1,4 +1,5 @@
 library(bnlearn)
+library(gRain)
 
 ## BN creation from vertices and edges
 dag <- empty.graph(nodes = c("A", "S", "E", "O", "R", "T"))

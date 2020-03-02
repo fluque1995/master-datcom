@@ -1,28 +1,31 @@
 * Trabajo pendiente
 ** Modelos gráficos probabilísticos
-*** TODO Construcción de redes bayesianas con Elvira
-    DEADLINE: <2020-03-13 vie>
+*** DONE Construcción de redes bayesianas con Elvira
+    CLOSED: [2020-02-28 vie 18:37] DEADLINE: <2020-03-20 vie>
 *** TODO Construcción e inferencia en redes bayesianas con R
     DEADLINE: <2020-03-27 vie>
-*** TODO Aprendizaje de redes bayesianas con bnlearn
-    DEADLINE: <2020-03-21 sáb>
+*** DONE Aprendizaje de redes bayesianas con bnlearn
+    CLOSED: [2020-02-29 sáb 17:01] DEADLINE: <2020-03-21 sáb>
 *** TODO Clasificación con redes bayesianas
 ** Big data I
 *** DONE Examen
     CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
-*** TODO Despliegue de contenedores Docker
+*** IN PROGRESS Despliegue de contenedores Docker
     DEADLINE: <2020-03-23 lun> SCHEDULED: <2020-02-15 sáb>
+    Creados Dockerfiles para Python y R
+    Estudiar la posibilidad de usar Rstudio via web
+
 *** TODO Consultas en BD NoSQL - MongoDB
     DEADLINE: <2020-03-22 dom>
-*** TODO Selección de base de datos para experimentación ETL
-    DEADLINE: <2020-03-20 vie>
-*** TODO Experimento ETL usando Apache Impala
-    DEADLINE: <2020-03-22 dom>
+*** DONE Selección de base de datos para experimentación ETL
+    CLOSED: [2020-02-29 sáb 18:00] DEADLINE: <2020-03-20 vie>
+*** DONE Experimento ETL usando Apache Impala
+    CLOSED: [2020-03-01 dom 15:13] DEADLINE: <2020-03-22 dom>
 ** Extracción de características en imágenes
 *** DONE Reducción de dimensionalidad con PCA
     CLOSED: [2020-02-05 mié 09:12] DEADLINE: <2020-02-07 vie>
-*** IN PROGRESS Extracción de rasgos y clasificación
-    DEADLINE: <2020-03-06 vie>
+*** DONE Extracción de rasgos y clasificación
+    CLOSED: [2020-02-27 jue 19:13] DEADLINE: <2020-03-06 vie>
 *** DONE Procesos gaussianos para clasificación
     CLOSED: [2020-02-27 jue 17:13] DEADLINE: <2020-03-10 mar>
 *** TODO Defensa de las prácticas
