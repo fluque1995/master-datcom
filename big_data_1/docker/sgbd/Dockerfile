@@ -1,14 +1,7 @@
-FROM mariadb:10.3
+FROM mariadb/server:10.3
 
-ENV MYSQL_ROOT_PASSWORD root
-ARG DEBIAN_FRONTEND=noninteractive
+# Change bind address
+RUN sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+ENV MYSQL_ALLOW_EMPTY_PASSWORD yes
 
-RUN apt update
-RUN apt -y update
-RUN apt install -y nano
-
-## Define default command.
-CMD ["mysqld_safe"]
-
-## Expose ports.
-EXPOSE 3306
+COPY ./init.sql /docker-entrypoint-init.d/
