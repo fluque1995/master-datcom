@@ -1,4 +1,9 @@
 * Trabajo pendiente
+** Minería de medios sociales
+*** TODO Análisis de redes sociales con Gephy
+    SCHEDULED: <2020-03-09 lun> DEADLINE: <2020-05-11 lun>
+*** TODO Minería de textos y web
+    SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-18 lun>
 ** Modelos gráficos probabilísticos
 *** DONE Construcción de redes bayesianas con Elvira
     CLOSED: [2020-02-28 vie 18:37] DEADLINE: <2020-03-20 vie>
