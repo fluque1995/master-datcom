@@ -1,1 +1,5 @@
-GRANT ALL PRIVILEGES ON * TO root@0.0.0.0;
+CREATE TABLE library.book
+(
+name VARCHAR(100),
+price FLOAT
+);
