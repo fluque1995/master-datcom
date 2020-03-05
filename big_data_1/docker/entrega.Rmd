@@ -14,6 +14,7 @@ nncode-block-font-size: \scriptsize
 output:
     pdf_document:
         toc: true
+        toc_depth: 3
         number_sections: yes
         template: eisvogel
 ---
@@ -52,6 +53,8 @@ ha creado un usuario al que se le han asignado permisos sobre una base
 de datos (también creada), y se ha creado una tabla de ejemplo, la
 cual nos permitirá comprobar que en efecto todas las operaciones se
 han realizado correctamente.
+
+### Archivo Dockerfile
 
 Listamos en primer lugar el archivo `Dockerfile` que hemos desarrollado:
 
@@ -101,8 +104,14 @@ price FLOAT
 
 Como podemos observar, en dicho archivo simplemente creamos la tabla
 `book` dentro de la base de datos `library`. Una vez descrito el
-`Dockerfile`, tenemos que construir la imagen en el sistema,
-utilizando la utilidad `docker`:
+`Dockerfile`, tenemos que construir la imagen en el sistema, correr un
+contenedor que utilice dicha imagen, y hacer consultas desde fuera a
+la base de datos.
+
+### Arranque de un contenedor en el equipo local
+
+Lo primero que haremos será correr el contenedor en nuestro equipo.
+Utilizando el `Dockerfile`, podemos construir la imagen:
 
 ![Creación de la imagen de sgbd](img/docker-build-sgbd.png)
 
@@ -112,4 +121,249 @@ funcione como un `daemon` y que la utilice:
 ![Arranque del contenedor en modo demonio](img/docker-run-sgbd.png)
 
 Una vez que tenemos el contenedor corriendo, podemos conectarnos al
-mismo utilizando mysql en la máquina local:
+mismo utilizando mysql en la máquina local y hacer consultas al
+sistema.  En la imagen siguiente, podemos observar cómo hacemos una
+consulta sobre la base de datos con el usuario que hemos creado,
+en la que pedimos que se nos muestre el esquema de la tabla `book`:
+
+![Consulta al contenedor creado](img/docker-mysql-query.png)
+
+Podemos observar que el proceso completo es correcto, y tenemos acceso
+al contenedor con el usuario que hemos creado. A continuación,
+repetiremos el mismo proceso sobre la plataforma Azure.
+
+### Despliegue del contenedor sobre Microsoft Azure
+
+Una vez tenemos el contenedor corriendo en nuestra máquina, vamos a
+desplegar el mismo contenedor sobre Azure. Lo primero que tenemos que
+hacer es subir nuestra imagen a un hub, para poder descargarla a
+posteriori desde Azure. En nuestro caso, utilizaremos Docker Hub
+(http://hub.docker.com) para almacenar las imágenes. Para subir
+nuestra imagen al docker hub, necesitamos crear un repositorio (en
+nuestro caso https://hub.docker.com/r/fluque1995/datcom2020, es
+público), y mandar las imágenes allí. En la siguiente imagen se
+puede observar el proceso de subida:
+
+![Subida de la imagen al repositorio de imágenes](img/docker-push-sgbd.png)
+
+Una vez hemos subido la imagen al Docker Hub, podemos utilizarla desde
+Azure para construir nuestro contenedor (suponemos que el grupo de
+recursos está ya creado a priori):
+
+![Creación del contenedor en Azure (imagen cortada por tamaño)](img/docker-create-azure.png)
+
+Podemos observar que dicho contenedor ha aparecido en nuestra cuenta
+de Azure:
+
+![Vista web de manejo de contenedores en Azure](img/azure-sgbd.png)
+
+Y hacer consultas desde nuestro equipo al contenedor, del cual tenemos
+la IP si entramos en el detalle del contenedor en la vista anterior:
+
+![Misma consulta que anteriormente al contenedor creado en Azure](img/docker-mysql-azure.png)
+
+Una vez hemos hecho el despliegue del contenedor en Azure, pasamos a
+estudiar el despliegue de un contenedor específico para ciencia de
+datos basado en Python.
+
+## Contenedor con Python para ciencia de datos
+
+En este apartado mostraremos cómo construir un contenedor orientado a
+la experimentación en ciencia de datos utilizando Python. El nombre
+del contenedor será `cdpython`. En él instalaremos `python3`, así como
+un conjunto de librerías adecuadas para el análisis de datos
+(`pandas`, `numpy`, `sklearn`, `matplotlib`...).
+
+### Archivo Dockerfile
+
+El `Dockerfile` generado es el siguiente:
+
+```{bash, eval=FALSE}
+# Select base image
+FROM ubuntu
+
+# Update machine and install python3 and pip
+RUN apt-get update
+RUN apt-get -y install python3 python3-pip
+
+# Use pip to install libraries
+RUN pip3 install pandas numpy scipy scikit-learn matplotlib plotly seaborn
+```
+
+No comentaremos a fondo el archivo ya que es relativamente simple.
+Una vez tenemos el `Dockerfile`, vamos a correr un contenedor en
+nuestro equipo que utilice dicha imagen.
+
+### Arranque de un contenedor en el equipo local
+
+Mostramos cómo correr el contenedor en nuestro equipo. Construimos la
+imagen a partir del `Dockerfile`:
+
+![Creación de la imagen de cdpython (recortada por
+tamaño)](img/docker-build-cdpython.png)
+
+Y corremos ahora el contenedor a partir de la imagen:
+
+![Arranque del contenedor interactivo en
+local](img/docker-run-cdpython.png)
+
+Podemos observar que el contenedor funciona correctamente, y se nos ha
+permitido importar las librerías previamente instaladas. Una vez
+tenemos el contenedor funcionando en nuestro equipo, repetiremos el
+despliegue del mismo en Azure.
+
+### Despliegue del contenedor en Azure
+
+En este caso, modificaremos ligeramente el contenedor para tener un
+contenedor corriendo con un servidor SSH, de forma que nos podamos
+conectar al contenedor y ejecutar Python dentro del mismo. El
+`Dockerfile` en este caso es similar al anterior, pero añadiendo
+después la configuración de SSH:
+
+```{bash, eval=FALSE}
+# Select base image
+FROM ubuntu
+
+# Update machine and install python3 and pip
+RUN apt-get update
+RUN apt-get -y install python3 python3-pip
+
+# Use pip to install libraries
+RUN pip3 install pandas numpy scipy scikit-learn matplotlib plotly seaborn
+
+# Install SSH daemon
+RUN apt install -y openssh-server
+
+# Create dir for SSH, add user and set passsword
+RUN mkdir /var/run/sshd
+RUN useradd datcom2020 -s /bin/bash -d /home/datcom2020 -m
+RUN echo 'datcom2020:datcom2020' | chpasswd
+
+# Port expose
+EXPOSE 22
+
+# Set SSH daemon as default command
+CMD ["/usr/sbin/sshd", "-D"]
+```
+
+Creamos la imagen en local y la subimos al Docker Hub (no mostramos la
+creación de la imagen debido al tamaño de la salida):
+
+![Subida de la imagen al repositorio de
+imágenes](img/docker-push-cdpython.png)
+
+Y ahora podemos crear el contenedor en Azure:
+
+![Creación del contenedor en Azure (imagen cortada por
+tamaño)](img/docker-create-azure-cdpython.png)
+
+Ahora, podemos ir al portal de Azure y ver el nuevo contenedor creado:
+
+![Detalle en Azure del contenedor de Python
+corriendo](img/azure-cdpython-detail.png)
+
+Y utilizando la IP que se nos proporciona, podemos conectarnos por SSH
+al contenedor y ejecutar Python en él:
+
+![SSH al contenedor y ejecución de Python con cargado de
+librerías](img/azure-cdpython-ssh.png)
+
+Finalmente, vamos a realizar el mismo proceso creando un contenedor
+basado en R.
+
+## Contenedor con R para ciencia de datos
+
+En este apartado mostraremos cómo construir un contenedor orientado a
+la experimentación en ciencia de datos utilizando R. El nombre
+del contenedor será `cdr`. En él instalaremos `R-base` y un conjunto
+de paquetes útiles para el desarrollo de ejemplos de ciencia de datos
+en dicho lenguaje (`caret`, `ggplot2`, `tidyverse`, `frbs`...). Ya
+que en el apartado anterior hemos tenido que configurar SSH para la
+conexión al contenedor en Azure, incluiremos también la configuración
+de SSH en el `Dockerfile` original, aunque en local no utilicemos
+dicha funcionalidad.
+
+### Archivo Dockerfile
+
+El `Dockerfile` generado es el siguiente:
+
+```{bash, eval=FALSE}
+# Select base image
+FROM ubuntu
+
+# Set variable to avoid interaction
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update image and install R
+RUN apt update
+RUN apt -y upgrade
+RUN apt install -y r-base
+
+# Installation of packages needed for next step
+RUN apt install -y curl libcurl4-openssl-dev libxml2-dev libssl-dev
+
+# Install packages inside R
+RUN Rscript -e 'install.packages(c("caret", "ggplot2", "tidyverse", "RSNNS", "frbs", "FSinR", "forecast"))'
+
+# Install SSH daemon
+RUN apt install -y openssh-server
+
+# Create dir for SSH, add user and set passsword
+RUN mkdir /var/run/sshd
+RUN useradd datcom2020 -s /bin/bash -d /home/datcom2020 -m
+RUN echo 'datcom2020:datcom2020' | chpasswd
+
+# Port expose
+EXPOSE 22
+
+# Set SSH daemon as default command
+CMD ["/usr/sbin/sshd", "-D"]
+```
+
+De nuevo, dado que estamos haciendo lo mismo que en los apartados
+anteriores, no comentaremos más a fondo este archivo.  Una vez tenemos
+el `Dockerfile`, vamos a correr un contenedor en nuestro equipo que
+utilice dicha imagen.
+
+### Arranque de un contenedor en el equipo local
+
+Mostramos cómo correr el contenedor en nuestro equipo. Construimos la
+imagen a partir del `Dockerfile`:
+
+![Creación de la imagen de cdr (recortada por
+tamaño)](img/docker-build-cdr.png)
+
+Y corremos ahora el contenedor a partir de la imagen:
+
+![Arranque del contenedor interactivo en
+local](img/docker-run-cdr.png)
+
+Podemos observar que el contenedor funciona correctamente, y se nos ha
+permitido importar los paquetes `ggplot2` y `caret`. Una vez
+tenemos el contenedor funcionando en nuestro equipo, repetiremos el
+despliegue del mismo en Azure.
+
+### Despliegue del contenedor en Azure
+
+Como en el `Dockerfile` anterior ya hemos configurado SSH, no tenemos
+que volver a crear la imagen. Podemos mandar dicha imagen directamente
+a Docker Hub:
+
+![Subida de la imagen al repositorio de
+imágenes](img/docker-push-cdr.png)
+
+Y ahora podemos crear el contenedor en Azure:
+
+![Creación del contenedor en Azure (imagen cortada por
+tamaño)](img/docker-create-azure-cdr.png)
+
+Ahora, podemos ir al portal de Azure y ver el nuevo contenedor creado:
+
+![Detalle en Azure del contenedor de R
+corriendo](img/azure-cdr-detail.png)
+
+Y utilizando la IP que se nos proporciona, podemos conectarnos por SSH
+al contenedor y ejecutar Python en él:
+
+![SSH al contenedor y ejecución de R con cargado de
+paquetes](img/azure-cdr-ssh.png)
