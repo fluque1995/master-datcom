@@ -15,8 +15,8 @@
 ** Big data I
 *** DONE Examen
     CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
-*** IN PROGRESS Despliegue de contenedores Docker
-    DEADLINE: <2020-03-23 lun> SCHEDULED: <2020-02-15 sáb>
+*** DONE Despliegue de contenedores Docker
+    CLOSED: [2020-03-05 jue 18:49] DEADLINE: <2020-03-23 lun> SCHEDULED: <2020-02-15 sáb>
     Creados Dockerfiles para Python y R
     Estudiar la posibilidad de usar Rstudio via web
 
