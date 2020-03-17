@@ -82,9 +82,6 @@ def get_probs_fold(fold):
             likelihood=gpflow.likelihoods.Bernoulli(),
         )
 
-        def objective():
-            return -model.log_marginal_likelihood()
-
         gpflow.train.ScipyOptimizer(options={'maxiter': 200}).minimize(
             model
         )
