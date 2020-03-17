@@ -22,6 +22,7 @@ __pycache__
 # Stop tracking compressed files
 *.zip
 *.mat
+*.pkl
 
 # Stop tracking latex aux files
 *.log
@@ -32,3 +33,6 @@ octave-workspace
 
 # Stop tracking PDFs
 *.pdf
+
+# Stop tracking backup files
+*.bak
