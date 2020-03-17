@@ -20,7 +20,7 @@
     Creados Dockerfiles para Python y R
     Estudiar la posibilidad de usar Rstudio via web
 
-*** TODO Consultas en BD NoSQL - MongoDB
+*** IN PROGRESS Consultas en BD NoSQL - MongoDB
     DEADLINE: <2020-03-22 dom>
 *** DONE Selección de base de datos para experimentación ETL
     CLOSED: [2020-02-29 sáb 18:00] DEADLINE: <2020-03-20 vie>

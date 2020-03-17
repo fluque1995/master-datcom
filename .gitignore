@@ -12,6 +12,9 @@ Elvira.jar
 first-steps
 manual
 
+# Stop tracking gephi folder
+gephi*
+
 # Stop tracking pycache
 __pycache__
 *.pyc
