@@ -1,3 +1,4 @@
+// La mejor opcion:
 resultado = db.runCommand(
     {
         "aggregate": "restaurants",
@@ -7,14 +8,12 @@ resultado = db.runCommand(
              {_id: "$cuisine",
               "rest1":{
                   $push: {
-                      res_id: "$restaurant_id",
                       name: "$name",
                       address:"$address",
                   }
               },
               "rest2":{
                   $push: {
-                      res_id: "$restaurant_id",
                       name: "$name",
                       address:"$address",
                   }
@@ -26,8 +25,8 @@ resultado = db.runCommand(
             {$project: {
                 _id: 0,
                 cocina: "$_id",
-                rest1: "$rest1",
-                rest2: "$rest2",
+                rest1: {name: "$rest1.name", address: "$rest1.address.street"},
+                rest2: {name: "$rest2.name", address: "$rest2.address.street"},
                 distancia:{
                     $sqrt: {
                         $sum:
@@ -50,7 +49,7 @@ resultado = db.runCommand(
             },
             {$redact: {"$cond":
                        [{$and:
-                         [{"$lt": ["$rest1.res_id", "$rest2.res_id"]},
+                         [{"$lt": ["$rest1.name", "$rest2.name"]},
                           {"$ne":["$distancia",0.0]}] },"$$KEEP","$$PRUNE"]
                       }
             },
@@ -79,6 +78,6 @@ resultado = db.runCommand(
             }
         ],
         "allowDiskUse": true,
-        cursor: { batchSize: 1 }
+        cursor: { batchSize: 100 }
     }
 );
