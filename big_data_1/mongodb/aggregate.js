@@ -1,4 +1,3 @@
-// La mejor opcion:
 resultado = db.runCommand(
     {
         "aggregate": "restaurants",

@@ -1,4 +1,4 @@
-db.runCommand(
+resultado = db.runCommand(
     {   // Collection selection
         mapReduce: "restaurants",
         // Map function (send cuisine as key, name and address as value
