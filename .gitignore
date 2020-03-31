@@ -15,6 +15,9 @@ manual
 # Stop tracking gephi folder
 gephi*
 
+# Stop tracking weka folder
+weka*
+
 # Stop tracking pycache
 __pycache__
 *.pyc
