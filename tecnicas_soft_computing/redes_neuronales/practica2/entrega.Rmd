@@ -1,0 +1,428 @@
+---
+title: "Técnicas de soft computing para Aprendizaje y Optimización"
+subtitle: "Redes neuronales - práctica 2"
+author: "Francisco Luque Sánchez"
+date: "27/02/2020"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+
+library(caret)
+library(reticulate)
+library(knitr)
+use_virtualenv("master")
+```
+
+# Introducción
+
+En esta práctica vamos a estudiar cómo podemos utilizar redes
+neuronales artificiales para resolver un problema de regresión. En
+primer lugar, vamos a tratar de resolver uno de los problemas que
+resolvimos en el guión anterior. En particular, en la práctica 1
+afrontamos el problema de la predicción de la calidad del vino como un
+problema de clasificación. No obstante, la variable que queríamos
+predecir era una variable numérica ordinal, y que por tanto puede ser
+estudiada de forma continua y discretizada a posteriori. Por tanto, en
+este guión trataremos de resolver el problema desde el punto de vista
+de la regresión.
+
+```{python, include=F}
+import pandas as pd
+import keras
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn
+import numpy as np
+import itertools
+
+import sklearn.model_selection
+import sklearn.preprocessing
+import sklearn.metrics
+import sklearn.model_selection
+```
+
+# Resolución básica del problema
+
+En primer lugar, vamos a estudiar cómo preparar los datos para el estudio
+que queremos hacer. Comenzamos cargando los datos de vinos blancos y tintos,
+juntando toda la información en un sólo conjunto de datos, y separando las
+etiquetas del resto de información:
+
+```{python}
+# Data reading
+white = pd.read_csv("winequality-white.csv", sep=";")
+red = pd.read_csv("winequality-red.csv", sep=";")
+
+# Datasets appending
+wines = red.append(white, ignore_index=True)
+
+# Data and labels separation
+X = wines.iloc[:,0:11]
+y = np.ravel(wines.quality)
+```
+
+Una vez separados los conjuntos, normalizamos los datos para facilitar
+el proceso de aprendizaje:
+
+```{python}
+# Data normalization
+X = sklearn.preprocessing.StandardScaler().fit_transform(X)
+```
+
+Creamos una función que nos permita especificar la configuración de
+neuronas del modelo, la función de activación a utilizar, y el número
+de épocas de entrenamiento, y nos devuelva los resultados obtenidos de
+entrenar el modelo y evaluarlo sobre el conjunto de test. Utilizaremos
+tres métricas distintas para evaluar nuestro modelo; la puntuación
+$R^2$, el MSE y el error máximo cometido. A diferencia de la práctica
+anterior, donde utilizábamos la entropía cruzada, ahora usaremos el
+MSE como métrica a minimizar, ya que estamos resolviendo un problema
+de regresión. De la misma manera, ya que los valores de salida van
+entre 0 y 10, no podemos utilizar la función de activación sigmoide
+que usamos anteriormente, si no que usaremos la función `relu`:
+
+```{python}
+def neural_network_trial(X_train, y_train, X_test, y_test,
+                         hidden_units, activation, epochs=20):
+    # Neural network instantiation
+    model = keras.models.Sequential()
+
+    model.add(keras.layers.Dense(hidden_units[0], input_shape=(11,),
+                                 activation=activation))
+
+    for hidden_u in hidden_units[1:]:
+        model.add(keras.layers.Dense(hidden_u, activation=activation))
+
+    model.add(keras.layers.Dense(1, activation="relu"))
+    model.compile(loss="mse",
+                  optimizer="rmsprop",
+                  metrics=['mae', 'mse']
+    )
+
+    model.fit(X_train, y_train, epochs=epochs, batch_size=1, verbose=0)
+    y_pred = model.predict(X_test)
+
+    r2_score = sklearn.metrics.r2_score(y_test, y_pred)
+    mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+    mae = sklearn.metrics.max_error(y_test, y_pred)
+
+    return [r2_score, mse, mae]
+```
+
+Además, en esta práctica vamos a evaluar nuestros modelos siguiendo
+una estrategia de validación cruzada. Con esta estrategia, en lugar de
+separar el conjunto de datos en entrenamiento y test, lo que se hace
+es una partición en $k$ subconjuntos, de forma que se realizan $k$
+entrenamientos del modelo, cada vez utilizando uno de los subconjuntos
+como conjunto de test, y el resto como conjunto de entrenamiento. De
+esta manera, en lugar de obtener una sola evaluación de los resultados
+del modelo, se obtienen $k$ medidas, lo que da una idea más robusta de
+su funcionamiento.
+
+Para automatizar este proceso, utilizaremos una de las clases que
+vienen implementadas en el paquete `sklearn`, la cual nos permite
+hacer particiones de los datos de forma estratificada (para que en
+todos los subconjuntos haya, más o menos, la misma proporción de
+elementos de cada clase), y crearemos una función que reciba dichas
+particiones y entrene los cinco modelos, extrayendo sus métricas y
+resumiendo la información con la media de los resultados:
+
+```{python}
+## Random state is fixed so splits are equal in every iteration
+skf = sklearn.model_selection.StratifiedKFold(n_splits=5, shuffle=True,
+                                              random_state=0)
+
+def evaluate_net_k_fold(X_full, y_full, stratifier,
+                        hidden_units, activation, epochs):
+    r2s = []
+    mses = []
+    maes = []
+    for train, test in stratifier.split(X_full, y_full):
+        X_train, y_train = X_full[train,:], y_full[train]
+        X_test, y_test = X_full[test,:], y_full[test]
+
+        r2, mse, mae = neural_network_trial(X_train, y_train, X_test,
+                                            y_test, hidden_units,
+                                            activation, epochs)
+
+        r2s.append(r2)
+        mses.append(mse)
+        maes.append(mae)
+
+    return np.mean(r2s), np.mean(mses), np.mean(maes)
+
+r2, mse, mae = evaluate_net_k_fold(X, y, skf, [64], "relu", 10)
+
+print("R2: {}, MSE: {}, MAX: {}".format(r2, mse, mae))
+```
+
+Ahora, podemos estudiar los resultados de utilizar distintas
+configuraciones de red para resolver nuestro problema. Con los
+resultados que hemos obtenido en el modelo anterior, podemos concluir
+que la estructura de red no es muy adecuada, ya que el $R^2$ que hemos
+obtenido es relativamente bajo. Puede haber ocurrido por varios
+motivos. Uno es el hecho de que el conjunto de datos es relativamente
+pequeño, lo que dificulta el aprendizaje de los modelos. Otro es que
+la estructura de red propuesta no sea idónea. Finalmente, es posible
+que para el número de épocas tan bajo que hemos puesto, el algoritmo
+no haya convergido.
+
+El primer estudio que haremos será el del número de épocas de
+entrenamiento, para observar si aumentando este valor, se mejoran los
+resultados.
+
+# Estudio del número de etapas de entrenamiento
+
+En primer lugar, variaremos el número de etapas de entrenamiento, para
+ver si conseguimos mejorar los resultados. Mantendremos la estructura
+de la red y aumentaremos de 5 en 5 el número de épocas, hasta llegar
+a 50:
+
+```{python, cache=TRUE}
+r2_means, mse_means, max_means = [], [], []
+
+for epochs in range(5, 51, 5):
+    r2, mse, mae = evaluate_net_k_fold(X, y, skf, [64], "relu", epochs)
+
+    r2_means.append(r2)
+    mse_means.append(mse)
+    max_means.append(mae)
+
+results = pd.DataFrame(columns=range(5,51,5))
+results.loc["R2"] = r2_means
+results.loc["MSE"] = mse_means
+results.loc["Max"] = max_means
+```
+
+```{r echo=F, cache=TRUE}
+kable(py$results, digits=4,
+      caption="Métricas en función de las etapas de entrenamiento")
+```
+
+Podemos observar que el modelo sufre de sobreaprendizaje si lo
+entrenamos durante demasiadas épocas. En particular, para esta red tan
+pequeña, obtenemos los mejores resultados con relativamente pocas
+iteraciones. En 20 iteraciones del algoritmo obtenemos el mejor valor
+para $R^2$ y para el MSE, y con 15 el mejor valor para el error máximo.
+Esto se debe, en gran parte, a la simplicidad de la red con la que
+estamos trabajando. En redes más complejas necesitaremos probablemente
+más etapas de entrenamiento para detener el aprendizaje. En muchos
+casos, lo que se hace es implementar políticas de _early stopping_,
+las cuales están destinadas a detener el proceso de aprendizaje cuando
+los resultados empeoran sobre un conjunto de validación separado del
+conjunto de entrenamiento. No obstante, nosotros no implementaremos
+esta política porque se sale de los contenidos de esta práctica.
+
+# Estudio del tamaño de la capa oculta
+
+Ahora, pasaremos a estudiar cómo afecta el tamaño de la capa oculta en
+los resultados obtenidos. Probaremos distintos tamaños de capa y
+entrenaremos los modelos siguiendo una estrategia de validación
+cruzada como la anterior. Entrenaremos en todos los casos a 20 épocas,
+ya que es el valor para el que mejor resultado hemos obtenido.
+Esto no nos garantiza que vaya a ser el valor óptimo para cualquier
+configuración de capas, pero nosotros utilizaremos dicho valor como
+adecuado:
+
+```{python, cache=TRUE}
+hidden_unit = [64, 32, 16, 8]
+r2_means, mse_means, max_means = [], [], []
+
+for h in hidden_unit:
+    r2, mse, mae = evaluate_net_k_fold(X, y, skf, [h], "relu", 20)
+    r2_means.append(r2)
+    mse_means.append(mse)
+    max_means.append(mae)
+
+results = pd.DataFrame(columns=hidden_unit)
+results.loc["R2"] = r2_means
+results.loc["MSE"] = mse_means
+results.loc["Max"] = max_means
+```
+
+```{r echo=FALSE, cache=TRUE}
+kable(py$results, digits=4,
+      caption="Resultados obtenidos al cambiar el tamaño de capa oculta")
+```
+
+Al parecer, la red que utilizamos en el apartado anterior podía estar
+un poco sobredimensionada, y hemos obtenido mejores resultados con una
+red con la mitad de nodos ocultos. Es posible que el uso de 64 nodos
+fuera un aumento de la dimensionalidad demasiado grande (hay que tener
+en cuenta que los datos originales cuentan sólo con 11 atributos), y
+esto provocase malos resultados. Ahora, vamos a intentar afrontar el
+aumento de dimensionalidad de una forma ligeramente distinta. En lugar
+de añadir neuronas en una única capa oculta, vamos a añadir más capas
+ocultas a la red.
+
+# Estudio del número de capas
+
+Probaremos distintas configuraciones de número de capas, para tratar
+de conseguir mejores resultados que con una única capa oculta. Dado
+que ahora las redes son ligeramente más complejas que en el apartado
+anterior, entrenaremos a 25 épocas, en lugar de 20:
+
+```{python, cache=TRUE}
+configs = [
+    [32, 8],
+    [16, 8],
+    [16, 4],
+    [32, 16, 8],
+    [32, 8, 2],
+    [32, 16, 8, 4],
+]
+r2_means, mse_means, max_means = [], [], []
+
+for conf in configs:
+    r2, mse, mae = evaluate_net_k_fold(X, y, skf, conf, "relu", 25)
+    r2_means.append(r2)
+    mse_means.append(mse)
+    max_means.append(mae)
+
+results = pd.DataFrame(
+    columns=['32-8', '16-8', '16-4', '32-16-8', '32-8-2', '32-16-8-4']
+)
+results.loc["R2"] = r2_means
+results.loc["MSE"] = mse_means
+results.loc["Max"] = max_means
+```
+
+```{r echo=FALSE, cache=TRUE}
+kable(py$results, digits=4,
+      caption="Resultados obtenidos al cambiar el número de capas")
+```
+
+Aquí podemos observar que, en muchos casos, la red no ha llegado a
+converger a una solución adecuada, y tenemos valores de $R^2$
+negativos para 3 de las configuraciones que hemos probado. La mejor
+configuración encontrada es una red con tres capas ocultas, de 32, 16
+y 8 neuronas, respectivamente.
+
+Pasamos ahora a estudiar el algoritmo de optimización con el que
+optimizar los parámetros de la red.
+
+# Estudio del algoritmo de optimización
+
+Finalmente, vamos a estudiar cómo influye el algoritmo de optimización
+en los resultados obtenidos. Hasta el momento, todas las redes
+entrenadas han sido optimizadas utilizando el mismo algoritmo,
+conocido como RMSprop.  Este algoritmo es una modificación del
+gradiente descendente, el cual divide el gradiente en cada etapa por
+una media móvil de la norma del mismo. De esta manera, se palia el
+posible efecto de las zonas planas de la función a optimizar. Existen
+otras aproximaciones para la optimización de redes neuronales. En
+`keras` están implementados varios optimizadores. Nosotros
+estudiaremos el comportamiento de los más utilizados. Tomaremos la
+mejor red obtenida en el apartado anterior, y probaremos a optimizarla
+con distintos algoritmos. En concreto, probaremos el gradiente
+descendente estocástico, que es el modelo más simple, RMSprop, que es
+el que ha venido utilizándose durante la práctica, Adagrad y Adadelta,
+que son métodos que adaptan el ratio de aprendizaje durante la
+ejecución. Tenemos que modificar ligeramente las funciones que
+estábamos utilizando para que nos acepten un nuevo parámetro. No
+modificaremos los parámetros de los optimizadores ya que el número de
+ejecuciones crecería en exceso, y en principio los parámetros por
+defecto están estudiados para ser adecuados en la mayoría de ocasiones:
+
+```{python}
+def neural_network_trial(X_train, y_train, X_test, y_test,
+                         hidden_units, activation, optimizer,
+                         epochs=20):
+    # Neural network instantiation
+    model = keras.models.Sequential()
+
+    model.add(keras.layers.Dense(hidden_units[0], input_shape=(11,),
+                                 activation=activation))
+
+    for hidden_u in hidden_units[1:]:
+        model.add(keras.layers.Dense(hidden_u, activation=activation))
+
+    model.add(keras.layers.Dense(1, activation="relu"))
+    model.compile(loss="mse",
+                  optimizer=optimizer,
+                  metrics=['mae', 'mse']
+    )
+
+    model.fit(X_train, y_train, epochs=epochs, batch_size=1, verbose=0)
+    y_pred = model.predict(X_test)
+
+    r2_score = sklearn.metrics.r2_score(y_test, y_pred)
+    mse = sklearn.metrics.mean_squared_error(y_test, y_pred)
+    mae = sklearn.metrics.max_error(y_test, y_pred)
+
+    return [r2_score, mse, mae]
+
+def evaluate_net_k_fold(X_full, y_full, stratifier,
+                        hidden_units, activation, optimizer,
+                        epochs):
+    r2s = []
+    mses = []
+    maes = []
+    for train, test in stratifier.split(X_full, y_full):
+        X_train, y_train = X_full[train,:], y_full[train]
+        X_test, y_test = X_full[test,:], y_full[test]
+
+        r2, mse, mae = neural_network_trial(
+            X_train, y_train, X_test, y_test, hidden_units,
+            activation, optimizer, epochs
+        )
+
+        r2s.append(r2)
+        mses.append(mse)
+        maes.append(mae)
+
+    return np.mean(r2s), np.mean(mses), np.mean(maes)
+```
+
+Una vez modificadas las funciones, pasamos a ejecutar el proceso de
+optimización con las cuatro políticas que hemos indicado. Utilizamos
+la estructura de red que mejor resultado ha dado en el apartado
+anterior:
+
+```{python, cache=TRUE}
+optimizers = ['rmsprop', 'sgd', 'adagrad', 'adadelta']
+r2_means, mse_means, max_means = [], [], []
+
+for opt in optimizers:
+    r2, mse, mae = evaluate_net_k_fold(X, y, skf, [32, 16, 8], "relu", opt, 15)
+    r2_means.append(r2)
+    mse_means.append(mse)
+    max_means.append(mae)
+
+results = pd.DataFrame(
+    columns=optimizers
+)
+results.loc["R2"] = r2_means
+results.loc["MSE"] = mse_means
+results.loc["Max"] = max_means
+```
+
+```{r echo=FALSE, cache=TRUE}
+kable(py$results, digits=4,
+      caption="Resultados obtenidos al cambiar el optimizador")
+```
+
+Podemos observar que, en efecto, el algoritmo de optimización que
+utilicemos tiene una gran influencia en los resultados obtenidos. En
+este apartado, hemos utilizado un número reducido de épocas, para
+observar las diferencias en la velocidad de convergencia de los
+optimizadores. Podemos observar que, en 15 épocas, el optimizador
+Adadelta ha conseguido los mejores resultados que se han obtenido en
+todo el guión, y que el gradiente descendente estocástico tiene
+también muy buen comportamiento. RMSprop, por el contrario, tiene unos
+resultados mejorables, y es posible que su uso durante todo el
+desarrollo del guión no haya sido el óptimo. Finalmente, Adagrad es el
+que peores resultados ha obtenido.

@@ -1,0 +1,403 @@
+---
+title: "Técnicas de soft computing para Aprendizaje y Optimización"
+subtitle: "Redes neuronales - práctica 1"
+author: "Francisco Luque Sánchez"
+date: "27/02/2020"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+
+library(caret)
+library(reticulate)
+library(knitr)
+use_virtualenv("master")
+```
+
+# Introducción
+
+En esta práctica vamos a estudiar cómo podemos utilizar redes
+neuronales artificiales para resolver un problema de clasificación. En
+una primera etapa, intentaremos distinguir vinos blancos de rojos a
+partir de algunas de sus propiedades, y en una segunda etapa
+trataremos de averiguar su calidad a partir de las mismas propiedades.
+
+Tras realizar este primer estudio con este conjunto de datos,
+trataremos de resolver otro problema de clasificación, con un conjunto
+de datos distinto.
+
+```{python, include=F}
+import pandas as pd
+import keras
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn
+import numpy as np
+import itertools
+
+import sklearn.model_selection
+import sklearn.preprocessing
+import sklearn.metrics
+```
+
+# Estudio sobre la estructura de la red neuronal
+
+Comenzamos estudiando cómo afecta la estructura de la red neuronal al
+proceso de clasificación. Probaremos distintas configuraciones de
+profundidad, número de nodos por capa y funciones de activación, para
+ver cómo afectan estos parámetros a los resultados de clasificación.
+
+Comenzamos separando el conjunto de datos de las etiquetas y creando
+un split de test en el que evaluar el modelo:
+
+```{python}
+# Data reading
+white = pd.read_csv("winequality-white.csv", sep=";")
+red = pd.read_csv("winequality-red.csv", sep=";")
+
+# Type column appending
+red['type'] = 1
+white['type'] = 0
+
+# Datasets appending
+wines = red.append(white, ignore_index=True)
+
+# Data and labels separation
+X = wines.iloc[:,0:11]
+y = np.ravel(wines.type)
+
+# Train test split
+X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(
+    X, y, test_size=0.33, random_state=42
+)
+```
+
+Una vez separados los conjuntos, normalizamos los datos para facilitar
+el proceso de aprendizaje:
+
+```{python}
+# Data normalization
+scaler = sklearn.preprocessing.StandardScaler().fit(X_train)
+
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+```
+
+Creamos una función que nos permita especificar la configuración de
+neuronas del modelo, la función de activación a utilizar, y el número
+de épocas de entrenamiento, y nos devuelva los resultados obtenidos
+de entrenar el modelo y evaluarlo sobre el conjunto de test:
+
+```{python}
+def neural_network_trial(hidden_units, activation, epochs=20):
+# Neural network instantiation
+    model = keras.models.Sequential()
+
+    model.add(keras.layers.Dense(hidden_units[0], input_shape=(11,),
+                                 activation=activation))
+
+    for hidden_u in hidden_units[1:]:
+        model.add(keras.layers.Dense(hidden_u, activation=activation))
+
+    model.add(keras.layers.Dense(1, activation="sigmoid"))
+    model.compile(loss="binary_crossentropy",
+                  optimizer="adam",
+                  metrics=['accuracy']
+    )
+
+    model.fit(X_train, y_train, epochs=epochs, batch_size=1, verbose=0)
+
+    y_pred = model.predict(X_test)
+    y_pred = (y_pred > 0.5)
+
+    conf_mat = sklearn.metrics.confusion_matrix(y_test, y_pred).ravel()
+    precision = sklearn.metrics.precision_score(y_test, y_pred)
+    f1_score = sklearn.metrics.f1_score(y_test, y_pred)
+
+    return [
+        hidden_units, activation,
+        conf_mat[0], conf_mat[1], conf_mat[2],
+        conf_mat[3], precision, f1_score
+    ]
+```
+
+En una primera etapa, vamos a ver qué influencia tiene el número de neuronas
+en la capa oculta, probando con tres configuraciones distintas:
+
+```{python}
+results = pd.DataFrame(
+    columns=["Hidden layers", "activation",
+             "TW", "FR", "FW", "TR", "Precision", "F1"]
+)
+
+results.loc[len(results)] = neural_network_trial([2,], "relu", epochs=20)
+results.loc[len(results)] = neural_network_trial([8,], "relu", epochs=20)
+results.loc[len(results)] = neural_network_trial([12,], "relu", epochs=20)
+```
+
+Ahora, vamos a observar si añadir más capas mejora los resultados de
+clasificación:
+
+```{python}
+results.loc[len(results)] = neural_network_trial([8,4], "relu", epochs=20)
+results.loc[len(results)] = neural_network_trial([8,4,2], "relu", epochs=20)
+```
+
+Finalmente, vamos a cambiar la función de activación:
+
+```{python}
+results.loc[len(results)] = neural_network_trial([8,], "tanh", epochs=20)
+results.loc[len(results)] = neural_network_trial([8,], "selu", epochs=20)
+```
+
+Finalmente, imprimimos la matriz de resultados:
+
+```{r, echo=FALSE}
+kable(py$results)
+```
+
+En primer lugar, podemos observar que los resultados son muy buenos
+independientemente de la configuración que utilicemos. En todos los
+casos tenemos una precisión y un $F_1$ por encima del 98 %. Por este
+motivo, apenas podremos observar diferencias en los resultados
+obtenidos. No obstante, sí que podemos comentar algunas ideas
+generales.
+
+En primer lugar, el hecho de tener una red excesivamente simple, como
+es la primera que hemos probado, nos produce un empeoramiento
+significativo de los resultados. Una vez que se alcanza un número de
+neuronas alto, las diferencias no son significativas. El hecho de
+aumentar el número de capas no ha supuesto una mejora en este
+problema, pero esto suele ser dependiente del problema. Por otra
+parte, la función de activación utilizada no parece arrojar
+diferencias aquí tampoco.
+
+En cuanto a las carencias que presentan todos los modelos, se puede
+observar lo importante que resulta el hecho de tener las clases bien
+balanceadas a la hora de entrenar una red neuronal. Se cometen muchos
+más errores confundiendo etiquetando como vino blanco el vino tinto
+(FW) que a la inversa. Esto se debe, en parte, al hecho de tener el
+triple de ejemplos de vino blanco, que hace que esta clase tienda a
+sobreaprenderse. No obstante, este problema es tan simple que el hecho
+del desbalanceo no produce un empeoramiento muy significativo.
+
+# Estudio sobre la clasificación de la variable Quality
+
+Ahora repetiremos el experimento tratando de predecir el valor de la
+variable `Quality`. El problema se convierte, por tanto, de un
+problema binario a un problema multiclase. Además, tendremos un
+inconveniente a la hora de predecir esta columna, ya que nos
+encontraremos con un fuerte desbalanceo de los datos. Concretamente,
+si observamos el diagrama de barras asociado a esta variable:
+
+```{python}
+sns.countplot(x="quality", data=wines)
+plt.show()
+```
+
+Tenemos que la variable sigue, aproximadamente, una distribución
+normal centrada en el 6. Esto provocará que el proceso de aprendizaje
+sea mucho más difícil, ya que no disponemos del mismo número de
+ejemplos de cada clase. Observaremos que los resultados en este caso
+van a ser significativamente peores que en el estudio anterior.
+
+Comenzamos preparando los datos de la misma forma que hicimos
+anteriormente. Dado que ahora el problema es multiclase, además
+tendremos que binarizar la variable objetivo, de forma que la clase,
+en lugar de estar representada por un valor, estará formada por un
+vector de tantos elementos como clases distintas tengamos, que tomará
+el valor 0 en todas sus componentes excepto en aquella que corresponda
+a la clase en cuestión. Dado que tenemos 7 valores distintos, del 3 al
+9, restaremos 3 a todos los valores, y los moveremos del 0 al 6. De
+esta forma, el vector con un 1 en la componente 0 representa a la
+clase 0, correspondiente a nuestro 3, y el vector con un 1 en la
+última posición representa a la clase 6, correspondiente a la
+calificación 9:
+
+```{python}
+# Data and labels separation
+X = wines.iloc[:,0:11]
+y = np.ravel(wines.quality) - 3
+
+# Quality preparation to be categorical
+y = keras.utils.to_categorical(y)
+
+# Train test split
+X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(
+    X, y, test_size=0.33, random_state=42
+)
+
+# Data normalization
+scaler = sklearn.preprocessing.StandardScaler().fit(X_train)
+
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+```
+
+Tenemos que modificar la función anterior ligeramente, para que
+funcione con la configuración nueva del problema. Principalmente,
+tendremos que modificar el número de neuronas de salida (ahora son 7),
+la función de pérdida a optimizar (utilizaremos la entropía
+categórica, en lugar de la binaria, que es la adaptación de la
+anterior al problema multiclase) y la forma de interpretar las
+etiquetas, que ahora en lugar de redondear el valor de salida tenemos
+que quedarnos con el índice de la neurona de salida con el valor más
+alto. Además, ahora no devolveremos la matriz de confusión, como
+hacíamos anteriormente, ya que en lugar de 4 valores ahora está
+compuesta por 49, y no tiene sentido analizar esa información. Nos
+quedaremos por tanto con la precisión y el valor $F_1$.
+
+```{python}
+def neural_network_trial(hidden_units, activation, epochs=20):
+# Neural network instantiation
+    model = keras.models.Sequential()
+
+    model.add(keras.layers.Dense(hidden_units[0], input_shape=(11,),
+                                 activation=activation))
+
+    for hidden_u in hidden_units[1:]:
+        model.add(keras.layers.Dense(hidden_u, activation=activation))
+
+    model.add(keras.layers.Dense(7, activation="sigmoid"))
+    model.compile(loss="categorical_crossentropy",
+                  optimizer="adam",
+                  metrics=['accuracy']
+    )
+
+    model.fit(X_train, y_train, epochs=epochs, batch_size=16, verbose=0)
+
+    y_pred = model.predict(X_test)
+    y_pred = np.argmax(y_pred, axis=1)
+
+    precision = sklearn.metrics.precision_score(
+        np.argmax(y_test, axis=1), y_pred, average="micro"
+    )
+    f1_score = sklearn.metrics.f1_score(
+        np.argmax(y_test, axis=1), y_pred, average="micro"
+    )
+
+    return [
+        hidden_units, activation, precision, f1_score
+    ]
+```
+
+Al igual que anteriormente, vamos a estudiar la influencia de los
+parámetros en la capacidad de predicción del modelo. Para este
+problema, aumentaremos el número de épocas de optimización, ya
+que estamos tratando de resolver un problema más complejo
+
+En una primera etapa, vamos a ver qué influencia tiene el número de
+neuronas en la capa oculta, probando con tres configuraciones
+distintas:
+
+```{python}
+results = pd.DataFrame(
+    columns=["Hidden layers", "activation", "Precision", "F1"]
+)
+
+results.loc[len(results)] = neural_network_trial([2,], "relu", epochs=50)
+results.loc[len(results)] = neural_network_trial([8,], "relu", epochs=50)
+results.loc[len(results)] = neural_network_trial([12,], "relu", epochs=50)
+```
+
+Ahora, vamos a observar si añadir más capas mejora los resultados de
+clasificación:
+
+```{python}
+results.loc[len(results)] = neural_network_trial([8,4], "relu", epochs=50)
+results.loc[len(results)] = neural_network_trial([12,8,4], "relu", epochs=50)
+```
+
+A continuación, vamos a cambiar la función de activación:
+
+```{python}
+results.loc[len(results)] = neural_network_trial([8,], "tanh", epochs=50)
+results.loc[len(results)] = neural_network_trial([8,], "selu", epochs=50)
+```
+
+Finalmente, imprimimos la matriz de resultados:
+
+```{r, echo=FALSE}
+kable(py$results)
+```
+
+Podemos observar cómo el hecho de tener un problema más complejo y con
+un fuerte desbalanceo puede producir un empeoramiento en la calidad de
+los resultados. En este ejemplos se une el hecho de tener un problema
+multiclase con un desbalanceo muy acusado de los datos (casi el 50 %
+de los valores pertenecen a una misma clase, y la otra mitad se reparte
+en las 6 restantes).
+
+# Aplicación a un nuevo conjunto de datos
+
+En este apartado, resolveremos un nuevo problema de clasificación
+multiclase. En este caso, trabajaremos con el conjunto de datos
+_Optdigits_, el cual sepuede descargar en el repositorio UCI:
+(https://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits).
+Este conjunto de datos está creado a partir del conjunto de datos
+MNIST, el cual se compone de imágenes de dígitos manuscritos de tamaño
+32x32. Para crear _Optdigits_, se han seleccionado algunos ejemplos
+del conjunto de datos MNIST, se han dividido en parches de tamaño 4x4,
+y se han contado el número de píxeles en color negro presentes en la
+imagen. De esta forma, nos quedan 64 variables que toman valores entre
+el 0 y el 16, y tenemos que predecir con ellos el dígito original.
+
+Al igual que hemos hecho en el apartado anterior, vamos a tratar de
+
+```{python}
+# Data reading
+train = pd.read_csv("optdigits.tra", header=None)
+test = pd.read_csv("optdigits.tes", header=None)
+
+X_train = train.iloc[:,:-1]
+y_train = train.iloc[:,-1].ravel()
+X_test = test.iloc[:,:-1]
+y_test = test.iloc[:,-1].ravel()
+
+# Data normalization
+scaler = sklearn.preprocessing.StandardScaler().fit(X_train)
+
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = keras.models.Sequential()
+
+model.add(keras.layers.Dense(64, input_shape=(64,),
+                             activation="relu"))
+model.add(keras.layers.Dense(32, activation="relu"))
+model.add(keras.layers.Dense(16, activation="relu"))
+model.add(keras.layers.Dense(8, activation="relu"))
+model.add(keras.layers.Dense(10, activation="sigmoid"))
+
+model.compile(loss="categorical_crossentropy",
+              optimizer="adam",
+              metrics=['accuracy']
+)
+model.fit(X_train, keras.utils.to_categorical(y_train),
+          epochs=50, batch_size=16, verbose=0)
+
+y_pred = model.predict(X_test)
+y_pred = np.argmax(y_pred, axis=1)
+
+conf_mat = sklearn.metrics.confusion_matrix(y_test, y_pred)
+precision = sklearn.metrics.precision_score(y_test, y_pred, average="macro")
+f1_score = sklearn.metrics.f1_score(y_test, y_pred, average="macro")
+```
+
+```{r echo=F}
+kable(py$conf_mat)
+print(paste("Precisión:", py$precision))
+print(paste("F1 score:", py$f1_score))
+```
