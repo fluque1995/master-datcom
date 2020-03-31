@@ -1,0 +1,606 @@
+---
+title: "Aprendizaje de redes bayesianas con bnlearn"
+subtitle: "Modelos gráficos probabilísticos"
+author: "Francisco Luque Sánchez"
+date: "19/03/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+header-includes:
+- \usepackage{multirow}
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+
+## Package import
+library(bnlearn)
+library(graph)
+library(knitr)
+library(kableExtra)
+```
+
+# Introducción
+
+En esta práctica estudiaremos cómo podemos aprender estructuras de
+redes bayesianas partiendo de un conjunto de datos. La base de datos
+con la que trabajaremos está construida realizando 10.000 extracciones
+utilizando la red `alarm`. Esta red está compuesta por 37 variables
+aleatorias y cuenta con 46 arcos dirigidos. La estructura de la red,
+atendiendo a la documentación del paquete `bnlearn`, es la siguiente:
+
+```{r, message=F}
+modelstring = paste0(
+    "[HIST|LVF][CVP|LVV][PCWP|LVV][HYP][LVV|HYP:LVF][LVF][STKV|HYP:LVF]",
+    "[ERLO][HRBP|ERLO:HR][HREK|ERCA:HR][ERCA][HRSA|ERCA:HR][ANES][APL]",
+    "[TPR|APL][ECO2|ACO2:VLNG][KINK][MINV|INT:VLNG][FIO2][PVS|FIO2:VALV]",
+    "[SAO2|PVS:SHNT][PAP|PMB][PMB][SHNT|INT:PMB][INT][PRSS|INT:KINK:VTUB]",
+    "[DISC][MVS][VMCH|MVS][VTUB|DISC:VMCH][VLNG|INT:KINK:VTUB]",
+    "[VALV|INT:VLNG][ACO2|VALV][CCHL|ACO2:ANES:SAO2:TPR][HR|CCHL]",
+    "[CO|HR:STKV][BP|CO:TPR]"
+)
+dag = model2network(modelstring)
+graphviz.plot(dag)
+```
+
+Intentaremos aprender esta estructura de red utilizando el conjunto de
+datos que se nos proporciona. Comenzamos cargando dicha información
+desde el archivo de datos:
+
+```{r, results="hold"}
+## Data loading
+data <- read.csv("alarm10000.txt")
+
+## Data inspection
+kable(head(data)[,1:19], format="latex", booktabs=TRUE) %>%
+    kable_styling(latex_options="scale_down")
+kable(head(data)[,20:37], format="latex", booktabs=TRUE) %>%
+    kable_styling(latex_options="scale_down")
+```
+
+Lo primero que podemos observar es que los datos están
+anonimizados. Los nombres de las columnas son distintos, y los valores
+que toman están estandarizados a los mismos valores en cada una
+(`s0`,...,`si`), siendo `i+1` el número de valores distintos que toma
+la variable aleatoria en cuestión.
+
+Esto nos produce un ligero problema si queremos comparar los
+resultados obtenidos por los modelos de aprendizaje con el modelo
+original. Para evitar este problema, y dado que se nos proporciona
+desde `bnlearn` un conjunto de datos asociado a esta red, vamos a
+suponer que el orden de las columnas en el que se nos proporcionan los
+datos es el mismo en los dos casos, lo que nos permitirá renombrar las
+columnas del conjunto que se nos proporciona. Aunque estamos haciendo
+una asunción bastante fuerte, en la que suponemos que el orden de las
+columnas no ha sido alterado, esta justificación viene respaldada por
+el hecho de haber comprobado que, para todas las columnas, el número
+de valores distintos que toma cada variable coincide en ambos
+conjuntos:
+
+```{r}
+## Check for every column that the number of unique values coincides
+## with the analog column by position in original alarm dataset
+all(sapply(apply(data, 2, unique), length) ==
+    sapply(apply(alarm, 2, unique), length))
+```
+
+Aunque esta comprobación no nos garantiza que en efecto el orden de
+las columnas no se haya alterado, sí que nos lo hace mucho menos
+probable, ya que el cambio entre columnas sólo puede haber ocurrido
+entre aquellas que tengan un mismo número de valores únicos, y parece
+mucho menos probable que haya ocurrido esto. Por tanto, renombramos
+las columnas de nuestro conjunto para poder comparar a posteriori
+la estructura de nuestras redes aprendidas con la estructura original:
+
+```{r}
+colnames(data) <- colnames(alarm)
+```
+
+Pasamos a ver cómo podemos aplicar métodos de aprendizaje de redes
+para inferir la estructura anterior. No nos interesará tanto el
+aprendizaje de las tablas de probabilidad, si no el aprendizaje de la
+estructura de la red (parte cualitativa). Utilizaremos distintos
+métodos de aprendizaje, y compararemos los resultados obtenidos con la
+red original.
+
+# Aprendizaje con métodos de ascenso de colinas
+
+El primer grupo de métodos que veremos serán los métodos por ascenso
+de colinas. Estos métodos se integran dentro de los que se conocen
+como técnicas de búsqueda, los cuales se basan en generar redes
+candidatas dentro del espacio de soluciones, y seleccionar la mejor
+red encontrada en función de una determinada métrica. En particular,
+el método de ascenso de colinas busca en el espacio de los grafos
+dirigidos acíclicos tratando de maximizar una métrica, partiendo de
+una red aleatoria y generando nuevas soluciones a base de quitar,
+poner e invertir los arcos de la red. Además, en el código del paquete
+`bnlearn` (el cual se puede consultar en
+https://github.com/cran/bnlearn/blob/master/R/hill-climbing.R), se
+puede observar que se realizan varios reinicios aleatorios cuando el
+método se estanca en un máximo local, para tratar de buscar la
+solución óptima, ya que estos métodos no garantizan optimalidad.
+
+La principal diferencia que encontraremos entre los distintos métodos
+que vamos a mostrar a continuación reside en la métrica que tratemos
+de optimizar. Estas métricas son, a fin de cuentas, una estimación
+numérica de la calidad de nuestra red atendiendo a una serie de
+criterios impuestos de antemano. De esta forma, en función de la
+métrica que utilicemos en cada caso, tendremos unos resultados u
+otros. Las métricas que experimentaremos en esta práctica son las
+siguientes:
+
+- Métrica BIC: Esta métrica parte de la maximización de la entropía
+  condicional de la red. El problema de la entropía reside en que la
+  mejor red cuando utilizamos esta métrica es la red completa, la cual
+  es excesivamente compleja para su uso práctico. Por tanto, se añade
+  un término de penalización en función de la complejidad de la red,
+  para evitar obtener redes excesivamente complejas. En particular,
+  este criterio añade como función de penalización la complejidad de
+  la red (una función que tiene en cuenta el número de valores de cada
+  variable y el número de padres de la misma), ponderada por el valor
+  $\frac{\log{N}}{2}$, donde $N$ es el número de nodos de la red.
+- Métrica K2: Esta métrica es una métrica bayesiana, la cual se basa
+  en maximizar la probabilidad de obtener una determinada red
+  condicionada a la base de datos de trabajo. Utilizando el teorema de
+  Bayes podemos calcular esta probabilidad, y podemos expresar dicha
+  probabilidad de forma compacta si imponemos ciertas premisas. En
+  particular, para la métrica K2, se presupone que las variables son
+  multinomiales, los parámetros de la red son independientes,
+  modulares, no hay datos desconocidos, y que dada la estructura los
+  parámetros tienen una distribución a priori uniforme.
+- Métrica BDe: Es una métrica similar a la anterior, pero que utiliza
+  distribuciones a priori de Dirichlet en lugar de uniformes. Además,
+  para no tener que estimar todos los parámetros de todas las
+  distribuciones a priori, se utiliza una red Bayesiana a priori con
+  un tamaño menor al original (se suele llamar tamaño muestral
+  equivalente, y se nota como $\nu$). Nosotros tomaremos dos valores
+  distintos para este parámetro, $\eta = 1$ y $\eta = 10$. En `bnlearn`,
+  este parámetro toma el nombre `iss`.
+
+Pasamos a mostrar cómo podemos aprender las redes utilizando estos
+modelos. El algoritmo que utilizaremos en todos los casos será el
+mismo, el ascenso de colinas, al que le variaremos los parámetros para
+seleccionar una u otra métrica a optimizar. Las ejecuciones del
+algoritmo son las siguientes:
+
+```{r}
+## Hill climbing learning
+bn.bic <- hc(data, score = "bic")               # BIC score
+bn.k2 <- hc(data, score = "k2")                 # K2 score
+bn.bde.1 <- hc(data, score = "bde", iss = 1)    # BD score, nu=1
+bn.bde.10 <- hc(data, score = "bde", iss = 10)  # BD score, nu=10
+```
+
+Donde ya tenemos las cuatro redes aprendidas utilizando los cuatro
+modelos distintos que hemos especificado. Observamos que los resultados
+obtenidos no son exactamente iguales:
+
+```{r, results="hold"}
+print(paste("Métrica BIC - arcos:", nrow(arcs(bn.bic))))
+print(paste("Métrica K2 - arcos:", nrow(arcs(bn.k2))))
+print(paste("Métrica BDe, 1 - arcos:", nrow(arcs(bn.bde.1))))
+print(paste("Métrica BDe, 10 - arcos:", nrow(arcs(bn.bde.10))))
+```
+
+Dado que el número de arcos que obtenemos no es el mismo en ningún
+caso, trivialmente tenemos que las redes aprendidas no son idénticas.
+Más adelante entraremos en técnicas que nos permitirán saber cuáles de
+estas redes son más adecuadas, así como comparar las estructuras de
+las mismas. A priori, no obstante, nos podríamos decantar por la
+primera de las redes aprendidas, teniendo en cuenta que todas tienen
+más arcos que la red original, y la aprendida con la métrica BIC es
+la que menos arcos tiene. A pesar de esto, tendremos que inspeccionar
+las redes aprendidas más detenidamente para tomar una conclusión más
+informada.
+
+Pasamos a ver los métodos de aprendizaje de redes basados en test
+de independencia estadística.
+
+# Aprendizaje con métodos basados en la independencia estadística
+
+Los métodos dentro de este apartado están basados en la búsqueda de
+independencias estadísticas entre las variables. En concreto, se suele
+partir del grafo completo no dirigido, y se van recorriendo las
+aristas (utilizando cierto orden impuesto por el algoritmo),
+comprobando si las dos variables unidas por la arista en cuestión
+son independientes dado otro conjunto de variables. Una vez obtenido
+el grafo, se orientan las aristas.
+
+En particular, nosotros trabajaremos con la versión estable del
+algoritmo PC. Este algoritmo funciona en dos pasos, en el primero se
+eliminan aristas y en el segundo se orientan la aristas
+restantes. Partiendo del grafo completo no dirigido, se lleva un
+contador de adyacencia, que irá aumentando en 1 en cada iteración del
+algoritmo, que comenzará en $k=0$. En cada iteración, se toman
+aquellos vértices que tengan más de $k$ vecinos, y para cada vecino se
+trata de eliminar la arista que lo une al vértice primero haciendo
+tests de independencia de orden $k$ usando el resto de variables
+vecinas. Si se da la independencia en alguno de los tests, se elimina
+la arista. Si no se da para ninguno de los posibles tests, la arista
+se mantiene. Una vez recorridas todas las variables se aumenta en 1
+el valor de $k$ y se repite el algoritmo.
+
+De nuevo, nos encontramos con una familia de modelos, en función del
+test estadístico que utilicemos para comprobar la independencia de las
+variables. EL algoritmo utilizado será el mismo, pero obtendremos
+distintos resultados en función del test. Los tests con los que haremos
+pruebas son los siguientes:
+
+- Test de información mutua: Utilizando la información mutua entre dos
+  variables podemos hacer una estimación de cuánta información sobre
+  una variable nos aporta el conocimiento de la otra. Esta métrica
+  está definida entre 0 y 1, de forma que 0 indica una independencia
+  completa entre las dos variables y 1 un conocimiento completo de
+  cualquiera de las variables dada la otra. La métrica se calcula en
+  función de las distribuciones marginales de las dos variables y su
+  distribución conjunta, así que podemos estimar estas distribuciones
+  a partir de las observaciones y calcular este estimador. Si el valor
+  es muy cercano a 0, podemos suponer independencia entre las
+  variables implicadas, mientras que si es alto podemos suponer que
+  son dependientes.
+- Test $\chi^2$ de Pearson: Este test es ampliamente conocido, y nos
+  permite crear un estadístico a partir de las observaciones de dos
+  variables nominales. Dicho estadístico sigue una distribución
+  $\chi^2$. Si dadas nuestras observaciones el valor del estadístico
+  se desvía de los valores normales de dicha distribución, se rechaza
+  la hipótesis de la independencia de las variables.
+
+De nuevo, al igual que en el caso anterior, utilizaremos el mismo
+método para calcular estas dos soluciones, pero cambiaremos el test
+utilizado en ambos casos:
+
+```{r}
+## Independence test learning
+bn.mi <- pc.stable(data, test = "mi") # Mutual information
+bn.x2 <- pc.stable(data, test = "x2") # Pearsons Chi squared
+```
+
+En primer lugar, podemos observar que se producen ciertos problemas en
+la utilización del algoritmo, y se nos devuelven algunos avisos. Es
+posible que no podamos aprender la configuración de la red con estos
+métodos, ya que a la hora de orientar las aristas pueden darse
+incompatibilidades. En particular, si mostramos el resumen de las dos
+redes aprendidas:
+
+```{r}
+print(bn.mi)
+print(bn.x2)
+```
+
+Tenemos que no todos los arcos han podido ser orientados (quedan 9
+arcos no dirigidos en la primera red, y 6 en la segunda). Según se
+comenta en la documentación del paquete, se utiliza una métrica para
+decidir la orientación de las aristas (no se especifica cuál), y en
+caso de ocurrir un empate pueden dejarse las aristas sin orientación,
+como ocurre en el caso anterior). También podemos observar que el
+número de aristas en ambos casos es significativamente inferior a las
+que obteníamos con los métodos anteriores, incluso inferior a los que
+tiene la red original. Más adelante estudiaremos estos resultados.
+
+Pasamos ahora a ver los métodos de aprendizaje híbridos.
+
+# Aprendizaje basado en métodos híbridos
+
+Los métodos híbridos combinan los dos enfoques anteriores para tratar
+de aprovechar las ventajas que aportan ambas aproximaciones. En
+particular, nosotros utilizaremos el algoritmo _min-max Hill
+Climbing_, el cual utiliza un aprendizaje basado en independencia para
+aprender el esqueleto de la red, y después un Hill Climbing basado en
+la métrica BIC para la orientación de las aristas. De esta forma,
+aprovechamos la potencia de los métodos basados en independencia para
+aprender la estructura, pero evitamos los problemas que nos hemos
+encontrado anteriormente en los que no podíamos orientar todas las
+aristas de la red.
+
+La ejecución del algoritmo es como sigue:
+
+```{r}
+## Hybrid algorithm learning
+bn.mmhc <- mmhc(data)
+```
+
+Una vez tenemos la red aprendida, podemos estudiar los resultados
+obtenidos:
+
+```{r}
+print(bn.mmhc)
+```
+
+Resulta curioso que este modelo es el que menos aristas ha colocado en
+el grafo. Es, por tanto, el modelo que nos ha aportado una red más
+simple de todos los que hemos utilizado.
+
+En el siguiente apartado, compararemos las redes obtenidas entre sí,
+así como con el modelo original, para tratar de decidir qué red de las
+aprendidas es la más adecuada para modelar nuestros datos.
+
+# Comparación de resultados
+
+En este apartado, veremos cómo podemos comparar las redes que hemos
+obtenido. Existen diversas medidas que podemos utilizar, las cuales
+nos permitirán conocer la bondad de las redes en función de
+determinados parámetros. En primer lugar, es inmediato comentar que
+no hemos aprendido en ningún caso dos redes idénticas, ya que el número
+de aristas difiere en todos los casos (en los casos en los que hemos
+visto coincidencias, algunas aristas no habían podido orientarse, por
+lo que tampoco puede darse la igualdad.
+
+Durante la práctica hemos ido comentando una de las medidas posibles
+que mide la complejidad de la red. Dicha medida es el número de
+aristas total. Dado que las aristas representan relaciones de
+dependencia, las cuales introducen complejidad en el modelo, un mayor
+número de aristas producirá una red más compleja. En función a esta
+medida, hemos visto ya que el modelo más adecuado era el obtenido con
+el sistema híbrido, ya que era el que menos aristas aprendía (33).
+
+Otro punto interesante a estudiar es el número de componentes conexas
+del grafo. En principio, la red con la que estamos trabajando de fondo
+será una red conexa, ya que no estaremos interesados en aquellas
+variables que no tienen ninguna influencia sobre nuestro sistema. Por
+tanto, un número bajo de componentes conexas puede indicar que que el
+modelo de aprendizaje ha dado buenos resultados. Para calcular las
+componentes conexas de nuestros grafos nos ayudaremos del paquete
+`graph` de R. Dentro de dicho paquete existe una función llamada
+`connComp`, que nos devuelve una lista con las componentes conexas de
+un grafo. Calculando el tamaño de dicha lista tenemos el resultado:
+
+```{r}
+## Store models in a list
+model_list <- list("BIC" = bn.bic, "K2" = bn.k2,
+                   "BDE(1)" = bn.bde.1, "BDE (10)" = bn.bde.10,
+                   "MI"= bn.mi, "Xi2" = bn.x2, "MMHC" = bn.mmhc)
+## Calculate number of connected components for each element in list
+connected.comps <- sapply(
+    model_list, function(x) length(connComp(as.graphAM(x))))
+```
+```{r echo=FALSE}
+kable(t(connected.comps), format="latex", booktabs=TRUE,
+      caption = "Número de componentes conexas en cada grafo") %>%
+    kable_styling(position = "center", latex_options = "HOLD_position")
+```
+
+Podemos observar que sólo una de las redes aprendidas es óptima bajo
+esta métrica. Exclusivamente utilizando el ascenso de colinas y la
+métrica a priori de Dirichlet con el tamaño muestral igual a 10 hemos
+conseguido aprender una configuración conexa. En todos los demás casos
+tenemos como mínimo 2 componentes. En particular, la red más simple
+(la que menos aristas presenta) es en este caso la red con más
+componentes, y por tanto menos adecuada. Esto era esperable teniendo
+en cuenta que el número de aristas era tres unidades menor que el
+número de nodos, y por tanto era imposible que se tuviese una única
+componente conexa.
+
+La elección de una red bayesiana u otra dependerá de las necesidades
+del problema específico al que nos enfrentemos. Probablemente, si
+necesitamos una red lo más similar posible a la red original, y que
+modele todas las estructuras de dependencia originales, el modelo con
+más aristas pero menos componentes conexas distintas será más
+apropiado, mientras que si lo que requerimos es una red sencilla y que
+nos simplifique el proceso de inferencia a posteriori, aquella con el
+menor número de aristas será más adecuada.
+
+Otra comparación que podemos establecer es la distancia de Hamming
+entre cada par de nuestras redes. De esta forma, podemos apreciar si
+los distintos modelos que hemos utilizado para aprender la red nos
+devuelven configuraciones parecidas. Existen dos definiciones
+distintas para esta distancia, dependiendo de si el grafo es o no
+orientado. La distancia de Hamming no dirigida se define como el
+número de aristas que hay que añadir o quitar para convertir una
+configuración determinada de grafo en otra. Esta distancia se puede
+calcular usando la función `hamming(grafo1, grafo2)`. La distancia de
+Hamming dirigida (también conocida como _Structural Hamming Distance_)
+tiene en cuenta también el número de reorientaciones de las
+aristas. Esta distancia se puede calcular con la función `shd(grafo1,
+grafo2)`. Nosotros calcularemos ambas. La primera de ellas nos dará
+información estructural del grafo, lo que nos permitirá decidir si
+hemos aprendido la estructura de red correctamente. La segunda nos
+permitirá decidir si hemos aprendido las relaciones causa-efecto
+correctamente. Tomando todas las parejas de nuestras redes y
+calculando la distancia de Hamming sobre ellas, obtenemos el siguiente
+resultado:
+
+```{r}
+## Create pairs from model list (cartesian prod)
+pairs <- expand.grid(model_list, model_list)
+## Apply hamming distance to each pair
+nondir.distances <- mapply(hamming, pairs[[1]], pairs[[2]])
+## Reshape
+nondir.distances <- matrix(nondir.distances, ncol=7)
+## Renaming of rows and cols
+colnames(nondir.distances) <- names(model_list)
+rownames(nondir.distances) <- names(model_list)
+## Apply directed hamming distance to each pair
+dir.distances <- mapply(shd, pairs[[1]], pairs[[2]])
+## Reshape
+dir.distances <- matrix(dir.distances, ncol=7)
+## Renaming of rows and cols
+colnames(dir.distances) <- names(model_list)
+rownames(dir.distances) <- names(model_list)
+```
+
+```{r echo=FALSE}
+kable(nondir.distances, format="latex", booktabs = TRUE,
+      caption = "Distancias de Hamming no dirigidas entre los pares de redes") %>%
+    kable_styling(position = "center", latex_options = "HOLD_position") %>%
+    column_spec(2:8, width="1cm")
+```
+Aquí podemos observar cómo los distintos algoritmos utilizados nos dan
+resultados más o menos similares. Por ejemplo, el algoritmo híbrido da
+unos resultados muy parecidos a los algoritmos basados en
+independencia (recordemos que el algoritmo híbrido combinaba un
+algoritmo basado en independencia para aprender el esqueleto de la red
+y un algoritmo de hill climbing para orientar las aristas). También
+existe relativamente poca distancia entre los dos modelos basados en
+BDe (8 unidades). Por último, resulta especialmente curioso la
+distancia entre el modelo BIC y el modelo BDe con $\eta = 1$. Existen
+sólo dos unidades de distancia, que es igual a la diferencia en el
+número de aristas de cada grafo. Esto nos garantiza que estos dos
+modelos han aprendido la misma estructura de red, salvo por dos
+aristas, que están presentes en un modelo y no en el otro. Podemos
+concluir, por tanto, que estos dos modelos son los que han aportado
+redes más parecidas.
+
+```{r echo=FALSE}
+kable(dir.distances, format="latex", booktabs = TRUE,
+      caption = "Distancias de Hamming dirigidas entre los pares de redes") %>%
+    kable_styling(position = "center", latex_options = "HOLD_position") %>%
+    column_spec(2:8, width="1cm")
+```
+
+Ahora, podemos observar si las relaciones causa-efecto aprendidas por
+los distintos modelos son similares. La conclusión que sacamos
+anteriormente para los modelos basados en independencia y el modelo
+híbrido, ahora es menos evidente. Dado que la forma de aprender la
+estructura estaba basada en ideas similares, los resultados obtenidos
+eran muy parecidos. Ahora, como la orientación de las aristas se hace
+de una forma completamente distinta, la distancia ha aumentado
+significativamente. En cambio, entre BIC y BDe con $\eta = 1$, el
+aumento de la distancia es mucho menor, porque funcionan de forma muy
+similar.
+
+Finalmente, vamos a comparar los resultados obtenidos con la red
+original. Como dijimos al principio del guión, hemos supuesto que el
+orden en las variables del conjunto de datos que se nos ha
+proporcionado es el mismo que en el conjunto original. En la página de
+la documentación de `bnlearn`, en los ejemplos, puede encontrarse la
+estructura original de la red, que es la que mostramos al principio.
+Dado que ahora tenemos el mismo conjunto de nodos que dicha red (si
+esto no fuera así, no podríamos comparar los dos grafos, ya que el
+problema de la asignación de vértices no es trivial).
+
+Ahora, calcularemos la distancia de Hamming entre los grafos
+aprendidos y la red original. Cuanto menor sea dicha distancia, más
+parecida será la red que hemos aprendido a la red de referencia, y
+por tanto más adecuado será el resultado. De nuevo, calculamos ambas
+distancias:
+
+```{r}
+nondir.distances.to.original <- sapply(
+    model_list,function (x) hamming(x, dag))
+dir.distances.to.original <- sapply(
+    model_list, function (x) shd(x, dag))
+```
+
+```{r echo=FALSE}
+kable(t(nondir.distances.to.original),
+      format = "latex", booktabs = TRUE,
+      caption = "Distancias de Hamming no dirigidas a la red original") %>%
+    kable_styling(position="center", latex_options="HOLD_position")
+```
+
+```{r echo=FALSE}
+kable(t(dir.distances.to.original),
+      format = "latex", booktabs = TRUE,
+      caption = "Distancias de Hamming dirigidas a la red original") %>%
+    kable_styling(position="center", latex_options="HOLD_position")
+```
+
+Podemos observar que las distancias son relativamente altas en todos
+los casos, lo que indica que los resultados no han sido especialmente
+buenos. Esto puede deberse a que el conjunto de datos con el que
+estamos trabajando tiene excesivamente pocas muestras, y por tanto las
+relaciones de dependencia o independencia no queden bien reflejadas, o
+porque los algoritmos empleados no son especialmente potentes.
+
+Se puede deducir también que, en este caso, los modelos basados en
+tests de independencia tienen un mejor comportamiento a la hora de
+aprender las relaciones de causalidad presentes en el conjunto de
+datos original.  Aunque estructuralmente hay varios algoritmos que
+consiguen llegar a una distancia de Hamming de 10 unidades, cuando
+consideramos la distancia dirigida, los algoritmos basados en
+optimización disparan su distancia, lo que significa que hay muchas
+aristas mal orientadas. Las redes aprendidas con tests de
+independencia, por el contrario, sufren un aumento de distancia mucho
+menor, por lo que las aristas presentes, en general, tienen la
+orientación correcta.
+
+La información que dan las funciones anteriores es limitada, ya que
+está muy agregada. Sirven como buenos estimadores para tener una
+visión global de los resultados, pero por otra parte enmascaran
+información que podría ser relevante. La información anterior puede
+desglosarse en aristas bien colocadas, aristas faltantes y aristas
+sobrantes. Esta información puede ser extraída con la función
+`compare(grafo_original, grafo_aprendido)`. De esta forma, podremos
+saber si la distancia anterior se produce por un exceso de aristas
+aprendidas, por una falta de las mismas, o por ambos motivos. Si
+realizamos la construcción anterior con esta nueva función,
+obtenemos:
+
+```{r}
+comparisons.to.original <- sapply(
+    model_list,function (x) compare(dag, x))
+```
+
+```{r echo=FALSE}
+kable(comparisons.to.original,
+      format = "latex", booktabs = TRUE,
+      caption = "Aciertos, falsos positivos y falsos negativos") %>%
+    kable_styling(position="center", latex_options="HOLD_position")
+```
+
+En la tabla podemos observar las aristas bien colocadas (TP,
+aciertos), las aristas sobrantes (FP, falsos positivos) y las aristas
+faltantes (FN, falsos negativos). Esta función también tiene en cuenta
+las aristas mal orientadas, las cuales se cuentan como un falso
+positivo y un falso negativo simultáneamente. Esta métrica penaliza
+fuertemente la mala orientación de las aristas, por tanto.
+
+Dada la tabla anterior, podemos concluir de nuevo que la red más
+adecuada dependerá mucho de lo que queramos modelar. Por un lado, el
+método de optimización basado en K2 es el que coloca correctamente un
+mayor número de aristas (trivialmente es también el que comete menos
+falsos negativos, ya que la suma de ambos valores es constante si
+comparamos siempre con la misma red). No obstante, el número de falsos
+positivos que comete es también muy alto. Es posible que nos interese
+más un método basado en independencia, los cuales no consiguen colocar
+correctamente tantas aristas, pero a cambio reducen el número de
+falsos positivos a menos de la mitad.
+
+Por otra parte, podemos ver cómo MMHC, que conseguía una estructura
+de red muy similar a los métodos basados en independencia (lo vimos
+con la distancia de Hamming no dirigida), comete muchísimos errores
+a la hora de orientar las aristas y se ve fuertemente penalizado.
+
+Finalmente, podemos establecer otra comparativa más, además de las que
+ya hemos mostrado. Podemos estar interesados en saber específicamente
+qué aristas han sido colocadas correctamente, cuáles faltan y cuáles
+sobran. La librería proporciona también un método gráfico que nos
+permite mostrar esta información. Dicho método
+(`graphviz.compare(grafo_original, grafo_aprendido)`), dibuja la
+estructura de grafo del grafo original, y colorea las aristas en
+función al grafo aprendido. Las aristas en negro son aquellas aristas
+correctamente aprendidas. Las aristas en rojo y línea continua son los
+falsos positivos; aristas que no se encuentran presentes en el grafo
+original pero han sido aprendidas incorrectamente (se agrupan aquí
+también las mal orientadas), y finalmente las aristas en azul y con
+línea discontinua son los falsos negativos; aristas que no se han
+aprendido pero que están presentes en el grafo original.
+
+Dado que mostrar todas las redes ocuparía mucho espacio, sólo
+compararemos las que consideramos mejores en función de la última
+métrica que hemos mostrado. Estas redes son la basada en la métrica K2
+y obtenida por ascenso de colina, que era la que más aristas colocaba
+correctamente, y la basada en el test estadístico de $\chi^2$, que era
+la que cometía menos falsos negativos. Los grafos de comparación son
+los que siguen:
+
+```{r, fig.height=4}
+graphviz.compare(dag, bn.k2, bn.x2, main = c("Red original", "K2", "Xi2"))
+```
+
+Podemos observar en los distintos grafos que se han generado la
+presencia de los falsos positivos y negativos que comentamos en la
+tabla. El número de aristas azules en el primer grafo es mucho menor
+que en el segundo (concretamente, 4 en el primero contra 8 en el
+segundo), pero a cambio el número de aristas rojas, que en el segundo
+es muy escaso, sólamente 8, se dispara mucho en el primero, que presenta
+20.

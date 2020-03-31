@@ -1,0 +1,802 @@
+---
+title: "Clasificación utilizando redes bayesianas"
+subtitle: "Modelos gráficos probabilísticos"
+author: "Francisco Luque Sánchez"
+date: "19/03/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+header-includes:
+- \usepackage{multirow}
+- \usepackage{amsmath}
+- \DeclareMathOperator*{\argmax}{arg\,max}
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(42)
+
+## Package import
+library(bnlearn)
+library(bnclassify)
+library(graph)
+library(knitr)
+library(RWeka)
+library(caret)
+library(dplyr)
+```
+
+# Introducción
+
+En esta práctica aprenderemos a utilizar las redes bayesianas como
+modelos de clasificación. Nuestro objetivo será aprender una red
+bayesiana a partir de un conjunto de variables, y utilizar esta red
+posteriormente para determinar el valor de una variable a partir
+de observaciones en las demás.
+
+A fin de cuentas, estos clasificadores nos permiten predecir una
+variable de clase discreta, $C$. Para ello, a una observación
+$\mathbf{x}$ se le asigna la clase más probable a partir de un
+conjunto de datos de entrenamiento:
+
+\[
+    c^* = \argmax_c{P(c \mid \mathbf{x})} = \argmax_c{P(\mathbf{x}, c)}
+\]
+
+El clasificador factoriza $P(\mathbf{x}, c)$ utilizando una red
+bayesiana. Los algoritmos de aprendizaje de redes bayesianas que hemos
+estudiado hasta el momento tienen algunos problemas cuando se utilizan
+para resolver problemas de clasificación. Al intentar aprender una
+estructura genérica que represente las dependencias de toda la red de
+la forma más adecuada posible, puede ocurrir que para el nodo de
+interés las dependencias aprendidas no sean las más adecuadas, pero
+que la configuración de red final sea mejor desde un punto de vista
+global. Para evitar este problema, se proponen algoritmos de
+aprendizaje de redes focalizados en el nodo de interés. De esta forma,
+aunque el resultado pueda no ser óptimo a nivel global, en el sentido
+de no haberse aprendido una red que modele correctamente las
+dependencias de todas las variables entre sí, es más adecuado a nivel
+local.
+
+Existen distintas aproximaciones para aprender redes bayesianas para
+clasificación. En esta práctica veremos algunas de ellas. La práctica
+estará desarrollada en R. Para el aprendizaje de redes, utilizaremos
+dos librerías. La librería `bnlearn` es una de las librerías para
+aprendizaje de redes bayesianas más famosas dentro del lenguaje R. La
+utilizaremos para aprender el modelo Naive Bayes y el modelo Naive
+Bayes aumentado (Tree Augmented Naive Bayes) basado en el algoritmo de
+Chow-Liu. Dado que las opciones que nos permite este paquete a la hora
+de aprender clasificadores basados en redes bayesianas son bastante
+limitadas (sólo se nos ofrecen dos modelos y no presentan parámetros a
+modificar), vamos a explorar también el paquete `bnclassify`. Este
+paquete aparece en el año 2015, y trata de suplir precisamente las
+carencias del paquete `bnlearn` a la hora de aprender redes orientadas
+a clasificación. En dicho paquete podemos encontrar aprendizajes de
+modelos TAN basados en algoritmos de Hill Climbing, o modelos más
+complejos.
+
+## Conjunto de datos y metodología de trabajo
+
+El conjunto de datos con el que trabajaremos es una modificación del
+conjunto de datos conocido como `led`. En dicho conjunto de datos se
+trata de predecir el dígito mostrado en una pantalla de 7 segmentos
+(clase), a partir de la activación de dichos segmentos (7 variables
+binarias). Dado que la formulación del problema hasta el momento es
+determinista, se han añadido, por un lado, 17 columnas irrelevantes, y
+se ha introducido ruido en los atributos. Existen distintas
+configuraciones del conjunto de datos, en función del número de
+ejemplos y la cantidad de ruido en los atributos. Concretamente,
+utilizaremos el conjunto de datos con 10000 muestras y un ruido en los
+atributos del 10 %. La estrategia de trabajo que seguiremos es la
+siguiente. En primer lugar, para la evaluación de los clasificadores,
+implementaremos una estrategia _hold-out_. Separaremos el 20 % del
+conjunto de datos como conjunto de test. Sobre el conjunto de datos de
+entrenamiento restante, implementaremos una estrategia de validación
+cruzada con $k=10$ para la selección de variables. Dado que sabemos
+que hay 17 variables que son irrelevantes, emplearemos una estrategia
+de búsqueda por eliminación, tratando de identificar las 7 variables
+originales. Una vez identificadas las variables más representativas,
+entrenaremos el modelo sobre el conjunto de entrenamiento completo (el
+80 % inicial) y evaluaremos sobre la partición de test separada al
+principio. Los muestreos en todos los casos serán estratificados para
+evitar la introducción de sesgos en las particiones. Comenzamos
+cargando el conjunto de datos y estableciendo las particiones de train
+y test:
+
+```{r, results="hold"}
+orig.dataset <- read.arff("ledLXMn10.arff")   # Dataset loading
+train.idx <- createDataPartition(             # Split 20 % for test
+    orig.dataset$class, p = .8, list=FALSE
+)
+
+train.dataset <- orig.dataset[train.idx,]
+test.dataset <- orig.dataset[-train.idx,]
+
+print(dim(train.dataset))
+print(dim(test.dataset))
+```
+
+Como podemos observar, la partición de test tiene aproximadamente un
+20 % de los datos. Esas tres unidades de diferencia vienen
+probablemente justificadas por la estratificación. Para mantener las
+proporciones de ejemplos de cada clase en train y test constantes, la
+división exacta en 8000 y 2000 muestras podía no ser posible.
+
+Una vez hemos explicado el procedimiento a seguir, pasamos a entrenar
+los clasificadores basados en redes bayesianas. Comenzamos
+estableciendo el clasificador base con el que compararemos a lo largo
+de la práctica.
+
+# Clasificador base: Naive Bayes con todas las variables
+
+El clasificador que utilizaremos como base es el clasificador Naive
+Bayes, el cual construye una red bayesiana bajo la asunción de que las
+características que se utilizan en la predicción son independientes
+entre sí dada la clase. Aplicando el teorema de Bayes, la probabilidad
+que queremos calcular es la siguiente:
+
+\[
+    p(C_k \mid \mathbf{x}) = \frac{p(C_k)p(\mathbf{x} \mid C_k)}{p(\mathbf{x})}
+\]
+
+Teniendo en cuenta que el denominador es común para la probabilidad de
+cada una de las clases, podemos escribir
+
+\[ p(C_k \mid \mathbf{x}) \propto p(C_k)p(\mathbf{x} \mid C_k) =
+    p(C_k, \mathbf{x}) \]
+
+Y buscar el máximo de la expresión anterior. Aplicando la regla de la
+cadena para el cálculo de la probabilidad condicionada en repetidas
+ocasiones, podemos desplegar el cálculo $p(C_k, \mathbf{x})$ en la
+siguiente expresión
+
+\begin{align*}
+    p(C_k, x_1,..., x_n) &=p(x_{1},\ldots ,x_{n},C_{k})\\&=p(x_{1}\mid
+    x_{2},\ldots ,x_{n},C_{k})\ p(x_{2},\ldots
+    ,x_{n},C_{k})\\&=p(x_{1}\mid x_{2},\ldots ,x_{n},C_{k})\
+    p(x_{2}\mid x_{3},\ldots ,x_{n},C_{k})\ p(x_{3},\ldots
+    ,x_{n},C_{k})\\&=\cdots \\&=p(x_{1}\mid x_{2},\ldots
+    ,x_{n},C_{k})\ p(x_{2}\mid x_{3},\ldots ,x_{n},C_{k})\cdots
+    p(x_{n-1}\mid x_{n},C_{k})\ p(x_{n}\mid C_{k})\ p(C_{k})\\
+\end{align*}
+
+Y aplicando la asunción de independencia dada la clase, podemos
+reescribir
+
+\[
+    p(x_i \mid x_{i+1}, \ldots x_n, C_k) = p(x_i \mid C_k)
+\]
+
+Y la expresión anterior queda como
+
+\[
+    p(C_k, x_1, \ldots, x_n) = p(C_k)\prod_{i=1}^n p(x_i \mid C_k)
+\]
+
+De esta forma, podemos modelar el sistema anterior con una red simple,
+que tenga como nodo raíz a la clase y a todas las demás variables como
+nodos hijos.
+
+La asunción de la independencia de todas las variables dos a dos dada
+la clase es una asunción bastante fuerte, y es la que le da el nombre
+al modelo. Utilizaremos como modelo base esta aproximación, sin
+eliminar ninguna variable, a pesar de que sabemos que hay 17 variables
+que no aportan información. La unión de un modelo tan simple y el
+hecho de tener una gran cantidad de variables inútiles hará que nuestro
+clasificador no sea idóneo.
+
+Además de la estructura de red, que la hemos fijado de antemano,
+tenemos que aprender los parámetros del modelo. Esto se reduce a
+aprender las tablas de probabilidad condicionada de cada atributo a la
+clase. Dado que tenemos 8000 ejemplos de entrenamiento y sólo 10
+clases, aproximadamente tendremos 800 ejemplos de cada clase, y dado
+que para cada atributo tenemos sólo dos valores, parece que el número
+de ejemplos es suficientemente alto como para que haya poca diferencia
+en aprender los parámetros con un enfoque frecuentista (con el
+estimador máximo verosímil) o con un enfoque bayesiano (con la máxima
+a posteriori). Por tanto, en el aprendizaje de parámetros no nos
+preocuparemos por el algoritmo empleado y mantendremos el que usa
+la librería por defecto.
+
+Dado que no vamos a eliminar tampoco ninguna variable, y por tanto el
+modelo no necesita ser optimizado en cuando a su configuración, será
+suficiente con aprender la red bayesiana sobre el conjunto de
+entrenamiento y evaluarla sobre el conjunto de test sin hacer
+validación cruzada (recordemos que en esta práctica utilizaremos la
+validación cruzada para la optimización del modelo). Aprovecharemos
+por tanto esta sección para mostrar los pasos del aprendizaje. Lo
+primero que debemos aprender es la estructura del modelo. En `bnlearn`,
+el método que nos permite aprender una red Naive Bayes es el siguiente:
+
+```{r}
+naive.bayes.net <- naive.bayes(train.dataset, "class")
+```
+
+Podemos ahora visualizar la red aprendida:
+
+```{r, message=FALSE}
+graphviz.plot(naive.bayes.net)
+```
+
+Como podemos observar, la estructura de red coincide con la que
+dijimos anteriormente. Ahora, tenemos que aprender las distribuciones
+de probabilidad sobre el conjunto de entrenamiento:
+
+```{r}
+naive.bayes.fitted <- bn.fit(naive.bayes.net, train.dataset)
+```
+
+Y una vez calculadas las probabilidades, podemos utilizar la red
+para hacer inferencia sobre el conjunto de test:
+
+```{r}
+predictions <- predict(naive.bayes.fitted, test.dataset)
+```
+
+Ya tenemos predicho el conjunto de test. A partir de las predicciones
+y las etiquetas reales podemos calcular la matriz de confusión del
+modelo:
+
+```{r}
+conf.mat <- table(predictions, test.dataset$class)
+kable(conf.mat)
+```
+
+No obstante, dado el tamaño de la matriz anterior, es difícil hacerse
+una idea de la calidad global del clasificador. Para obtener una
+visión más clara, lo que haremos será calcular la precisión del
+modelo.  Dicha métrica representa el porcentaje del total de ejemplos
+que han sido correctamente clasificados. Como utilizaremos esta
+métrica frecuentemente a lo largo de la práctica, definiremos una
+función para poder calcularla:
+
+```{r}
+accuracy <- function(reals, preds){
+    sum(reals == preds) / length(reals)
+}
+
+accuracy(test.dataset$class, predictions)
+```
+
+Como podemos observar, los resultados de este modelo no son
+especialmente malos, y consigue una precisión de casi el 74 %. Este
+modelo, a pesar de la asunción tan fuerte que hace, obtiene resultados
+muy competentes, y es por tanto uno de los modelos bayesianos más
+utilizados. En los siguientes apartados, trataremos de mejorar los
+resultados obtenidos por este modelo por dos vías. La primera,
+utilizando un mecanismo de selección de variables, lo que nos
+permitirá obtener un modelo más sencillo. La segunda, relajando la
+asunción de independencia, para poder aprender modelos más complejos
+que representen mejor las dependencias entre las variables.
+
+Comenzamos tratando de eliminar variables sobre el modelo Naive Bayes.
+
+# Eliminación de variables sobre el modelo Naive Bayes
+
+Sabemos que en el modelo hay 17 variables que no están aportando
+información útil al modelo. Lo que haremos en esta sección es ir
+eliminando variables y viendo cómo evoluciona la capacidad de
+predicción del mismo. En principio, si una determinada variable
+no está aportando mucha información útil, su eliminación no debería
+empeorar significativamente el resultado obtenido.
+
+Debido a que no debemos utilizar información del conjunto de test para
+guiar las decisiones que se tomen (estaríamos utilizando información
+de la que a priori no disponemos), el sistema que utilizaremos es una
+validación cruzada con el conjunto de entrenamiento que tenemos
+restante. Para cada variable que eliminemos, ejecutaremos una
+validación cruzada con $k=10$, y calcularemos la precisión media
+obtenida. En primer lugar, creamos las particiones pertinentes:
+
+```{r}
+folds <- createFolds(train.dataset$class, k = 10)
+```
+
+Ahora, crearemos una función que pueda recibir un índice, las
+particiones, el conjunto de datos y el método con el que se realiza la
+clasificación, y con esa información entrene el clasificador y calcule
+el porcentaje de acierto sobre la partición de test:
+
+```{r}
+predict.fold <- function(idx, folds, dataset, method) {
+    ## Data partitioning in train and test
+    train.set <- dataset[unlist(folds[c(-idx)]),]
+    test.set <- dataset[folds[[idx]],]
+
+    ## Structure learning, parameter learning and prediction
+    classifier <- method(train.set, "class")
+    classifier.fitted <- bn.fit(classifier, train.set)
+    predictions <- predict(classifier.fitted, test.set)
+
+    ## Accuracy
+    accuracy(test.set$class, predictions)
+}
+```
+
+En primer lugar aplicamos esta función al conjunto de datos completo,
+sin eliminar ninguna variable, para ver si los resultados son similares
+a los que obtuvimos sobre el conjunto de test:
+
+```{r}
+mean(
+    sapply(1:10, predict.fold, folds=folds,
+           dataset=train.dataset, method=naive.bayes)
+)
+```
+
+Podemos observar que los resultados son muy similares a los que
+obtuvimos sobre el conjunto de test. Como dijimos al principio, ahora
+vamos a eliminar variables. Lo que vamos a hacer, en cada iteración,
+es eliminar todas las variables (una cada vez), y calcular la
+precisión anterior con el nuevo conjunto. Iremos así eliminando en
+cada etapa la variable que nos devuelva una precisión más alta,
+siempre que no se haya producido un empeoramiento significativo
+respecto a la mejor precisión de la iteración anterior. Mostramos el
+primer paso del algoritmo:
+
+```{r}
+accs <- sapply(head(colnames(train.dataset), -1), function(x) {
+    filtered.dataset <- train.dataset[, colnames(train.dataset) != x]
+    mean(sapply(1:10, predict.fold, dataset=filtered.dataset,
+                folds=folds, method=naive.bayes))
+})
+accs
+```
+
+En los resultados anteriores podemos observar que los 7 primeros
+atributos parecen los más informativos, ya que su eliminación produce
+una pérdida significativa en la capacidad de clasificación del
+algoritmo. No obstante, no eliminaremos todas las demás características
+directamente. Buscamos el máximo de los valores anteriores:
+
+```{r, results="hold"}
+names(which.max(accs))
+max(accs)
+```
+
+Eliminando la variable 13 se produce una mejora en la calidad de la
+solución. Retiramos esta variable del conjunto de datos y repetimos el
+procedimiento. Podemos repetir este proceso en bucle y eliminar
+ordenadamente las variables:
+
+```{r}
+blacklisted.vars <- c()
+dataset.copy <- train.dataset
+
+while(length(blacklisted.vars) < 17){
+    accs <- sapply(head(colnames(dataset.copy), -1), function(x) {
+        filtered.dataset <- dataset.copy[, colnames(dataset.copy) != x]
+        mean(sapply(1:10, predict.fold, dataset=filtered.dataset,
+                    folds=folds, method=naive.bayes))
+    })
+
+    curr.var <- names(which.max(accs))
+    curr.prec <- max(accs)
+
+    print(paste("Variable eliminada:", curr.var, "- precision:", curr.prec))
+    dataset.copy[curr.var] <- NULL
+    blacklisted.vars <- c(blacklisted.vars, curr.var)
+}
+```
+
+Como podemos ver a la salida del algoritmo anterior, se han ido
+eliminando variables paulatinamente, eliminando en cada caso aquella
+variable que maximizaba la precisión al excluirse. Se han quitado
+hasta 17 variables, ya que son las variables que de partida sabíamos
+que eran irrelevantes para la clasificación. Lo primero que podemos
+observar es que en ninguna etapa del algoritmo se obtiene una
+precisión inferior a la que se obtenía con todas las variables. No
+obstante, sí que hay resultados mejores con más variables (cuando no
+se consideran sólo las 7 relevantes, si no que se mantienen más dentro
+del conjunto). En particular, el máximo se consigue habiendo eliminado
+sólamente 2 variables, y con la eliminación de las cuatro últimas la
+precisión decae casi medio punto porcentual. Probablemente, si no
+conociésemos el conjunto de datos subyacente, habríamos mantenido las
+variables 22, 24, 15 y 21 (las cuatro últimas eliminadas). A pesar de
+esto, dado que conocemos a priori que sólo siete variables son
+interesantes, podemos considerar que las 7 primeras son las más
+relevantes y crear un modelo con dichas variables, el cual evaluamos
+sobre el conjunto de test que separamos al principio:
+
+
+```{r}
+## Columns drop
+train.dataset.subset <- train.dataset[
+  , !(colnames(train.dataset) %in% blacklisted.vars)
+]
+test.dataset.subset <- test.dataset[
+  , !(colnames(test.dataset) %in% blacklisted.vars)
+]
+
+## Net training
+naive.net <- naive.bayes(train.dataset.subset, "class")
+naive.fitted <- bn.fit(naive.net, train.dataset.subset)
+## Predictions and accuracy calculation
+predictions <- predict(naive.fitted, test.dataset.subset)
+accuracy(test.dataset.subset$class, predictions)
+```
+
+Podemos observar que con esta selección de variables que hemos llevado
+a cabo hemos obtenido un modelo más potente que el que habíamos
+obtenido utilizando toda la información disponible. La precisión del
+modelo ha aumentado en aproximadamente $0.1$ puntos porcentuales, lo
+cual no es una mejora muy significativa, pero hemos conseguido reducir
+la cantidad de información necesaria para la clasificación a 1/3 de la
+información original (de 24 a 7 columnas), lo cual es una mejora muy
+significativa, tanto a la hora de la interpretabilidad del modelo
+(para un humano es mucho más fácil comprender modelos con pocas
+variables) como a la hora de la eficiencia del mismo (un modelo con
+menos variables se traduce en menos cálculos necesarios, tanto en el
+aprendizaje como en la inferencia posterior. El modelo aprendido,
+finalmente, es el que podemos ver a continuación, el cual tiene la
+estructura esperada, pero con muchos menos atributos que al principio:
+
+```{r}
+graphviz.plot(naive.net)
+```
+
+Una vez hemos aprendido el mejor modelo basado en Naive Bayes posible,
+vamos a relajar la precondición de independencia de las variables
+explicativas para obtener modelos más potentes. Comenzamos por el
+_Tree Augmented Naive Bayes_ aprendido con el algoritmo de Chow-Liu,
+utilizando la implementación de `bnlearn`
+
+# _Tree Augmented Naive Bayes_
+
+En este apartado veremos cómo podemos relajar la asunción de
+independencia entre las variables para conseguir un clasificador más
+potente que Naive Bayes, a cambio de aumentar ligeramente la
+complejidad del modelo.
+
+La principal modificación que introduce el modelo TAN es que permite
+que las variables tengan relaciones de 1-dependencia entre sí (el
+concepto de la $n$-dependencia en este contexto hace referencia a que
+las variables pueden ser dependientes de otros $n$ atributos además de
+la clase). De esta manera, partimos de la estructura definida por
+Naive Bayes y vamos añadiendo aristas dirigidas en el grafo entre los
+distintos atributos de forma que se modele más adecuadamente la
+relación que existe entre ellas.
+
+Existen diversos algoritmos que definen cómo han de añadirse dichas
+aristas. En particular, el algoritmo que viene implementado en la
+librería `bnlearn` se basa en el algoritmo de aprendizaje de redes de
+Chow-Liu. Este algoritmo permite aprender redes bayesianas arbitrarias
+partiendo del grafo completo y buscando lo que se conoce como _Maximum
+Spanning Tree_ (MST). El MST, dado un grafo ponderado (en el caso de
+una red bayesiana el peso de la arista viene dado por la dependencia
+entre las dos variables de sus extremos), es el árbol generador del
+grafo que maximiza el peso de las aristas que se escogen. De esta
+forma, se consigue el grafo generador que maximiza las relaciones de
+dependencia entre las variables. Este algoritmo tiene una adaptación
+para generar modelos TAN, en el que las dependencias que se calculan
+se toman condicionando también a la clase.
+
+Podemos aprender un modelo de este tipo sobre nuestras variables
+utilizando el siguiente conjunto de funciones del paquete `bnlearn`:
+
+```{r}
+## TAN learning
+tan.net <- tree.bayes(train.dataset, "class")
+
+## Parameter estimation
+tan.fitted <- bn.fit(tan.net, train.dataset)
+
+## Predictions and accuracy calculation
+predictions <- predict(tan.fitted, test.dataset)
+accuracy(test.dataset$class, predictions)
+```
+
+Como podemos observar, este modelo es ligeramente más potente que el
+modelo de Naive Bayes básico. Las relaciones de dependencia permitidas
+son más complejas, por lo que permiten modelar mejor la relación que
+existe entre nuestras variables, y por tanto, la clasificación final
+mejora. Mostramos a continuación la estructura de la red que hemos
+aprendido, donde podemos apreciar las nuevas dependencias que se han
+formado:
+
+```{r}
+graphviz.plot(tan.net)
+```
+
+Podemos observar cómo un gran número de variables tienen ahora dos
+padres, la clase y otro de los atributos del conjunto.
+
+Al igual que hicimos para la red anterior, vamos a tratar de eliminar
+variables para mejorar los resultados obtenidos. Vamos a proceder de
+la misma forma que hicimos en el caso de Naive Bayes, para estudiar si
+este modelo también es capaz de identificar cuáles son las variables
+relevantes para la clasificación.
+
+# Eliminación de variables sobre el modelo TAN
+
+En este apartado, trataremos de eliminar variables sobre el modelo TAN
+para conseguir un modelo más simple y con mejor capacidad de
+predicción. Al igual que hicimos para la red Naive Bayes, utilizaremos
+una aproximación voraz, en la que eliminaremos en cada paso la
+variable cuya eliminación nos arroje mejores resultados. En primer
+lugar, comprobaremos cuál es el punto de partida evaluando la red con
+todas las variables utilizando validación cruzada:
+
+```{r}
+mean(
+    sapply(1:10, predict.fold, folds=folds,
+           dataset=train.dataset, method=tree.bayes)
+)
+```
+
+Vemos que el resultado obtenido es, de nuevo, ligeramente mejor que el
+obtenido utilizando la validación cruzada con el modelo Naive Bayes,
+lo cual era esperable debido a la mayor complejidad de este modelo. A
+continuación, al igual que hicimos anteriormente, eliminaremos una a
+una las variables del conjunto y calcularemos la precisión media
+obtenida por validación cruzada:
+
+```{r}
+blacklisted.vars <- c()
+dataset.copy <- train.dataset
+
+while(length(blacklisted.vars) < 17){
+    accs <- sapply(head(colnames(dataset.copy), -1), function(x) {
+        filtered.dataset <- dataset.copy[, colnames(dataset.copy) != x]
+        mean(sapply(1:10, predict.fold, dataset=filtered.dataset,
+                    folds=folds, method=tree.bayes))
+    })
+
+    curr.var <- names(which.max(accs))
+    curr.prec <- max(accs)
+
+    print(paste("Variable eliminada:", curr.var, "- precision:", curr.prec))
+    dataset.copy[curr.var] <- NULL
+    blacklisted.vars <- c(blacklisted.vars, curr.var)
+}
+```
+
+En primer lugar, podemos observar que, al igual que ocurrió en el
+modelo anterior, si eliminamos 17 variables, las que se conservan son
+las 7 primeras. Este hecho refuerza la conclusión que sacamos
+previamente, las variables originales son las 7 primeras y las 17
+restantes han sido añadidas como ruido. No obstante, aquí se presenta
+un comportamiento curioso. Ahora sí que sufrimos un empeoramiento
+cuando quitamos demasiadas variables. Los resultados obtenidos en los
+dos últimos casos son peores que los de partida, aunque no de forma
+significativa. No obstante, es posible que interese conservar alguna
+de las variables añadidas. Probablemente, si no conociésemos el
+conjunto de datos subyacente, en este caso conservaríamos las 8
+últimas variables que se han eliminado, ya que conservando esas 8
+variables se tiene la mejor configuración encontrada (la que da una
+precisión mayor). Si construimos el modelo con esos 16 atributos (las
+7 originales y las 9 conservadas), el resultado sobre el conjunto de
+test es el siguiente:
+
+```{r}
+## Columns drop
+train.dataset.subset <- train.dataset[
+  , !(colnames(train.dataset) %in% head(blacklisted.vars, -8))
+]
+test.dataset.subset <- test.dataset[
+  , !(colnames(test.dataset) %in% head(blacklisted.vars, -8))
+]
+
+## Net training
+tan.net <- tree.bayes(train.dataset.subset, "class")
+tan.fitted <- bn.fit(tan.net, train.dataset.subset)
+## Predictions and accuracy calculation
+predictions <- predict(tan.fitted, test.dataset.subset)
+accuracy(test.dataset.subset$class, predictions)
+```
+
+Donde podemos apreciar una mejora de más de medio punto porcentual.
+Hemos obtenido, por tanto, un modelo más simple y de mejor precisión
+que el original. La estructura de red aprendida es la que sigue:
+
+```{r}
+graphviz.plot(tan.net)
+```
+
+Finalmente, vamos a intentar aprender la estructura de red utilizando
+una aproximación distinta. Dicha aproximación se basa también en la
+construcción de clasificadores simples, con una estructura fija, y
+el posterior ensemble de los mismos. Dicha técnica se conoce como
+_Averaged One-Dependence Estimators_.
+
+# _Averaged One-Dependence Estimators_
+
+Vamos a estudiar los resultados obtenidos por un nuevo tipo de
+clasificadores. Estos clasificadores se conocen como _Average
+One-Dependence Estimators_ (AODE). La idea que subyace en este tipo de
+modelos consiste en crear clasificadores similares a los Naive Bayes,
+pero añadiendo uno de los atributos como padre de todos los demás. Se
+construyen estos modelos para todos los atributos, y la clasificación
+final se lleva a cabo con el ensemble de modelos. Se construyen, por
+tanto, $n$ redes bayesianas, para $n$ el número de variables.
+
+Como indicamos al principio de la práctica, este tipo de modelos no
+están disponibles en la librería `bnlearn`, por lo que tendremos que
+utilizar una librería distinta, `bnclassify`. Esta librería surge
+precisamente para paliar las carencias de la primera en los modelos de
+redes bayesianas orientados a clasificación, ya que sólo dispone de
+los dos modelos básicos.
+
+Mostramos a continuación cómo podemos aprender un modelo de este tipo
+sobre el conjunto de entrenamiento y evaluarlo sobre el conjunto de
+test:
+
+```{r}
+## Structure learning
+network <- aode("class", train.dataset)
+## Parameter learning
+network.fit <- lp(network, train.dataset, smooth=0)
+## Predictions and accuracy computation
+predictions <- predict(network.fit, test.dataset)
+accuracy(test.dataset$class, predictions)
+```
+
+En primer lugar, podemos observar que los resultados obtenidos por
+este modelo no son especialmente adecuados, al menos a priori. Los
+resultados que obtiene son incluso peores a los obtenidos por el Naive
+Bayes simple. No obstante, hemos comprobado que este modelo es muy
+sensible en su aprendizaje de parámetros, provocado probablemente por
+un aumento en el número que hay que aprender. El parámetro `smooth`,
+que antes hemos puesto a su valor por defecto, 0, es el parámetro de
+normalización que se aplica cuando se hace un aprendizaje de
+parámetros bayesiano, el cual aparece a partir de la distribución a
+priori de Dirichlet que se establece sobre las tablas de probabilidad
+de la red. La modificación de los hiperparámetros de aprendizaje
+afecta fuertemente a los resultados de este modelo. Concretamente,
+hemos observado que para `smooth=10`, tenemos un resultado mucho más
+adecuado:
+
+```{r}
+## Parameter learning (structure remains the same)
+network.fit <- lp(network, train.dataset, smooth=10)
+## Predictions and accuracy computation
+predictions <- predict(network.fit, test.dataset)
+accuracy(test.dataset$class, predictions)
+```
+
+Obtenemos una mejora de medio punto porcentual simplemente modificando
+este parámetro, consiguiendo ahora el mejor modelo que hemos
+encontrado de los que utilizan todas las variables.
+
+En cuanto a la estructura del modelo, como hemos dicho anteriormente,
+en realidad tenemos tantas redes bayesianas como atributos. Por tanto,
+el modelo anterior está compuesto por 24 redes. La estructura de cada
+red es fija, y ponemos la primera a modo de ejemplo:
+
+```{r}
+plot(network.fit$.models$att1)
+```
+
+Como ya habíamos comentado, esta estructura coloca a una de las
+variables como padre de todas las demás, además de la clase, que es
+padre de todas. Tendremos esta estructura repetida para cada una
+de las variables del modelo.
+
+Finalmente, para terminar la práctica, repetiremos el algoritmo
+de selección de variables para este modelo, para comprobar si es
+capaz también de encontrar las 7 variables más relevantes para la
+clasificación.
+
+## Selección de variables para el modelo AODE
+
+Repetiremos ahora el pipeline de selección de variables que utilizamos
+en los modelos anteriores, para comprobar si esta clase de modelos
+también identifica las variables poco relevantes.
+
+Comenzamos calculando la precisión del modelo con la validación cruzada.
+Tenemos que modificar ligeramente la función que definimos al principio
+ya que el cambio de modelo hace que el entrenamiento no sea idéntico
+
+```{r}
+predict.fold <- function(idx, folds, dataset) {
+    ## Data partitioning in train and test
+    train.set <- dataset[unlist(folds[c(-idx)]),]
+    test.set <- dataset[folds[[idx]],]
+
+    ## Structure learning, parameter learning and prediction
+    network <- aode("class", train.set)
+    network.fit <- lp(network, train.set, smooth=10)
+    ## Predictions and accuracy computation
+    predictions <- predict(network.fit, test.set)
+
+    ## Accuracy
+    accuracy(test.set$class, predictions)
+}
+
+mean(sapply(1:10, predict.fold, folds=folds, dataset=train.dataset))
+```
+
+Una vez tenemos esta precisión calculada (podemos observar que es un
+valor relativamente más alto que en los dos casos anteriores, por lo
+que podemos pensar que este modelo es incluso más potente de lo que
+nos parecía con la precisión que obtuvimos sobre el test), pasamos a
+eliminar variables:
+
+```{r}
+blacklisted.vars <- c()
+dataset.copy <- train.dataset
+
+while(length(blacklisted.vars) < 17){
+    accs <- sapply(head(colnames(dataset.copy), -1), function(x) {
+        filtered.dataset <- dataset.copy[, colnames(dataset.copy) != x]
+        mean(sapply(1:10, predict.fold, dataset=filtered.dataset,
+                    folds=folds))
+    })
+
+    curr.var <- names(which.max(accs))
+    curr.prec <- max(accs)
+
+    print(paste("Variable eliminada:", curr.var, "- precision:", curr.prec))
+    dataset.copy[curr.var] <- NULL
+    blacklisted.vars <- c(blacklisted.vars, curr.var)
+}
+```
+
+Al igual que nos ocurría con los algoritmos anteriores, las 7
+variables que se conservan son las 7 primeras, por lo que podemos
+confirmar casi con toda seguridad que son las 7 relevantes. Además,
+los resultados obtenidos por la eliminación paulatina de variables
+suponen casi siempre una mejora (el único caso en el que se tiene un
+resultado peor que al principio es al eliminar la última). Si nos
+quedamos con el modelo que mejores resultados nos ofrece, tendríamos
+que conservar, además de las 7 variables originales, otras 6 variables
+más. Ese modelo, sobre el conjunto de test, nos da la precisión
+siguiente:
+
+```{r}
+## Columns drop
+train.dataset.subset <- train.dataset[
+  , !(colnames(train.dataset) %in% head(blacklisted.vars, -6))
+]
+test.dataset.subset <- test.dataset[
+  , !(colnames(test.dataset) %in% head(blacklisted.vars, -6))
+]
+
+## Net training
+tan.net <- tree.bayes(train.dataset.subset, "class")
+tan.fitted <- bn.fit(tan.net, train.dataset.subset)
+## Predictions and accuracy calculation
+predictions <- predict(tan.fitted, test.dataset.subset)
+accuracy(test.dataset.subset$class, predictions)
+```
+
+Que es una precisión relativamente alta. No obstante, con este modelo
+no hemos conseguido una precisión tan alta como con el modelo
+anterior.  Esto puede deberse a que, para cada configuración de
+variables, el hiperparámetro de la distribución de Dirichlet óptimo
+puede ser distinto, y el haber escogido el 10 como valor en todos los
+casos no sea óptimo. En cualquier caso, conseguimos un modelo potente,
+que arroja buenos resultados.
+
+# Conclusión
+
+En esta práctica se han estudiado los clasificadores basados en redes
+bayesianas, dando como ejemplo tres modelos. En primer lugar, un
+modelo basado en Naive Bayes, a continuación un modelo TAN, y
+finalmente un modelo basado en ensembles. Se ha observado cómo la
+utilización de modelos más potentes ha mejorado la tasa de
+clasificación, siendo cada modelo ensayado más potente que los
+anteriores.
+
+Además, dado que conocíamos la estructura subyacente en el conjunto de
+datos, para los tres modelos ensayados, hemos propuesto una política
+_greedy_ de selección de variables, la cual nos ha permitido
+identificar las siete variables originales y descartar las 17
+sintéticas, coincidiendo en todos los modelos que las 7 primeras eran
+las relevantes. Además, hemos conseguido modelos con mejores tasas de
+clasificación con la selección de variables, de forma que además de
+modelos más simples hemos generado modelos más adecuados para resolver
+el problema al que nos enfrentábamos. Tras aplicar este filtrado de
+variables, hemos encontrado que el modelo de ensemble, que con la
+configuración básica era el más potente, consigue unos resultados
+ligeramente peores que el TAN, posiblemente producido por la
+sensibilidad del último modelo a los cambios en los hiperparámetros
+utilizados a la hora de aprender las tablas de probabilidad.
