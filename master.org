@@ -1,9 +1,21 @@
 * Trabajo pendiente
+** Big Data II
+*** DONE Diseño de un experimento ETL con Pig
+    CLOSED: [2020-03-31 mar 12:29] DEADLINE: <2020-05-22 vie>
 ** Minería de medios sociales
 *** TODO Análisis de redes sociales con Gephy
     SCHEDULED: <2020-03-09 lun> DEADLINE: <2020-05-11 lun>
-*** TODO Minería de textos y web
-    SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-18 lun>
+*** TODO Minería de textos con Knime
+    SCHEDULED: <2020-04-09 jue> DEADLINE: <2020-05-11 lun>
+*** TODO Análisis de sentimientos con Knime
+    SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-11 lun>
+** Técnicas de soft computing para aprendizaje y optimización
+*** TODO Trabajo de tercera sesión de algoritmos bioinspirados
+    DEADLINE: <2020-04-19 dom>
+*** DONE Redes neuronales - Primer guión
+    CLOSED: [2020-03-26 jue 10:00] DEADLINE: <2020-04-20 lun>
+*** DONE Redes neuronales - Segundo guión
+    CLOSED: [2020-03-31 mar 12:24] DEADLINE: <2020-04-06 lun>
 ** Modelos gráficos probabilísticos
 *** DONE Construcción de redes bayesianas con Elvira
     CLOSED: [2020-02-28 vie 18:37] DEADLINE: <2020-03-20 vie>
@@ -11,7 +23,8 @@
     CLOSED: [2020-03-18 mié 09:22] DEADLINE: <2020-03-27 vie>
 *** DONE Aprendizaje de redes bayesianas con bnlearn
     CLOSED: [2020-03-19 jue 13:27] DEADLINE: <2020-03-21 sáb>
-*** TODO Clasificación con redes bayesianas
+*** DONE Clasificación con redes bayesianas
+    CLOSED: [2020-03-26 jue 10:01]
 ** Big data I
 *** DONE Examen
     CLOSED: [2020-02-11 mar 10:38] SCHEDULED: <2020-02-07 vie>
@@ -20,8 +33,8 @@
     Creados Dockerfiles para Python y R
     Estudiar la posibilidad de usar Rstudio via web
 
-*** IN PROGRESS Consultas en BD NoSQL - MongoDB
-    DEADLINE: <2020-03-22 dom>
+*** DONE Consultas en BD NoSQL - MongoDB
+    CLOSED: [2020-03-24 mar 16:53] DEADLINE: <2020-03-22 dom>
 *** DONE Selección de base de datos para experimentación ETL
     CLOSED: [2020-02-29 sáb 18:00] DEADLINE: <2020-03-20 vie>
 *** DONE Experimento ETL usando Apache Impala

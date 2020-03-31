@@ -652,7 +652,8 @@ than before, the obtained results are the following:
 ```{r, results="hide", message=F, fig.height=3.9}
 imb.ratio <- 0.6
 methods <- c("SMOTE", "BLSMOTE", "DBSMOTE", "MWMOTE")
-comparison <- perform.comparison.smote(dataset, imb.ratio, methods)
+comparison <- perform.comparison.smote(dataset, imb.rati
+                                       o, methods)
 ```
 
 ```{r}
