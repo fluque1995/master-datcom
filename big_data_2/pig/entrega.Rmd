@@ -1,0 +1,187 @@
+---
+title: "Diseño de un experimento ETL con Apache Pig"
+subtitle: "Big Data II"
+author: "Francisco Luque Sánchez"
+date: "31/03/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+# Introducción
+
+En esta práctica se mostrará el diseño de un experimento ETL
+utilizando Apache Pig. En primer lugar, describiremos la base de datos
+que hemos seleccionado, a continuación cómo podemos cargar la misma en
+el motor de bases de datos Pig, y finalmente daremos un ejemplo
+de consulta sobre el conjunto de datos.
+
+Las prácticas se han realizado sobre una máquina virtual aportada por
+Cloudera, la cual trae el sistema de Apache Pig preinstalado y
+configurado.
+
+# Base de datos escogida
+
+Al igual que hicimos en Big Data I para la práctica con Apache Impala,
+hemos utilizado una base de datos de reservas de hotel. Dicha base de
+datos se puede descargar en
+https://www.kaggle.com/jessemostipak/hotel-booking-demand. En ella se
+recoge información sobre los clientes que han efectuado reservas en
+dos establecimientos distintos entre los años 2015 y 2017. Se guarda
+información sobre la fecha de la estancia, la duración, el número de
+personas, el tipo de habitación reservada...  Toda la información
+personal de los huéspedes ha sido eliminada por cuestiones de
+privacidad, por lo que los datos están completamente anonimizados de
+partida.
+
+En total, el conjunto cuenta con 119390 filas y 32 columnas, y se
+nos aporta como un archivo en formato CSV.
+
+# Experimento ETL en Apache Pig
+
+Suponemos que ya tenemos correctamente emplazado el archivo CSV en el
+sistema de archivos distribuido (`hdfs`) de la máquina, en el
+directorio `/user/pig`. Supuesto dicho emplazamiento en el lugar
+adecuado, podemos ingestar los datos en el sistema utilizando la
+siguiente orden:
+
+```{javascript}
+hotel_bookings = LOAD '/user/pig/hotel_bookings.csv' USING PigStorage(',')
+AS (hotel:chararray, canceled:int, lead_time:int, arrival_year:int,
+arrival_month:chararray, arrival_week:int, arrival_day:int,
+days_in_weekend:int, days_in_week:int, adults:int, children:int,
+babies:int, meal:chararray, country:chararray, market_segment:chararray,
+distribution_channel:chararray, repeated_guest:int,
+previous_cancellations:int, previous_bookings_not_cancelled:int,
+reserved_room_type:chararray, assigned_room_type:chararray,
+booking_changes:int, deposit_type:chararray, agent:int, company:int,
+days_in_waiting:int, customer_type:chararray, adr:float,
+parking_places:int, special_requests:int, reservation_status:chararray,
+reservation_status_date:chararray);
+```
+
+Donde hemos especificado el nombre y el tipo de cada columna. En este
+experimento, estaremos interesados en averiguar la procedencia y el
+motivo del viaje de los adultos que viajan solos, para intentar
+diseñar un perfil de este tipo de huéspedes. Comenzamos seleccionando
+las columnas que nos van a ser útiles en los pasos posteriores, para
+evitar arrastrar información innecesaria en las posteriores etapas:
+
+```{javascript}
+nations_and_people = foreach hotel_bookings generate
+adults, children, country, babies, market_segment;
+```
+
+Nos hemos quedado con la información del número de personas en la reserva,
+así como el segmento de mercado y el país de procedencia. Seleccionamos
+ahora aquellas filas compuestas por un único adulto:
+
+```{javascript}
+alone_adults = filter nations_and_people by
+adults == 1 and children == 0 and babies == 0;
+```
+
+Como hemos dicho anteriormente, nos interesará saber cuántos viajeros
+de cada tipo tenemos, atendiendo a su procedencia y al motivo de su
+viaje. Obtendremos esa información a partir del segmento de mercado,
+ya que esta información nos puede dar una idea del huésped, ya que
+sabremos cómo ha obtenido su reserva. Agrupamos por tanto por la pareja
+anterior:
+
+```{javascript}
+travels_by_segment = group alone_adults by (country, market_segment);
+```
+
+Una vez hemos hecho el agrupamiento, nos interesa contar el tamaño de
+cada grupo, ya que eso nos dará información del tipo de viajero más
+común que viaja solo. Además, aprovecharemos para separar el grupo en
+dos columnas, porque en el siguiente paso nos interesará filtrar
+algunos resultados:
+
+```{javascript}
+num_travels_by_segment = foreach travels_by_segment generate
+FLATTEN(group) as (country, segment),
+COUNT(alone_adults) as num_travels;
+```
+
+Una vez hemos construido las filas con las tres columnas que nos
+interesan, vamos a filtrar el resultado final, para evitar tener
+resultados poco relevantes, así como resultados ruidosos. Por un
+lado, tenemos información perdida en la columna del país, por lo que
+descartaremos aquellos registros que tengan el valor NULL en esta
+columna. Además, dado que estamos interesados en una visión general
+de este perfil de huésped, eliminaremos aquellos registros que se
+repitan en pocas ocasiones. En particular, consideramos que si hay
+menos de 100 reservas de un tipo (hay que tener en cuenta que estamos
+mirando un periodo de 3 años), ese tipo de cliente nos resulta
+poco interesante y lo excluimos del resultado:
+
+```{javascript}
+filtered_travels = filter num_travels_by_segment by
+num_travels >= 100 and country != 'NULL';
+```
+
+Finalmente, ordenamos los resultados para facilitar su estudio y
+mostramos el resultado:
+
+```{javascript}
+ordered_travels = order filtered_travels by num_travels desc;
+dump ordered_travels;
+```
+
+| country | segment       | count | country | segment       | count |
+|---------|---------------|-------|---------|---------------|-------|
+| PRT     | Offline TA/TO | 3220  | NLD     | Online TA     | 213   |
+| PRT     | Groups        | 2447  | USA     | Online TA     | 193   |
+| PRT     | Online TA     | 1732  | IRL     | Online TA     | 175   |
+| PRT     | Direct        | 1238  | FRA     | Groups        | 172   |
+| GBR     | Online TA     | 689   | CHN     | Online TA     | 147   |
+| DEU     | Online TA     | 481   | GBR     | Direct        | 147   |
+| FRA     | Online TA     | 452   | ESP     | Offline TA/TO | 146   |
+| ESP     | Online TA     | 425   | ESP     | Direct        | 144   |
+| GBR     | Groups        | 424   | CHE     | Online TA     | 141   |
+| DEU     | Offline TA/TO | 415   | FRA     | Corporate     | 138   |
+| PRT     | Complementary | 316   | BRA     | Online TA     | 130   |
+| FRA     | Offline TA/TO | 281   | ESP     | Corporate     | 125   |
+| GBR     | Offline TA/TO | 261   | ITA     | Offline TA/TO | 123   |
+| ITA     | Online TA     | 229   | FRA     | Direct        | 121   |
+| ESP     | Groups        | 229   | PRT     | Aviation      | 102   |
+| DEU     | Groups        | 217   |         |               |       |
+
+Podemos observar que la mayoría de viajeros, independientemente del
+motivo del viaje, provienen de Portugal, lo cual concuerda con la
+localización de ambos hoteles (el conjunto de datos original, del que
+se extrae éste, está publicado en
+https://www.sciencedirect.com/science/article/pii/S2352340918315191, y
+todos los autores del artículo son portugueses, por lo que es
+esperable que los hoteles de los que han obtenido los datos sean de
+allí, aunque no se ha localizado el nombre y la localización exacta de
+los mismos). En cuanto a la procedencia de los países, la mayoría de
+ellos son europeos, apareciendo en la segunda columna Estados Unidos,
+China y Brasil. Probablemente, todos ellos por temas de trabajo.
+Resulta curioso cómo el idioma hace que apareza aquí Brasil antes que
+otros países de América Latina.
+
+Por otro lado, el segmento "Groups" aparece con relativa frecuencia.
+Mientras que los demás conceptos pueden hacer referencia a temas de
+trabajo (la mayoría de viajes que se realizan en solitario son por
+este motivo), en este caso es muy probable que se trate de viajes
+grupales organizados por una empresa externa, y enfocados de forma
+lúdica. Concuerda especialmente con que los países de los que proceden
+este tipo de viajes sean, aparte de Portugal y España por cercanía,
+Gran Bretaña y Alemania, donde está muy extendida esta práctica. Puede
+resultar interesante estudiar más detenidamente estos grupos en
+particular, para tratar de identificar este perfil de una forma más
+detallada.
