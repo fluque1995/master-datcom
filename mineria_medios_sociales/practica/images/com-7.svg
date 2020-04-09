@@ -1,0 +1,2612 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg contentScriptType="text/ecmascript" width="4082.0"
+     xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify"
+     contentStyleType="text/css"
+     viewBox="-2668.000000 -78.000000 4082.000000 2349.000000" height="2349.0"
+     preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+     version="1.1">
+    <g id="edges">
+        <path fill="none" stroke-width="7.75"
+              d="M -654.748657,982.973389 C -642.110352,1162.816040 -892.916748,1451.537476 -1072.759399,1464.175781"
+              class="id_Chief_Wiggum id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="25.0"
+              d="M -654.748657,982.973389 C -666.236328,1116.510620 -883.773621,1299.584839 -1017.310852,1288.097168"
+              class="id_Chief_Wiggum id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -929.453857,1079.115845 -1485.725586,811.271912 -1581.868042,536.566650"
+              class="id_Chief_Wiggum id_Psychic" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.375"
+              d="M -654.748657,982.973389 C -674.422485,1148.897461 -952.819458,1368.272827 -1118.743530,1348.598999"
+              class="id_Chief_Wiggum id_Dispatcher" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="6.0"
+              d="M -654.748657,982.973389 C -548.271973,1142.044067 -627.162964,1540.364868 -786.233643,1646.841553"
+              class="id_Chief_Wiggum id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -513.525208,1086.358643 -456.768127,1453.271851 -560.153442,1594.495239"
+              class="id_Chief_Wiggum id_Driver" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -822.830811,1055.146729 -1183.214111,911.283508 -1255.387451,743.201355"
+              class="id_Chief_Wiggum id_Tour_Guide" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -746.136108,1196.308350 -1203.219849,1379.229614 -1416.554810,1287.842163"
+              class="id_Chief_Wiggum id_Teenaged_Guide" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -486.873596,1117.549927 -436.925842,1571.227417 -571.502441,1739.102539"
+              class="id_Chief_Wiggum id_Customer" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -470.701294,1142.924561 -434.556885,1658.922363 -594.508057,1842.969727"
+              class="id_Chief_Wiggum id_Park_Commissioner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.75"
+              d="M -654.748657,982.973389 C -613.166809,1002.419861 -579.963867,1093.962524 -599.410339,1135.544312"
+              class="id_Chief_Wiggum id_Sarah_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -542.339539,1056.573730 -484.126221,1335.587769 -557.726501,1447.996948"
+              class="id_Chief_Wiggum id_Molloy" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -545.915833,913.733582 -278.806915,973.123230 -209.567169,1081.956055"
+              class="id_Chief_Wiggum id_Technician" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -767.305054,1061.024536 -1053.216431,1009.266663 -1131.267578,896.710266"
+              class="id_Chief_Wiggum id_Very_Old_Clerk" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -728.521423,1112.741577 -1033.832764,1196.734741 -1163.600952,1122.961914"
+              class="id_Chief_Wiggum id_Rex_Banner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -977.170898,1001.681030 -1488.865723,546.109070 -1507.573364,223.686798"
+              class="id_Chief_Wiggum id_Cooder" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -988.640564,1083.234863 -1639.870605,732.789490 -1740.132202,398.897614"
+              class="id_Chief_Wiggum id_Fantastic_Dan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -931.623230,974.928528 -1334.867798,547.549377 -1326.822998,270.674774"
+              class="id_Chief_Wiggum id_Performer" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -973.920166,1025.050903 -1515.793457,609.409790 -1557.870972,290.238342"
+              class="id_Chief_Wiggum id_Spud" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -416.440491,1067.817383 -186.244278,1552.545776 -271.088287,1790.853882"
+              class="id_Chief_Wiggum id_Rosey_Grier" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1121.651611,1198.182373 -2144.819336,820.641357 -2360.028320,353.738403"
+              class="id_Chief_Wiggum id_Commander" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -1045.809814,1207.054321 -1968.523071,956.584106 -2192.604004,565.522949"
+              class="id_Chief_Wiggum id_Detective_Homer_Simpson"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1186.248291,1204.273804 -2315.448486,738.974792 -2536.749023,207.475067"
+              class="id_Chief_Wiggum id_Lieutenant" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -593.422546,1305.237671 -984.829712,1880.623047 -1307.093994,1941.949097"
+              class="id_Chief_Wiggum id_Ed_Begley,_Jr." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -543.324646,1295.046875 -844.298950,1930.293213 -1156.372437,2041.717285"
+              class="id_Chief_Wiggum id_Police_Car" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -598.824097,1331.821045 -1038.208496,1938.979126 -1387.056152,1994.903687"
+              class="id_Chief_Wiggum id_Trent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -396.323364,1187.724121 -315.811462,1882.488037 -520.562195,2140.913330"
+              class="id_Chief_Wiggum id_Curtis_E._Bear" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -405.553894,1218.036987 -384.357117,1944.424438 -619.420654,2193.619141"
+              class="id_Chief_Wiggum id_Sergeant_Crew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -843.122131,1181.083008 -1422.846680,1195.687134 -1620.956299,1007.313660"
+              class="id_Chief_Wiggum id_Moses/Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -787.402100,1152.605469 -1240.830322,1208.073486 -1410.462402,1075.419922"
+              class="id_Chief_Wiggum id_Pharaoh_Skinner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -878.676880,1173.525635 -1500.397583,1123.461670 -1690.949829,899.533508"
+              class="id_Chief_Wiggum id_Slavedriver_Willie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -644.064819,1245.423706 -1021.714600,1655.124878 -1284.164917,1665.808594"
+              class="id_Chief_Wiggum id_Goliath/Nelson" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -698.515869,1232.867432 -1139.007690,1542.057617 -1388.901733,1498.290283"
+              class="id_Chief_Wiggum id_Lion" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="3.125"
+              d="M -654.748657,982.973389 C -516.292175,806.457214 -43.833199,749.367798 132.682953,887.824280"
+              class="id_Chief_Wiggum id_Cletus_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -535.221069,1165.748047 -630.091675,1619.201416 -812.866333,1738.729004"
+              class="id_Chief_Wiggum id_Gloria" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -841.345703,1281.057983 -1568.368042,1448.289307 -1866.452637,1261.692261"
+              class="id_Chief_Wiggum id_Mrs._Bellamy" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -798.577454,1272.735596 -1448.963989,1491.635864 -1738.726196,1347.807007"
+              class="id_Chief_Wiggum id_Screamapillar" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -787.752319,1104.117676 -1168.974121,1086.328735 -1290.118408,953.325073"
+              class="id_Chief_Wiggum id_Scary_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -702.521301,1197.430298 -1095.865723,1447.456787 -1310.322632,1399.684204"
+              class="id_Chief_Wiggum id_Gina_Vendetti" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -533.253296,1223.861572 -712.342468,1767.437012 -953.230652,1888.932373"
+              class="id_Chief_Wiggum id_Lt._Adventure" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -501.691498,1231.466064 -644.844849,1833.790894 -893.337585,1986.848022"
+              class="id_Chief_Wiggum id_Sgt._Activity" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -689.422852,739.526978 -376.264587,322.346130 -132.818176,287.671906"
+              class="id_Chief_Wiggum id_Frink_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -725.232544,797.523071 -552.782959,413.621765 -367.332642,343.137909"
+              class="id_Chief_Wiggum id_Goat" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -618.526794,780.483215 -260.458740,531.080750 -57.968582,567.302612"
+              class="id_Chief_Wiggum id_Innkeeper" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -641.509277,830.838867 -393.448395,622.496216 -241.313873,635.735596"
+              class="id_Chief_Wiggum id_Joseph" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -666.333740,782.914185 -383.622650,465.447784 -183.563477,453.862640"
+              class="id_Chief_Wiggum id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -654.748657,982.973389 C -568.040466,618.701965 108.428970,202.357162 472.700378,289.065338"
+              class="id_Chief_Wiggum id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -779.951599,765.527161 -641.586670,251.553467 -424.140442,126.350555"
+              class="id_Chief_Wiggum id_Matthew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -640.293030,715.175659 -216.912979,335.162445 50.884766,349.618073"
+              class="id_Chief_Wiggum id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -751.210571,711.890137 -489.278595,160.572464 -218.195374,64.110565"
+              class="id_Chief_Wiggum id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -693.053589,700.912537 -327.419586,220.363892 -45.358704,182.058975"
+              class="id_Chief_Wiggum id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1000.139771,1324.783447 -2030.941650,1319.411865 -2372.751709,974.020752"
+              class="id_Chief_Wiggum id_Dr._Phil" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1031.264893,1267.242798 -2022.443237,1128.872437 -2306.712646,752.356262"
+              class="id_Chief_Wiggum id_Fudge_Box" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1003.341370,1287.309814 -1982.734863,1220.925293 -2287.071289,872.332581"
+              class="id_Chief_Wiggum id_Invisible_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -1029.713135,1251.631714 -1995.147095,1092.172729 -2263.805420,717.208313"
+              class="id_Chief_Wiggum id_Southern_Tv_Therapist"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -861.275757,1072.770630 -1305.762207,897.675903 -1395.559570,691.148804"
+              class="id_Chief_Wiggum id_Ipod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -849.032349,1039.826904 -1225.738159,833.681519 -1282.591675,639.397827"
+              class="id_Chief_Wiggum id_Tourist" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -697.607544,968.739258 -740.544678,883.099609 -726.310547,840.240723"
+              class="id_Chief_Wiggum id_The_Serpent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -479.128357,1033.744995 -291.855347,1373.333008 -342.626984,1548.953247"
+              class="id_Chief_Wiggum id_Kiefer_Sutherland" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -459.034668,1053.171265 -270.760559,1452.039063 -340.958466,1647.753052"
+              class="id_Chief_Wiggum id_Strangles" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -654.748657,982.973389 C -582.236023,1049.232544 -572.855835,1257.390137 -639.114929,1329.902710"
+              class="id_Chief_Wiggum id_Marksman" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -508.541595,755.177246 52.463203,632.793701 280.259338,779.000732"
+              class="id_Chief_Wiggum id_Santa&apos;S_Little_Hybrid"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -654.748657,982.973389 C -510.877441,721.493042 97.149811,545.079407 358.630127,688.950623"
+              class="id_Chief_Wiggum id_Zombie_Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.75"
+              d="M -4.967681,949.044739 C -128.138153,1085.786621 -518.006775,1106.143921 -654.748657,982.973389"
+              class="id_Brandine_Del_Roy id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -379.754944,543.029358 C -346.764893,686.016907 -511.761139,949.983337 -654.748657,982.973389"
+              class="id_Angel id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1135.552979,350.710571 -684.585938,712.165894 -654.748657,982.973389"
+              class="id_Camel id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2113.930664,39.461090 -917.417664,447.967072 -654.748657,982.973389"
+              class="id_Archie_Bunker id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2400.346680,256.594208 C -1905.951172,52.750427 -858.592468,488.577972 -654.748657,982.973389"
+              class="id_Bad_Flanders id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2555.559082,394.263397 C -2057.655029,131.843292 -917.168762,485.069305 -654.748657,982.973389"
+              class="id_Banker id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1410.840942,1739.844727 -1010.694275,1072.154541 -654.748657,982.973389"
+              class="id_Bald_Eagle id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -1022.524048,1969.246460 -936.966125,1208.152222 -654.748657,982.973389"
+              class="id_Astronaut_In_Space_Suit id_Chief_Wiggum"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -722.110107,2094.575195 C -930.958191,1858.782593 -890.541321,1191.821411 -654.748657,982.973389"
+              class="id_Businesswoman id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1919.185425,1064.177612 C -1682.538940,795.049438 -923.876831,746.326904 -654.748657,982.973389"
+              class="id_Burning_Bush id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1676.836060,1208.610352 C -1517.546021,959.065430 -904.293518,823.683350 -654.748657,982.973389"
+              class="id_Carmen_Electra id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -444.950989,392.155579 -488.781494,846.226563 -654.748657,982.973389"
+              class="id_Baby_Jesus id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2462.165771,922.702881 C -2088.628174,573.273560 -1004.177979,609.435913 -654.748657,982.973389"
+              class="id_50-Foot_Lenny id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1040.978760,789.888611 C -925.115784,751.259521 -693.377747,867.110413 -654.748657,982.973389"
+              class="id_Bart-Man id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 494.763214,851.713623 -293.493439,1147.222656 -654.748657,982.973389"
+              class="id_Adult_Bart id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 596.771912,593.108643 C 424.440735,921.385742 -326.471619,1155.304565 -654.748657,982.973389"
+              class="id_Adult_Lisa id_Chief_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="7.75"
+              d="M -1072.759399,1464.175781 C -1096.885376,1417.870361 -1063.616211,1312.223145 -1017.310852,1288.097168"
+              class="id_Eddie id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1148.911865,1601.888062 -1469.709106,1694.227905 -1607.421387,1618.075439"
+              class="id_Eddie id_Tv_Husband" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1123.613647,1614.751221 -1425.758423,1764.332886 -1576.333862,1713.478638"
+              class="id_Eddie id_Tv_Wife" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1107.448364,1699.232178 -1512.066162,1999.783081 -1747.122559,1965.094116"
+              class="id_Eddie id_Stock_Reporter" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.375"
+              d="M -1072.759399,1464.175781 C -978.921082,1443.403809 -807.005676,1553.003174 -786.233643,1646.841553"
+              class="id_Eddie id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -976.564941,1215.093384 -458.649567,985.761597 -209.567169,1081.956055"
+              class="id_Eddie id_Technician" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1159.170532,1414.101318 -1213.675415,1209.373047 -1163.600952,1122.961914"
+              class="id_Eddie id_Rex_Banner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -973.973755,1596.406738 -1024.141479,1942.931641 -1156.372437,2041.717285"
+              class="id_Eddie id_Police_Car" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1029.473145,1633.180786 -1218.051147,1951.617432 -1387.056152,1994.903687"
+              class="id_Eddie id_Trent" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -836.203003,1519.396729 -564.199707,1957.062744 -619.420654,2193.619141"
+              class="id_Eddie id_Sergeant_Crew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1074.713989,1546.783447 -1201.557251,1667.763184 -1284.164917,1665.808594"
+              class="id_Eddie id_Goliath/Nelson" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1129.165039,1534.227173 -1318.850342,1554.695923 -1388.901733,1498.290283"
+              class="id_Eddie id_Lion" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -965.870117,1467.107788 -809.934326,1631.839722 -812.866333,1738.729004"
+              class="id_Eddie id_Gloria" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1133.170410,1498.790161 -1275.708252,1460.095215 -1310.322632,1399.684204"
+              class="id_Eddie id_Gina_Vendetti" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1072.759399,1464.175781 C -1241.173462,1732.986572 -1897.010742,1883.581909 -2165.821533,1715.167847"
+              class="id_Eddie id_Eliza" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1072.759399,1464.175781 C -1219.272217,1757.453491 -1878.958130,1977.600586 -2172.235840,1831.087769"
+              class="id_Eddie id_Inspector_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -1223.043457,1684.387085 -1778.786499,1789.277954 -1998.997803,1638.993896"
+              class="id_Eddie id_Peter_Pan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -963.902344,1525.221313 -892.185059,1780.075317 -953.230652,1888.932373"
+              class="id_Eddie id_Lt._Adventure" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1072.759399,1464.175781 C -932.340576,1532.825806 -824.687500,1846.429199 -893.337585,1986.848022"
+              class="id_Eddie id_Sgt._Activity" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1646.525024,2135.997803 C -1666.136230,1886.880249 -1321.876953,1483.786987 -1072.759399,1464.175781"
+              class="id_Cable_Guy id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1800.997314,2077.799561 C -1778.074463,1809.427246 -1341.131714,1441.252930 -1072.759399,1464.175781"
+              class="id_Challenger id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1654.073975,2021.191406 C -1649.214111,1793.525391 -1300.425415,1459.315918 -1072.759399,1464.175781"
+              class="id_Champ id_Eddie" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1118.743530,1348.598999 C -1086.431396,1362.517578 -1058.840820,1431.863647 -1072.759399,1464.175781"
+              class="id_Dispatcher id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1398.202637,1919.687378 -1248.862305,1540.718628 -1072.759399,1464.175781"
+              class="id_Bald_Eagle id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1307.093994,1941.949097 C -1355.781738,1799.527466 -1215.181030,1512.863525 -1072.759399,1464.175781"
+              class="id_Ed_Begley,_Jr. id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -1009.885742,2149.089111 -1175.134155,1676.716309 -1072.759399,1464.175781"
+              class="id_Astronaut_In_Space_Suit id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -722.110107,2094.575195 C -918.319885,2038.625244 -1128.709351,1660.385498 -1072.759399,1464.175781"
+              class="id_Businesswoman id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -520.562195,2140.913330 C -766.349182,2116.005127 -1097.667480,1709.962769 -1072.759399,1464.175781"
+              class="id_Curtis_E._Bear id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2011.207886,1767.765747 C -1884.236206,1519.358032 -1321.167114,1337.204102 -1072.759399,1464.175781"
+              class="id_Dr._Bartley id_Eddie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1069.337402,1472.114868 -1423.403687,1670.101929 -1607.421387,1618.075439"
+              class="id_Lou id_Tv_Husband" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1044.039185,1484.978027 -1379.453003,1740.206909 -1576.333862,1713.478638"
+              class="id_Lou id_Tv_Wife" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1027.873779,1569.458984 -1465.760742,1975.656982 -1747.122559,1965.094116"
+              class="id_Lou id_Stock_Reporter" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1280.528442,1250.702515 -1619.262695,799.784180 -1581.868042,536.566650"
+              class="id_Lou id_Psychic" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="3.0"
+              d="M -1017.310852,1288.097168 C -899.346497,1313.630615 -760.700195,1528.877197 -786.233643,1646.841553"
+              class="id_Lou id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1097.210693,1367.894897 -1336.757080,1367.741943 -1416.554810,1287.842163"
+              class="id_Lou id_Teenaged_Guide" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -821.775757,1314.511108 -568.094055,1647.434692 -594.508057,1842.969727"
+              class="id_Lou id_Park_Commissioner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -896.990295,1085.320190 -412.344116,961.635620 -209.567169,1081.956055"
+              class="id_Lou id_Technician" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1079.595947,1284.328125 -1167.369995,1185.247070 -1163.600952,1122.961914"
+              class="id_Lou id_Rex_Banner" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -894.399170,1466.633545 -977.836060,1918.805664 -1156.372437,2041.717285"
+              class="id_Lou id_Police_Car" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -949.898560,1503.407593 -1171.745728,1927.491455 -1387.056152,1994.903687"
+              class="id_Lou id_Trent" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1194.196655,1352.669556 -1556.383911,1184.199463 -1620.956299,1007.313660"
+              class="id_Lou id_Moses/Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1017.310852,1288.097168 C -1138.476563,1324.192139 -1374.367432,1196.585693 -1410.462402,1075.419922"
+              class="id_Lou id_Pharaoh_Skinner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1229.751465,1345.112183 -1633.934814,1111.973999 -1690.949829,899.533508"
+              class="id_Lou id_Slavedriver_Willie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1192.420166,1452.644531 -1701.905273,1436.801636 -1866.452637,1261.692261"
+              class="id_Lou id_Mrs._Bellamy" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1149.651855,1444.322266 -1582.501099,1480.148071 -1738.726196,1347.807007"
+              class="id_Lou id_Screamapillar" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1138.826782,1275.704224 -1302.511353,1074.840942 -1290.118408,953.325073"
+              class="id_Lou id_Scary_Man" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1143.468872,1554.613892 -1732.481079,1765.151978 -1998.997803,1638.993896"
+              class="id_Lou id_Peter_Pan" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -919.114990,790.288513 -25.108261,190.869446 472.700378,289.065338"
+              class="id_Lou id_Mary" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1131.026123,937.113708 -775.123840,240.065796 -424.140442,126.350555"
+              class="id_Lou id_Matthew" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -991.367554,886.762268 -350.450195,323.674805 50.884766,349.618073"
+              class="id_Lou id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1102.285156,883.476685 -622.815796,149.084808 -218.195374,64.110565"
+              class="id_Lou id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1044.128052,872.499084 -460.956787,208.876175 -45.358704,182.058975"
+              class="id_Lou id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1173.905273,1226.733398 -1316.751221,899.795837 -1255.387451,743.201355"
+              class="id_Lou id_Tour_Guide" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1200.106934,1211.413452 -1359.275391,822.193848 -1282.591675,639.397827"
+              class="id_Lou id_Tourist" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -1048.682129,1140.325806 -874.081909,871.611938 -726.310547,840.240723"
+              class="id_Lou id_The_Serpent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -810.109131,1224.757813 -404.297760,1440.551392 -340.958466,1647.753052"
+              class="id_Lou id_Strangles" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1017.310852,1288.097168 C -964.241333,1174.006470 -713.500977,1082.474854 -599.410339,1135.544312"
+              class="id_Lou id_Sarah_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1017.310852,1288.097168 C -933.310547,1220.819092 -706.393066,1245.902466 -639.114929,1329.902710"
+              class="id_Lou id_Marksman" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1646.525024,2135.997803 C -1690.262207,1840.574951 -1312.733765,1331.834473 -1017.310852,1288.097168"
+              class="id_Cable_Guy id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1800.997314,2077.799561 C -1802.200439,1763.121826 -1331.988525,1289.300293 -1017.310852,1288.097168"
+              class="id_Challenger id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1654.073975,2021.191406 C -1673.340210,1747.219849 -1291.282349,1307.363403 -1017.310852,1288.097168"
+              class="id_Champ id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -571.502441,1739.102539 C -750.865173,1738.063232 -1018.350220,1467.459961 -1017.310852,1288.097168"
+              class="id_Customer id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1422.328613,1873.381958 -1239.719238,1388.765991 -1017.310852,1288.097168"
+              class="id_Bald_Eagle id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1307.093994,1941.949097 C -1379.907715,1753.222046 -1206.037842,1360.910889 -1017.310852,1288.097168"
+              class="id_Ed_Begley,_Jr. id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1919.185425,1064.177612 C -1694.026611,928.586670 -1152.901855,1062.938354 -1017.310852,1288.097168"
+              class="id_Burning_Bush id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1388.901733,1498.290283 C -1356.622070,1381.933594 -1133.667603,1255.817627 -1017.310852,1288.097168"
+              class="id_Lion id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.375"
+              d="M 132.682953,887.824280 C -17.261238,1197.877563 -707.257507,1438.041382 -1017.310852,1288.097168"
+              class="id_Cletus_Spuckler id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -812.866333,1738.729004 C -943.881592,1689.491577 -1066.548340,1419.112427 -1017.310852,1288.097168"
+              class="id_Gloria id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1676.836060,1208.610352 C -1529.033691,1092.602661 -1133.318604,1140.294800 -1017.310852,1288.097168"
+              class="id_Carmen_Electra id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1310.322632,1399.684204 C -1274.037598,1318.764404 -1098.230591,1251.812256 -1017.310852,1288.097168"
+              class="id_Gina_Vendetti id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2011.207886,1767.765747 C -1908.362183,1473.052612 -1312.023926,1185.251465 -1017.310852,1288.097168"
+              class="id_Dr._Bartley id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -2165.821533,1715.167847 C -2021.533569,1400.051514 -1332.427124,1143.809204 -1017.310852,1288.097168"
+              class="id_Eliza id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -2172.235840,1831.087769 C -2049.848877,1491.504639 -1356.894043,1165.710327 -1017.310852,1288.097168"
+              class="id_Inspector_Wiggum id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -358.252563,819.554077 -740.786133,1266.594849 -1017.310852,1288.097168"
+              class="id_Angel id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -456.438690,525.692810 -717.806519,1162.838013 -1017.310852,1288.097168"
+              class="id_Baby_Jesus id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -109.631653,664.655518 -640.327271,1264.910645 -1017.310852,1288.097168"
+              class="id_Frink_Wise_Man id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -308.336456,662.125427 -698.323364,1229.100952 -1017.310852,1288.097168"
+              class="id_Goat id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -57.968582,567.302612 C -105.678146,903.330017 -681.283447,1335.806641 -1017.310852,1288.097168"
+              class="id_Innkeeper id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -241.313873,635.735596 C -266.040955,921.407288 -731.639160,1312.824219 -1017.310852,1288.097168"
+              class="id_Joseph id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -183.563477,453.862640 C -183.466049,787.458984 -683.714478,1287.999756 -1017.310852,1288.097168"
+              class="id_King_Herod id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1395.559570,691.148804 C -1200.520142,734.888733 -973.570923,1093.057739 -1017.310852,1288.097168"
+              class="id_Ipod id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1040.978760,789.888611 C -936.603394,884.796753 -922.402710,1183.721924 -1017.310852,1288.097168"
+              class="id_Bart-Man id_Lou" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -4.967681,949.044739 C -139.625839,1219.323853 -747.031738,1422.755249 -1017.310852,1288.097168"
+              class="id_Brandine_Del_Roy id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -342.626984,1548.953247 C -529.734985,1631.718750 -934.545288,1475.205200 -1017.310852,1288.097168"
+              class="id_Kiefer_Sutherland id_Lou" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1607.421387,1618.075439 C -1582.123169,1630.938599 -1563.470703,1688.180420 -1576.333862,1713.478638"
+              class="id_Tv_Husband id_Tv_Wife" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1654.073975,2021.191406 C -1683.903198,2028.581665 -1739.732300,1994.923340 -1747.122559,1965.094116"
+              class="id_Champ id_Stock_Reporter" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1646.525024,2135.997803 C -1670.996094,2114.546387 -1675.525513,2045.662476 -1654.073975,2021.191406"
+              class="id_Cable_Guy id_Champ" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1800.997314,2077.799561 C -1782.934326,2037.093384 -1694.780273,2003.128418 -1654.073975,2021.191406"
+              class="id_Challenger id_Champ" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1646.525024,2135.997803 C -1689.059082,2155.252686 -1781.742554,2120.333740 -1800.997314,2077.799561"
+              class="id_Cable_Guy id_Challenger" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1646.525024,2135.997803 C -1700.825317,2121.936523 -1761.183838,2019.394409 -1747.122559,1965.094116"
+              class="id_Cable_Guy id_Stock_Reporter" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1800.997314,2077.799561 C -1812.763550,2044.483643 -1780.438599,1976.860352 -1747.122559,1965.094116"
+              class="id_Challenger id_Stock_Reporter" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.625"
+              d="M -812.866333,1738.729004 C -825.917297,1715.025024 -809.937683,1659.892456 -786.233643,1646.841553"
+              class="id_Gloria id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -571.502441,1739.102539 C -555.330139,1764.477051 -569.133484,1826.797363 -594.508057,1842.969727"
+              class="id_Customer id_Park_Commissioner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1581.868042,536.566650 C -1626.334229,482.501587 -1611.936035,334.704590 -1557.870972,290.238342"
+              class="id_Psychic id_Spud" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1410.258301,446.853119 -1515.562744,540.464417 -1581.868042,536.566650"
+              class="id_Camel id_Psychic" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1507.573364,223.686798 C -1459.856323,301.121704 -1504.433228,488.849609 -1581.868042,536.566650"
+              class="id_Cooder id_Psychic" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1740.132202,398.897614 C -1680.945557,394.778595 -1585.987061,477.380005 -1581.868042,536.566650"
+              class="id_Fantastic_Dan id_Psychic" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1326.822998,270.674774 C -1324.653687,374.862152 -1477.680664,534.397278 -1581.868042,536.566650"
+              class="id_Performer id_Psychic" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -379.754944,543.029358 C -333.525482,533.882385 -250.460831,589.506104 -241.313873,635.735596"
+              class="id_Angel id_Joseph" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -379.754944,543.029358 C -260.056702,321.745483 251.416519,169.367096 472.700378,289.065338"
+              class="id_Angel id_Mary" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -483.511719,520.049744 -604.677429,329.945221 -581.697815,226.188446"
+              class="id_Angel id_Baby_Jesus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -381.439087,442.570496 -233.277023,289.356049 -132.818176,287.671906"
+              class="id_Angel id_Frink_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -417.248779,500.566589 -409.795410,380.631744 -367.332642,343.137909"
+              class="id_Angel id_Goat" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -310.543030,483.526764 -117.471207,498.090668 -57.968582,567.302612"
+              class="id_Angel id_Innkeeper" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -358.350006,485.957703 -240.635117,432.457703 -183.563477,453.862640"
+              class="id_Angel id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -471.967804,468.570709 -498.599091,218.563416 -424.140442,126.350555"
+              class="id_Angel id_Matthew" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -332.309265,418.219177 -73.925438,302.172363 50.884766,349.618073"
+              class="id_Angel id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -443.226776,414.933685 -346.291046,127.582405 -218.195374,64.110565"
+              class="id_Angel id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -379.754944,543.029358 C -385.069763,403.956024 -184.432037,187.373810 -45.358704,182.058975"
+              class="id_Angel id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -560.153442,1594.495239 C -594.900269,1650.180542 -730.548340,1681.588379 -786.233643,1646.841553"
+              class="id_Driver id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -560.153442,1594.495239 C -588.967712,1564.710205 -587.511597,1476.811279 -557.726501,1447.996948"
+              class="id_Driver id_Molloy" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -560.153442,1594.495239 C -463.068695,1575.953979 -289.629578,1693.769165 -271.088287,1790.853882"
+              class="id_Driver id_Rosey_Grier" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1255.387451,743.201355 C -1281.588989,727.881531 -1297.911621,665.599365 -1282.591675,639.397827"
+              class="id_Tour_Guide id_Tourist" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1395.559570,691.148804 C -1357.114624,673.524902 -1273.011353,704.756409 -1255.387451,743.201355"
+              class="id_Ipod id_Tour_Guide" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="3.125"
+              d="M 659.012451,490.458405 C 667.094360,523.436584 629.750061,585.026733 596.771912,593.108643"
+              class="id_Adult_Bart id_Adult_Lisa" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 803.917908,543.029114 942.419983,839.243347 889.849243,984.148804"
+              class="id_Adult_Bart id_Aged_Krusty" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M 659.012451,490.458405 C 581.471436,487.442200 469.684174,366.606384 472.700378,289.065338"
+              class="id_Adult_Bart id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 834.332275,371.360840 1275.958252,455.694214 1395.055908,631.014038"
+              class="id_Adult_Bart id_Barry_The_Satellite_Tv_Guy"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 726.937073,331.600433 1067.110962,195.200348 1225.968872,263.124969"
+              class="id_Adult_Bart id_Brazilian_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 659.012451,490.458405 C 633.219727,675.197449 317.422028,913.616943 132.682953,887.824280"
+              class="id_Adult_Bart id_Cletus_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 799.520447,357.542603 1209.656250,368.930908 1342.572021,509.438934"
+              class="id_Adult_Bart id_Devon_Peacock" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 777.331299,404.518646 1083.719238,453.087250 1169.658936,571.406128"
+              class="id_Adult_Bart id_Hillbilly_M.C." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 741.864319,393.881592 1011.007385,373.294189 1107.584229,456.146088"
+              class="id_Adult_Bart id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 757.461365,355.419830 1107.692627,300.535309 1242.731201,398.984222"
+              class="id_Adult_Bart id_Superhero_With_Claws" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 659.012451,490.458405 C 677.478516,849.351929 166.837357,1415.391357 -192.056152,1433.857422"
+              class="id_Adult_Bart id_Adult_Nelson" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 659.012451,490.458405 C 603.596069,782.473877 82.448296,1137.372437 -209.567169,1081.956055"
+              class="id_Adult_Bart id_Technician" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 659.012451,490.458405 C 638.634399,590.233337 458.405060,709.328674 358.630127,688.950623"
+              class="id_Adult_Bart id_Zombie_Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 659.012451,490.458405 C 640.970276,623.917480 413.718414,797.042908 280.259338,779.000732"
+              class="id_Adult_Bart id_Santa&apos;S_Little_Hybrid"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -786.233643,1646.841553 C -530.939270,1364.701416 275.212433,1324.432861 557.352539,1579.727173"
+              class="id_Snake_Jailbird id_Townspeople_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 11.923162,1830.590698 -583.907959,1841.736572 -786.233643,1646.841553"
+              class="id_Clint_Eastwood id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 367.412537,1530.528687 C 159.945862,1784.520508 -532.241821,1854.308228 -786.233643,1646.841553"
+              class="id_Female_Chorus id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 242.484009,1486.040649 C 68.900658,1723.944336 -548.329956,1820.424927 -786.233643,1646.841553"
+              class="id_Hombre id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 456.967957,1442.107056 C 249.274521,1731.694336 -496.646423,1854.535034 -786.233643,1646.841553"
+              class="id_Lee_Marvin id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 362.202148,1672.315796 C 127.420151,1896.908081 -561.641357,1881.623535 -786.233643,1646.841553"
+              class="id_Second_Female_Chorus id_Snake_Jailbird"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -916.047363,2128.316895 -909.380432,1765.543701 -786.233643,1646.841553"
+              class="id_Astronaut_In_Space_Suit id_Snake_Jailbird"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -722.110107,2094.575195 C -824.481567,2017.853149 -862.955688,1749.213013 -786.233643,1646.841553"
+              class="id_Businesswoman id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -520.562195,2140.913330 C -672.510864,2095.233398 -831.913696,1798.790161 -786.233643,1646.841553"
+              class="id_Curtis_E._Bear id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -619.420654,2193.619141 C -762.138794,2117.626221 -862.226563,1789.559570 -786.233643,1646.841553"
+              class="id_Sergeant_Crew id_Snake_Jailbird" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -4.967681,949.044739 C -86.556305,1105.233154 -443.221863,1217.132935 -599.410339,1135.544312"
+              class="id_Brandine_Del_Roy id_Sarah_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.75"
+              d="M 132.682953,887.824280 C 165.646240,901.014893 195.305206,970.245850 182.114563,1003.209106"
+              class="id_Cletus_Spuckler id_George_W._Bush" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 132.682953,887.824280 C 225.186218,887.824158 363.941284,1026.578857 363.941406,1119.082153"
+              class="id_Cletus_Spuckler id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 355.780273,829.323364 778.177490,1076.218140 836.678406,1299.315430"
+              class="id_Cletus_Spuckler id_Crystal_Meth" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 254.067108,835.598999 514.481262,939.337280 566.706543,1060.721436"
+              class="id_Cletus_Spuckler id_Jitney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="3.0"
+              d="M 132.682953,887.824280 C 80.934647,700.069031 284.945129,340.813660 472.700378,289.065338"
+              class="id_Cletus_Spuckler id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 298.983704,570.169434 1024.917236,343.138153 1342.572021,509.438934"
+              class="id_Cletus_Spuckler id_Devon_Peacock" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 276.794495,617.145447 898.980103,427.294556 1169.658936,571.406128"
+              class="id_Cletus_Spuckler id_Hillbilly_M.C." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 241.327576,606.508423 826.268372,347.501526 1107.584229,456.146088"
+              class="id_Cletus_Spuckler id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 132.682953,887.824280 C 256.924591,568.046631 922.953552,274.742584 1242.731201,398.984222"
+              class="id_Cletus_Spuckler id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="7.125"
+              d="M -4.967681,949.044739 C 10.318355,909.270508 92.908730,872.538208 132.682953,887.824280"
+              class="id_Brandine_Del_Roy id_Cletus_Spuckler"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 843.621216,1200.111694 C 638.976135,1279.841797 212.413116,1092.469360 132.682953,887.824280"
+              class="id_Birthday id_Cletus_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1193.943359,934.850708 436.519592,1088.936768 132.682953,887.824280"
+              class="id_Barry_The_Satellite_Tv_Guy id_Cletus_Spuckler"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1132.251587,606.721985 476.280029,981.541565 132.682953,887.824280"
+              class="id_Brazilian_Man id_Cletus_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 596.771912,593.108643 C 562.897217,744.869568 284.443878,921.698975 132.682953,887.824280"
+              class="id_Adult_Lisa id_Cletus_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -57.968582,567.302612 C -7.482250,405.521362 310.919128,238.579010 472.700378,289.065338"
+              class="id_Innkeeper id_Mary" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -57.968582,567.302612 C -80.951035,617.658264 -190.958221,658.718079 -241.313873,635.735596"
+              class="id_Innkeeper id_Joseph" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -57.968582,567.302612 C -105.775558,569.733582 -181.132492,501.669617 -183.563477,453.862640"
+              class="id_Innkeeper id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -57.968582,567.302612 C -219.393372,552.346558 -439.096497,287.775330 -424.140442,126.350555"
+              class="id_Innkeeper id_Matthew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -57.968582,567.302612 C -79.734825,501.995026 -14.422815,371.384308 50.884766,349.618073"
+              class="id_Innkeeper id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -57.968582,567.302612 C -190.652344,498.709564 -286.788422,196.794312 -218.195374,64.110565"
+              class="id_Innkeeper id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -57.968582,567.302612 C -132.495331,487.731903 -124.929413,256.585724 -45.358704,182.058975"
+              class="id_Innkeeper id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -408.729126,189.665436 -94.491600,394.333923 -57.968582,567.302612"
+              class="id_Baby_Jesus id_Innkeeper" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -61.922119,328.628143 -17.012360,496.406555 -57.968582,567.302612"
+              class="id_Frink_Wise_Man id_Innkeeper" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -260.626892,326.098022 -75.008453,460.596863 -57.968582,567.302612"
+              class="id_Goat id_Innkeeper" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1247.594360,917.893921 C 1271.385376,913.506042 1313.653931,942.610779 1318.041870,966.401855"
+              class="id_Fortune_Teller id_Nelson_Jr." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -192.056152,1433.857422 C -7.318733,1042.734619 856.471558,733.156494 1247.594360,917.893921"
+              class="id_Adult_Nelson id_Fortune_Teller" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 889.849243,984.148804 C 948.147278,899.348816 1162.794312,859.595886 1247.594360,917.893921"
+              class="id_Aged_Krusty id_Fortune_Teller" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -192.056152,1433.857422 C -65.616791,1127.534546 583.526428,857.709473 889.849243,984.148804"
+              class="id_Adult_Nelson id_Aged_Krusty" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -192.056152,1433.857422 C 16.472359,1038.346680 922.531128,757.873291 1318.041870,966.401855"
+              class="id_Adult_Nelson id_Nelson_Jr." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 596.771912,593.108643 C 607.156006,919.024048 133.859222,1423.473267 -192.056152,1433.857422"
+              class="id_Adult_Lisa id_Adult_Nelson" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 889.849243,984.148804 C 971.938416,894.960876 1228.853882,884.312683 1318.041870,966.401855"
+              class="id_Aged_Krusty id_Nelson_Jr." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1806.681641,-62.147614 C -1686.442383,-41.432556 -1537.155884,169.998993 -1557.870972,290.238342"
+              class="id_Pigeon id_Spud" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1507.573364,223.686798 C -1624.561890,226.341568 -1804.026855,54.840919 -1806.681641,-62.147614"
+              class="id_Cooder id_Pigeon" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -4.967681,949.044739 C 43.281643,922.461182 155.530991,954.959778 182.114563,1003.209106"
+              class="id_Brandine_Del_Roy id_George_W._Bush" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.75"
+              d="M -4.967681,949.044739 C -41.429939,721.515259 245.170914,325.527618 472.700378,289.065338"
+              class="id_Brandine_Del_Roy id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -4.967681,949.044739 C 131.702499,857.045227 474.707031,924.051270 566.706543,1060.721436"
+              class="id_Brandine_Del_Roy id_Jitney_Spuckler"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -4.967681,949.044739 C 102.821625,909.270447 324.167053,1011.292908 363.941406,1119.082153"
+              class="id_Brandine_Del_Roy id_Witney_Spuckler"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -722.110107,2094.575195 C -672.532898,2063.533203 -551.604126,2091.336182 -520.562195,2140.913330"
+              class="id_Businesswoman id_Curtis_E._Bear" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -722.110107,2094.575195 C -681.763428,2093.846191 -620.149780,2153.272461 -619.420654,2193.619141"
+              class="id_Businesswoman id_Sergeant_Crew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -813.675964,2205.039063 -768.534912,2110.905762 -722.110107,2094.575195"
+              class="id_Astronaut_In_Space_Suit id_Businesswoman"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1163.600952,1122.961914 C -1202.384644,1071.244873 -1182.984619,935.493896 -1131.267578,896.710266"
+              class="id_Rex_Banner id_Very_Old_Clerk" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 219.389832,1576.598877 315.746399,1517.957031 367.412537,1530.528687"
+              class="id_Clint_Eastwood id_Female_Chorus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 185.506516,1592.687012 206.905991,1507.352295 242.484009,1486.040649"
+              class="id_Clint_Eastwood id_Hombre" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 219.616577,1541.003540 369.706421,1429.308716 456.967957,1442.107056"
+              class="id_Clint_Eastwood id_Lee_Marvin" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 246.705170,1605.998413 339.935516,1632.428833 362.202148,1672.315796"
+              class="id_Clint_Eastwood id_Second_Female_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 206.818237,1628.265015 C 267.217529,1548.450684 477.538086,1519.327881 557.352539,1579.727173"
+              class="id_Clint_Eastwood id_Townspeople_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 367.412537,1530.528687 C 333.529205,1546.616821 258.572113,1519.923950 242.484009,1486.040649"
+              class="id_Female_Chorus id_Hombre" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 367.412537,1530.528687 C 367.639282,1494.933228 421.372559,1441.880249 456.967957,1442.107056"
+              class="id_Female_Chorus id_Lee_Marvin" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 367.412537,1530.528687 C 394.727875,1559.928223 391.601654,1645.000488 362.202148,1672.315796"
+              class="id_Female_Chorus id_Second_Female_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 367.412537,1530.528687 C 415.240234,1502.380371 529.204285,1531.899414 557.352539,1579.727173"
+              class="id_Female_Chorus id_Townspeople_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 242.484009,1486.040649 C 276.594086,1434.357178 405.284454,1407.997070 456.967957,1442.107056"
+              class="id_Hombre id_Lee_Marvin" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 242.484009,1486.040649 C 303.682678,1499.352051 375.513550,1611.117188 362.202148,1672.315796"
+              class="id_Hombre id_Second_Female_Chorus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 242.484009,1486.040649 C 324.195007,1441.804199 513.116150,1498.016113 557.352539,1579.727173"
+              class="id_Hombre id_Townspeople_Chorus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 456.967957,1442.107056 C 484.056549,1507.101929 427.197052,1645.227173 362.202148,1672.315796"
+              class="id_Lee_Marvin id_Second_Female_Chorus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 456.967957,1442.107056 C 504.568878,1449.554199 564.799683,1532.126221 557.352539,1579.727173"
+              class="id_Lee_Marvin id_Townspeople_Chorus" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 362.202148,1672.315796 C 382.714508,1614.768066 499.804718,1559.214844 557.352539,1579.727173"
+              class="id_Second_Female_Chorus id_Townspeople_Chorus"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.625"
+              d="M -1507.573364,223.686798 C -1504.322632,247.056625 -1534.501099,286.987549 -1557.870972,290.238342"
+              class="id_Cooder id_Spud" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1507.573364,223.686798 C -1519.042969,305.240753 -1658.578369,410.367218 -1740.132202,398.897614"
+              class="id_Cooder id_Fantastic_Dan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1507.573364,223.686798 C -1462.025757,196.934326 -1353.575439,225.127121 -1326.822998,270.674774"
+              class="id_Cooder id_Performer" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1457.975220,369.418213 -1518.703003,275.301575 -1507.573364,223.686798"
+              class="id_Camel id_Cooder" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1454.724487,392.788055 -1545.630737,338.602325 -1557.870972,290.238342"
+              class="id_Camel id_Spud" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1740.132202,398.897614 C -1725.411743,340.713531 -1616.055054,275.517944 -1557.870972,290.238342"
+              class="id_Fantastic_Dan id_Spud" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1326.822998,270.674774 C -1369.119873,320.797089 -1507.748657,332.535217 -1557.870972,290.238342"
+              class="id_Performer id_Spud" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1469.444946,450.972168 -1669.707886,461.981995 -1740.132202,398.897614"
+              class="id_Camel id_Fantastic_Dan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1406.360474,380.547852 C -1412.427612,342.665741 -1364.705078,276.741882 -1326.822998,270.674774"
+              class="id_Camel id_Performer" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1740.132202,398.897614 C -1683.114868,290.591217 -1435.129395,213.657501 -1326.822998,270.674774"
+              class="id_Fantastic_Dan id_Performer" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2608.326172,243.304855 -2459.171875,215.983322 -2400.346680,256.594208"
+              class="id_Archie_Bunker id_Bad_Flanders" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2611.834717,301.881165 -2555.807861,357.161133 -2555.559082,394.263397"
+              class="id_Archie_Bunker id_Banker" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2580.833496,254.670013 -2407.488281,285.635010 -2360.028320,353.738403"
+              class="id_Archie_Bunker id_Commander" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2504.991943,263.542053 -2231.192139,421.577759 -2192.604004,565.522949"
+              class="id_Archie_Bunker id_Detective_Homer_Simpson"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2648.937012,302.130096 C -2645.430420,260.761505 -2578.117432,203.968475 -2536.749023,207.475067"
+              class="id_Archie_Bunker id_Lieutenant" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2400.346680,256.594208 C -2403.855225,315.170532 -2496.982666,397.772034 -2555.559082,394.263397"
+              class="id_Bad_Flanders id_Banker" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2400.346680,256.594208 C -2372.854004,267.959381 -2348.663086,326.245911 -2360.028320,353.738403"
+              class="id_Bad_Flanders id_Commander" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2400.346680,256.594208 C -2297.012451,276.831421 -2172.366943,462.188660 -2192.604004,565.522949"
+              class="id_Bad_Flanders id_Detective_Homer_Simpson"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2400.346680,256.594208 C -2437.450928,274.050842 -2519.292236,244.579361 -2536.749023,207.475067"
+              class="id_Bad_Flanders id_Lieutenant" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2555.559082,394.263397 C -2524.557861,347.052246 -2407.239502,322.737274 -2360.028320,353.738403"
+              class="id_Banker id_Commander" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2555.559082,394.263397 C -2448.716064,355.924316 -2230.943115,458.680054 -2192.604004,565.522949"
+              class="id_Banker id_Detective_Homer_Simpson" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2555.559082,394.263397 C -2589.154785,353.143707 -2577.868652,241.070724 -2536.749023,207.475067"
+              class="id_Banker id_Lieutenant" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2360.028320,353.738403 C -2284.186523,362.610443 -2183.731934,489.681152 -2192.604004,565.522949"
+              class="id_Commander id_Detective_Homer_Simpson"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2360.028320,353.738403 C -2424.625244,359.829895 -2530.657471,272.071869 -2536.749023,207.475067"
+              class="id_Commander id_Lieutenant" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2192.604004,565.522949 C -2333.042725,562.742371 -2539.529541,347.913666 -2536.749023,207.475067"
+              class="id_Detective_Homer_Simpson id_Lieutenant"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -1307.093994,1941.949097 C -1312.495483,1968.532471 -1360.472778,2000.305176 -1387.056152,1994.903687"
+              class="id_Ed_Begley,_Jr. id_Trent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1354.916382,2088.692383 -1394.154297,2028.160278 -1387.056152,1994.903687"
+              class="id_Bald_Eagle id_Trent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1156.372437,2041.717285 C -1211.871826,2078.491455 -1350.282104,2050.403076 -1387.056152,1994.903687"
+              class="id_Police_Car id_Trent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1307.093994,1941.949097 C -1256.996094,1931.758423 -1166.563110,1991.619385 -1156.372437,2041.717285"
+              class="id_Ed_Begley,_Jr. id_Police_Car" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1349.514771,2062.108887 -1340.775391,1969.804077 -1307.093994,1941.949097"
+              class="id_Bald_Eagle id_Ed_Begley,_Jr." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1321.659790,2095.790283 C -1299.416870,2051.918213 -1200.244507,2019.474487 -1156.372437,2041.717285"
+              class="id_Bald_Eagle id_Police_Car" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -764.098755,2173.997070 -598.028931,2107.666748 -520.562195,2140.913330"
+              class="id_Astronaut_In_Space_Suit id_Curtis_E._Bear"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -797.345276,2251.463867 C -773.329346,2204.310059 -666.574524,2169.603027 -619.420654,2193.619141"
+              class="id_Astronaut_In_Space_Suit id_Sergeant_Crew"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -520.562195,2140.913330 C -529.792725,2171.226318 -589.107849,2202.849609 -619.420654,2193.619141"
+              class="id_Curtis_E._Bear id_Sergeant_Crew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1919.185425,1064.177612 C -1870.912354,993.158997 -1691.974976,959.040649 -1620.956299,1007.313660"
+              class="id_Burning_Bush id_Moses/Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1919.185425,1064.177612 C -1815.192383,964.681396 -1509.958618,971.426880 -1410.462402,1075.419922"
+              class="id_Burning_Bush id_Pharaoh_Skinner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1919.185425,1064.177612 C -1906.467163,985.601685 -1769.525757,886.815247 -1690.949829,899.533508"
+              class="id_Burning_Bush id_Slavedriver_Willie" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -1620.956299,1007.313660 C -1565.236328,978.836182 -1438.939941,1019.699951 -1410.462402,1075.419922"
+              class="id_Moses/Milhouse id_Pharaoh_Skinner" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1620.956299,1007.313660 C -1656.510986,999.756348 -1698.507202,935.088257 -1690.949829,899.533508"
+              class="id_Moses/Milhouse id_Slavedriver_Willie"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1410.462402,1075.419922 C -1501.737183,1096.340210 -1670.029541,990.808289 -1690.949829,899.533508"
+              class="id_Pharaoh_Skinner id_Slavedriver_Willie"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1395.559570,691.148804 C -1383.316162,658.205017 -1315.535522,627.154480 -1282.591675,639.397827"
+              class="id_Ipod id_Tourist" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1676.836060,1208.610352 C -1661.374756,1248.827759 -1698.508789,1332.345703 -1738.726196,1347.807007"
+              class="id_Carmen_Electra id_Screamapillar" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1866.452637,1261.692261 C -1823.684448,1253.369873 -1747.048584,1305.038818 -1738.726196,1347.807007"
+              class="id_Mrs._Bellamy id_Screamapillar" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -1676.836060,1208.610352 C -1704.143066,1257.150024 -1817.912964,1288.999268 -1866.452637,1261.692261"
+              class="id_Carmen_Electra id_Mrs._Bellamy" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.375"
+              d="M -2011.207886,1767.765747 C -2052.650146,1788.168945 -2145.418213,1756.610107 -2165.821533,1715.167847"
+              class="id_Dr._Bartley id_Eliza" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2011.207886,1767.765747 C -2030.749023,1812.635742 -2127.365967,1850.628906 -2172.235840,1831.087769"
+              class="id_Dr._Bartley id_Inspector_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2011.207886,1767.765747 C -2034.520264,1739.569336 -2027.194214,1662.306274 -1998.997803,1638.993896"
+              class="id_Dr._Bartley id_Peter_Pan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -2165.821533,1715.167847 C -2143.920410,1739.634644 -2147.768799,1809.186646 -2172.235840,1831.087769"
+              class="id_Eliza id_Inspector_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2165.821533,1715.167847 C -2147.691650,1666.568359 -2047.597290,1620.863892 -1998.997803,1638.993896"
+              class="id_Eliza id_Peter_Pan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2165.821533,1715.167847 C -2286.676025,1698.679443 -2443.225586,1492.665039 -2426.737305,1371.810425"
+              class="id_Eliza id_Mao" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2513.999512,1414.097778 C -2384.149902,1404.676147 -2175.242920,1585.318237 -2165.821533,1715.167847"
+              class="id_Addicts id_Eliza" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2516.477051,1306.612183 C -2364.634766,1318.192261 -2154.241455,1563.325562 -2165.821533,1715.167847"
+              class="id_Ebenezer_Burns id_Eliza" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2172.235840,1831.087769 C -2176.006836,1758.021362 -2072.064209,1642.765137 -1998.997803,1638.993896"
+              class="id_Inspector_Wiggum id_Peter_Pan" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2172.235840,1831.087769 C -2314.991699,1790.132568 -2467.692383,1514.566162 -2426.737305,1371.810425"
+              class="id_Inspector_Wiggum id_Mao" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2513.999512,1414.097778 C -2362.248779,1429.142944 -2157.190674,1679.337036 -2172.235840,1831.087769"
+              class="id_Addicts id_Inspector_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2516.477051,1306.612183 C -2342.733887,1342.659058 -2136.188965,1657.344360 -2172.235840,1831.087769"
+              class="id_Ebenezer_Burns id_Inspector_Wiggum" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2513.999512,1414.097778 C -2535.992188,1393.096191 -2537.478516,1328.604736 -2516.477051,1306.612183"
+              class="id_Addicts id_Ebenezer_Burns" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2513.999512,1414.097778 C -2505.004639,1388.187866 -2452.647217,1362.815552 -2426.737305,1371.810425"
+              class="id_Addicts id_Mao" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2516.477051,1306.612183 C -2485.489502,1301.703857 -2431.645752,1340.822754 -2426.737305,1371.810425"
+              class="id_Ebenezer_Burns id_Mao" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -953.230652,1888.932373 C -921.668884,1896.536865 -885.733093,1955.286255 -893.337585,1986.848022"
+              class="id_Lt._Adventure id_Sgt._Activity" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -283.609344,376.453674 -207.998108,552.012329 -241.313873,635.735596"
+              class="id_Goat id_Joseph" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -308.433838,328.529022 -198.172363,394.963837 -183.563477,453.862640"
+              class="id_Goat id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -210.140549,164.316788 293.879272,131.873245 472.700378,289.065338"
+              class="id_Goat id_Mary" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -422.051697,311.141998 -456.136353,181.069580 -424.140442,126.350555"
+              class="id_Goat id_Matthew" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -282.393127,260.790436 -31.462688,264.678558 50.884766,349.618073"
+              class="id_Goat id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -393.310669,257.504974 -303.828308,90.088577 -218.195374,64.110565"
+              class="id_Goat id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -367.332642,343.137909 C -335.153656,246.527328 -141.969284,149.879974 -45.358704,182.058975"
+              class="id_Goat id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -515.434875,206.705307 -386.815796,276.874969 -367.332642,343.137909"
+              class="id_Baby_Jesus id_Goat" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -168.627869,345.667999 -309.336548,378.947601 -367.332642,343.137909"
+              class="id_Frink_Wise_Man id_Goat" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M -241.313873,635.735596 C -167.845062,423.598694 260.563477,215.596527 472.700378,289.065338"
+              class="id_Joseph id_Mary" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -241.313873,635.735596 C -266.138397,587.810913 -231.488144,478.687164 -183.563477,453.862640"
+              class="id_Joseph id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -241.313873,635.735596 C -379.756195,570.423889 -489.452148,264.792877 -424.140442,126.350555"
+              class="id_Joseph id_Matthew" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -241.313873,635.735596 C -240.097656,520.072388 -64.778465,348.401855 50.884766,349.618073"
+              class="id_Joseph id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -241.313873,635.735596 C -351.015167,516.786865 -337.144073,173.811859 -218.195374,64.110565"
+              class="id_Joseph id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -241.313873,635.735596 C -292.858154,505.809204 -175.285065,233.603271 -45.358704,182.058975"
+              class="id_Joseph id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -431.711609,240.021088 -227.481232,485.749390 -241.313873,635.735596"
+              class="id_Baby_Jesus id_Joseph" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -84.904579,378.983765 -150.001984,587.822021 -241.313873,635.735596"
+              class="id_Frink_Wise_Man id_Joseph" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 260.789246,435.890564 -277.315216,338.261688 -424.140442,126.350555"
+              class="id_Mary id_Matthew" stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 400.447784,385.539001 147.358444,421.870667 50.884766,349.618073"
+              class="id_Mary id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 289.530273,382.253540 -125.007172,247.280670 -218.195374,64.110565"
+              class="id_Mary id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 347.687286,371.275879 36.851833,307.072052 -45.358704,182.058975"
+              class="id_Mary id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 616.951965,476.820526 551.696594,974.830566 363.941406,1119.082153"
+              class="id_Mary id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 633.093262,195.504730 1014.023560,295.753143 1107.584229,456.146088"
+              class="id_Mary id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 472.700378,289.065338 C 648.690308,157.042923 1110.708740,222.994278 1242.731201,398.984222"
+              class="id_Mary id_Superhero_With_Claws" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -358.242798,27.884171 274.396118,65.610306 472.700378,289.065338"
+              class="id_Baby_Jesus id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -11.435783,166.846893 351.875366,167.682953 472.700378,289.065338"
+              class="id_Frink_Wise_Man id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -183.563477,453.862640 C -85.270157,289.650391 308.488129,190.772034 472.700378,289.065338"
+              class="id_King_Herod id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 182.114563,1003.209106 C 97.402969,802.263184 271.754456,373.776947 472.700378,289.065338"
+              class="id_George_W._Bush id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 566.706543,1060.721436 C 393.574097,925.191406 337.170410,462.197784 472.700378,289.065338"
+              class="id_Jitney_Spuckler id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1142.195068,747.095337 588.781738,541.926147 472.700378,289.065338"
+              class="id_Barry_The_Satellite_Tv_Guy id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1080.503296,418.966736 628.542114,434.530945 472.700378,289.065338"
+              class="id_Brazilian_Man id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1342.572021,509.438934 C 1124.522949,639.338562 602.599976,507.114380 472.700378,289.065338"
+              class="id_Devon_Peacock id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1169.658936,571.406128 C 973.799072,654.329712 555.623962,484.925232 472.700378,289.065338"
+              class="id_Hillbilly_M.C. id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 596.771912,593.108643 C 511.148926,557.114319 436.706024,374.688293 472.700378,289.065338"
+              class="id_Adult_Lisa id_Mary" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -132.818176,287.671906 C -109.729095,331.059113 -140.176270,430.773529 -183.563477,453.862640"
+              class="id_Frink_Wise_Man id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -132.818176,287.671906 C -136.448868,249.057419 -83.973190,185.689667 -45.358704,182.058975"
+              class="id_Frink_Wise_Man id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -223.346909,313.672089 -398.140259,216.879272 -424.140442,126.350555"
+              class="id_Frink_Wise_Man id_Matthew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -83.688354,263.320557 26.533413,300.488281 50.884766,349.618073"
+              class="id_Frink_Wise_Man id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -132.818176,287.671906 C -194.605881,260.035095 -245.832199,125.898270 -218.195374,64.110565"
+              class="id_Frink_Wise_Man id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -479.625183,148.709213 -210.297409,185.599289 -132.818176,287.671906"
+              class="id_Baby_Jesus id_Frink_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -183.563477,453.862640 C -210.283249,371.860931 -127.360390,208.778748 -45.358704,182.058975"
+              class="id_King_Herod id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -183.563477,453.862640 C -297.181274,436.475616 -441.527466,239.968353 -424.140442,126.350555"
+              class="id_King_Herod id_Matthew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -183.563477,453.862640 C -157.522736,386.124084 -16.853798,323.577332 50.884766,349.618073"
+              class="id_King_Herod id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -183.563477,453.862640 C -268.440277,382.838623 -289.219421,148.987350 -218.195374,64.110565"
+              class="id_King_Herod id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -456.536102,192.096436 -217.655502,328.700928 -183.563477,453.862640"
+              class="id_Baby_Jesus id_King_Herod" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -483.255890,110.094727 -161.452423,83.617050 -45.358704,182.058975"
+              class="id_Baby_Jesus id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -424.140442,126.350555 C -337.242401,61.735886 -109.973366,95.160950 -45.358704,182.058975"
+              class="id_Matthew id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 50.884766,349.618073 C -1.875746,335.354950 -59.621826,234.819489 -45.358704,182.058975"
+              class="id_Shepherd_Carl id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -218.195374,64.110565 C -160.038361,53.132915 -56.336357,123.901962 -45.358704,182.058975"
+              class="id_Shepherd_Lenny id_Skinner_Wise_Man" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -570.153931,174.709396 -475.619507,114.806656 -424.140442,126.350555"
+              class="id_Baby_Jesus id_Matthew" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -430.495361,124.357849 -50.945831,198.415634 50.884766,349.618073"
+              class="id_Baby_Jesus id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -581.697815,226.188446 C -541.412903,121.072388 -323.311462,23.825653 -218.195374,64.110565"
+              class="id_Baby_Jesus id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -424.140442,126.350555 C -284.481903,75.999016 0.533226,209.959534 50.884766,349.618073"
+              class="id_Matthew id_Shepherd_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -424.140442,126.350555 C -395.399414,72.713547 -271.832397,35.369549 -218.195374,64.110565"
+              class="id_Matthew id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 50.884766,349.618073 C -60.032764,346.332611 -221.480850,175.028091 -218.195374,64.110565"
+              class="id_Shepherd_Carl id_Shepherd_Lenny" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2462.165771,922.702881 C -2434.019287,915.083618 -2380.370850,945.874390 -2372.751709,974.020752"
+              class="id_50-Foot_Lenny id_Dr._Phil" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2462.165771,922.702881 C -2465.144531,857.542908 -2371.872559,755.334961 -2306.712646,752.356262"
+              class="id_50-Foot_Lenny id_Fudge_Box" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2462.165771,922.702881 C -2437.220947,877.609924 -2332.164063,847.387695 -2287.071289,872.332581"
+              class="id_50-Foot_Lenny id_Invisible_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2462.165771,922.702881 C -2463.592529,841.931885 -2344.576416,718.635193 -2263.805420,717.208313"
+              class="id_50-Foot_Lenny id_Southern_Tv_Therapist"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2372.751709,974.020752 C -2403.876953,916.480042 -2364.253418,783.481323 -2306.712646,752.356262"
+              class="id_Dr._Phil id_Fudge_Box" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2372.751709,974.020752 C -2375.953369,936.546997 -2324.544922,875.534119 -2287.071289,872.332581"
+              class="id_Dr._Phil id_Invisible_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2372.751709,974.020752 C -2402.324951,900.869019 -2336.957275,746.781555 -2263.805420,717.208313"
+              class="id_Dr._Phil id_Southern_Tv_Therapist" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2306.712646,752.356262 C -2278.789063,772.423218 -2267.004150,844.409058 -2287.071289,872.332581"
+              class="id_Fudge_Box id_Invisible_Carl" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2306.712646,752.356262 C -2305.160645,736.745239 -2279.416504,715.656494 -2263.805420,717.208313"
+              class="id_Fudge_Box id_Southern_Tv_Therapist" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -2287.071289,872.332581 C -2313.443115,836.654541 -2299.483398,743.579956 -2263.805420,717.208313"
+              class="id_Invisible_Carl id_Southern_Tv_Therapist"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M -1040.978760,789.888611 C -967.974670,737.025391 -779.173767,767.236633 -726.310547,840.240723"
+              class="id_Bart-Man id_The_Serpent" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M 182.114563,1003.209106 C 241.654541,990.018311 350.750671,1059.542236 363.941406,1119.082153"
+              class="id_George_W._Bush id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 182.114563,1003.209106 C 403.436737,880.460205 919.543213,1028.320190 1042.292114,1249.642334"
+              class="id_George_W._Bush id_Incest" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 182.114563,1003.209106 C 270.535431,937.793152 501.290619,972.300598 566.706543,1060.721436"
+              class="id_George_W._Bush id_Jitney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 843.621216,1200.111694 C 671.939392,1293.032471 275.035370,1174.890869 182.114563,1003.209106"
+              class="id_Birthday id_George_W._Bush" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 836.678406,1299.315430 C 646.544373,1371.006836 253.806076,1193.343140 182.114563,1003.209106"
+              class="id_Crystal_Meth id_George_W._Bush" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 843.621216,1200.111694 C 731.479309,1279.841675 443.671478,1231.223999 363.941406,1119.082153"
+              class="id_Birthday id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1042.292114,1249.642334 C 880.509888,1359.200439 473.499512,1280.864380 363.941406,1119.082153"
+              class="id_Incest id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M 566.706543,1060.721436 C 537.825623,1112.946533 416.166595,1147.963013 363.941406,1119.082153"
+              class="id_Jitney_Spuckler id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 836.678406,1299.315430 C 706.084351,1357.816162 422.442139,1249.676147 363.941406,1119.082153"
+              class="id_Crystal_Meth id_Witney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 843.621216,1200.111694 C 893.261536,1170.283691 1012.464050,1200.002075 1042.292114,1249.642334"
+              class="id_Birthday id_Incest" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.125"
+              d="M 843.621216,1200.111694 C 760.360229,1227.616577 594.211426,1143.982422 566.706543,1060.721436"
+              class="id_Birthday id_Jitney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 843.621216,1200.111694 C 862.073425,1221.340942 857.907715,1280.863281 836.678406,1299.315430"
+              class="id_Birthday id_Crystal_Meth" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1042.292114,1249.642334 C 909.390808,1306.975220 624.039490,1193.622681 566.706543,1060.721436"
+              class="id_Incest id_Jitney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 836.678406,1299.315430 C 734.965210,1305.591064 572.982117,1162.434570 566.706543,1060.721436"
+              class="id_Crystal_Meth id_Jitney_Spuckler" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M -342.626984,1548.953247 C -322.533325,1568.379517 -321.532227,1627.659302 -340.958466,1647.753052"
+              class="id_Kiefer_Sutherland id_Strangles" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.25"
+              d="M 596.771912,593.108643 C 568.311951,659.905396 425.426880,717.410583 358.630127,688.950623"
+              class="id_Adult_Lisa id_Zombie_Milhouse" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 596.771912,593.108643 C 570.647766,693.589600 380.740295,805.124878 280.259338,779.000732"
+              class="id_Adult_Lisa id_Santa&apos;S_Little_Hybrid"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1287.660767,591.253601 1186.208496,370.520203 1225.968872,263.124969"
+              class="id_Barry_The_Satellite_Tv_Guy id_Brazilian_Man"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1360.244019,617.195801 1328.753784,544.250732 1342.572021,509.438934"
+              class="id_Barry_The_Satellite_Tv_Guy id_Devon_Peacock"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1338.054932,664.171875 1202.816650,628.407104 1169.658936,571.406128"
+              class="id_Barry_The_Satellite_Tv_Guy id_Hillbilly_M.C."
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1302.587891,653.534790 1130.104980,548.614014 1107.584229,456.146088"
+              class="id_Barry_The_Satellite_Tv_Guy id_Max_Weinberg"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1395.055908,631.014038 C 1318.184937,615.073059 1226.790161,475.855133 1242.731201,398.984222"
+              class="id_Barry_The_Satellite_Tv_Guy id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1298.552368,289.067139 1368.514160,436.855530 1342.572021,509.438934"
+              class="id_Brazilian_Man id_Devon_Peacock" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1276.363159,336.043182 1242.577148,521.011841 1169.658936,571.406128"
+              class="id_Brazilian_Man id_Hillbilly_M.C." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1240.896240,325.406128 1169.865356,441.218811 1107.584229,456.146088"
+              class="id_Brazilian_Man id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1225.968872,263.124969 C 1256.493164,286.944336 1266.550659,368.459900 1242.731201,398.984222"
+              class="id_Brazilian_Man id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1342.572021,509.438934 C 1320.382813,556.415039 1216.635010,593.595337 1169.658936,571.406128"
+              class="id_Devon_Peacock id_Hillbilly_M.C." stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1342.572021,509.438934 C 1284.915894,545.777954 1143.923218,513.802246 1107.584229,456.146088"
+              class="id_Devon_Peacock id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1342.572021,509.438934 C 1300.512939,507.316162 1240.608398,441.043335 1242.731201,398.984222"
+              class="id_Devon_Peacock id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1169.658936,571.406128 C 1134.192017,560.769043 1096.947144,491.613037 1107.584229,456.146088"
+              class="id_Hillbilly_M.C. id_Max_Weinberg" stroke-opacity="1.0"
+              stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1169.658936,571.406128 C 1149.789063,522.307312 1193.632324,418.854156 1242.731201,398.984222"
+              class="id_Hillbilly_M.C. id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 1107.584229,456.146088 C 1123.181274,417.684326 1204.269409,383.387207 1242.731201,398.984222"
+              class="id_Max_Weinberg id_Superhero_With_Claws"
+              stroke-opacity="1.0" stroke="#e60030"/>
+        <path fill="none" stroke-width="2.0"
+              d="M 280.259338,779.000732 C 277.923492,745.316589 324.945953,691.286499 358.630127,688.950623"
+              class="id_Santa&apos;S_Little_Hybrid id_Zombie_Milhouse"
+              stroke-opacity="1.0" stroke="#e60030"/>
+    </g>
+    <g id="nodes">
+        <circle fill-opacity="1.0" fill="#e60030" r="50.0" cx="-654.74866"
+                class="id_Chief_Wiggum" cy="982.9734" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="28.242298" cx="-1072.7594"
+                class="id_Eddie" cy="1464.1758" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="44.122192" cx="-1017.31085"
+                class="id_Lou" cy="1288.0972" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="17.834621" cx="-1607.4214"
+                class="id_Tv_Husband" cy="1618.0754" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="17.834621" cx="-1576.3339"
+                class="id_Tv_Wife" cy="1713.4786" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.405033" cx="-1654.074"
+                class="id_Champ" cy="2021.1914" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.405033" cx="-1646.525"
+                class="id_Cable_Guy" cy="2135.9978" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.405033" cx="-1800.9973"
+                class="id_Challenger" cy="2077.7996" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.405033" cx="-1747.1226"
+                class="id_Stock_Reporter" cy="1965.0941" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.55288" cx="-812.86633"
+                class="id_Gloria" cy="1738.729" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-571.50244"
+                class="id_Customer" cy="1739.1025" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.482616" cx="-1581.868"
+                class="id_Psychic" cy="536.56665" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-379.75494"
+                class="id_Angel" cy="543.02936" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.063702" cx="-560.15344"
+                class="id_Driver" cy="1594.4952" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.046734" cx="-1118.7435"
+                class="id_Dispatcher" cy="1348.599" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1255.3875"
+                class="id_Tour_Guide" cy="743.20135" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="22.227627" cx="659.01245"
+                class="id_Adult_Bart" cy="490.4584" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="22.780924" cx="-786.23364"
+                class="id_Snake_Jailbird" cy="1646.8416" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.036514" cx="-1416.5548"
+                class="id_Teenaged_Guide" cy="1287.8422" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-594.50806"
+                class="id_Park_Commissioner" cy="1842.9697" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.530453" cx="-599.41034"
+                class="id_Sarah_Wiggum" cy="1135.5443" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="17.348236" cx="-557.7265"
+                class="id_Molloy" cy="1447.997" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.513569" cx="-209.56717"
+                class="id_Technician" cy="1081.956" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="24.466404" cx="132.68295"
+                class="id_Cletus_Spuckler" cy="887.8243" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-57.968582"
+                class="id_Innkeeper" cy="567.3026" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.0" cx="1247.5944"
+                class="id_Fortune_Teller" cy="917.8939" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.856018" cx="-192.05615"
+                class="id_Adult_Nelson" cy="1433.8574" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.501788" cx="889.84924"
+                class="id_Aged_Krusty" cy="984.1488" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.0" cx="1318.0419"
+                class="id_Nelson_Jr." cy="966.40186" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.330155" cx="-1806.6816"
+                class="id_Pigeon" cy="-62.147614" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="22.020761" cx="-4.9676814"
+                class="id_Brandine_Del_Roy" cy="949.04474" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.66497" cx="-722.1101"
+                class="id_Businesswoman" cy="2094.5752" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="17.475494" cx="-1131.2676"
+                class="id_Very_Old_Clerk" cy="896.71027" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.173933" cx="-1163.601"
+                class="id_Rex_Banner" cy="1122.9619" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="206.81824"
+                class="id_Clint_Eastwood" cy="1628.265" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="367.41254"
+                class="id_Female_Chorus" cy="1530.5287" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="242.48401"
+                class="id_Hombre" cy="1486.0406" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="456.96796"
+                class="id_Lee_Marvin" cy="1442.107" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="362.20215"
+                class="id_Second_Female_Chorus" cy="1672.3158" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.96838" cx="557.35254"
+                class="id_Townspeople_Chorus" cy="1579.7272" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.72554" cx="-1507.5734"
+                class="id_Cooder" cy="223.6868" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.72554" cx="-1557.871"
+                class="id_Spud" cy="290.23834" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.665663" cx="-1406.3605"
+                class="id_Camel" cy="380.54785" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.665663" cx="-1740.1322"
+                class="id_Fantastic_Dan" cy="398.8976" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.665663" cx="-1326.823"
+                class="id_Performer" cy="270.67477" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="17.348236" cx="-271.0883"
+                class="id_Rosey_Grier" cy="1790.8539" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2648.937"
+                class="id_Archie_Bunker" cy="302.1301" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2400.3467"
+                class="id_Bad_Flanders" cy="256.5942" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2555.559"
+                class="id_Banker" cy="394.2634" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2360.0283"
+                class="id_Commander" cy="353.7384" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2192.604"
+                class="id_Detective_Homer_Simpson" cy="565.52295"
+                stroke="#000000" stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.486116" cx="-2536.749"
+                class="id_Lieutenant" cy="207.47507" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="21.30051" cx="-1387.0562"
+                class="id_Trent" cy="1994.9037" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="21.30051" cx="-1307.094"
+                class="id_Ed_Begley,_Jr." cy="1941.9491" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="21.30051" cx="-1321.6598"
+                class="id_Bald_Eagle" cy="2095.7903" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="21.30051" cx="-1156.3724"
+                class="id_Police_Car" cy="2041.7173" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.66497" cx="-797.3453"
+                class="id_Astronaut_In_Space_Suit" cy="2251.4639"
+                stroke="#000000" stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.66497" cx="-520.5622"
+                class="id_Curtis_E._Bear" cy="2140.9133" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.66497" cx="-619.42065"
+                class="id_Sergeant_Crew" cy="2193.6191" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.13543" cx="-1919.1854"
+                class="id_Burning_Bush" cy="1064.1776" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.13543" cx="-1620.9563"
+                class="id_Moses/Milhouse" cy="1007.31366" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.13543" cx="-1410.4624"
+                class="id_Pharaoh_Skinner" cy="1075.4199" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.13543" cx="-1690.9498"
+                class="id_Slavedriver_Willie" cy="899.5335" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.046734" cx="-1284.1649"
+                class="id_Goliath/Nelson" cy="1665.8086" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.976732" cx="-1388.9017"
+                class="id_Lion" cy="1498.2903" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1282.5917"
+                class="id_Tourist" cy="639.3978" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1738.7262"
+                class="id_Screamapillar" cy="1347.807" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1866.4526"
+                class="id_Mrs._Bellamy" cy="1261.6923" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1676.836"
+                class="id_Carmen_Electra" cy="1208.6104" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.036514" cx="-1290.1184"
+                class="id_Scary_Man" cy="953.3251" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.976732" cx="-1310.3226"
+                class="id_Gina_Vendetti" cy="1399.6842" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.481297" cx="-2011.2079"
+                class="id_Dr._Bartley" cy="1767.7657" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.721853" cx="-2165.8215"
+                class="id_Eliza" cy="1715.1678" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.721853" cx="-2172.2358"
+                class="id_Inspector_Wiggum" cy="1831.0878" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.481297" cx="-1998.9978"
+                class="id_Peter_Pan" cy="1638.9939" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.520011" cx="-2513.9995"
+                class="id_Addicts" cy="1414.0978" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.520011" cx="-2516.477"
+                class="id_Ebenezer_Burns" cy="1306.6122" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.520011" cx="-2426.7373"
+                class="id_Mao" cy="1371.8104" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.299772" cx="-953.23065"
+                class="id_Lt._Adventure" cy="1888.9324" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.299772" cx="-893.3376"
+                class="id_Sgt._Activity" cy="1986.848" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-367.33264"
+                class="id_Goat" cy="343.1379" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-241.31387"
+                class="id_Joseph" cy="635.7356" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="33.515007" cx="472.70038"
+                class="id_Mary" cy="289.06534" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-132.81818"
+                class="id_Frink_Wise_Man" cy="287.6719" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-183.56348"
+                class="id_King_Herod" cy="453.86264" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-45.358704"
+                class="id_Skinner_Wise_Man" cy="182.05898" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-581.6978"
+                class="id_Baby_Jesus" cy="226.18845" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-424.14044"
+                class="id_Matthew" cy="126.350555" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="50.884766"
+                class="id_Shepherd_Carl" cy="349.61807" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="29.226986" cx="-218.19537"
+                class="id_Shepherd_Lenny" cy="64.110565" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.098454" cx="-2462.1658"
+                class="id_50-Foot_Lenny" cy="922.7029" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.098454" cx="-2372.7517"
+                class="id_Dr._Phil" cy="974.02075" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.098454" cx="-2306.7126"
+                class="id_Fudge_Box" cy="752.35626" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.098454" cx="-2287.0713"
+                class="id_Invisible_Carl" cy="872.3326" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.098454" cx="-2263.8054"
+                class="id_Southern_Tv_Therapist" cy="717.2083" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.71225" cx="-1395.5596"
+                class="id_Ipod" cy="691.1488" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-1040.9788"
+                class="id_Bart-Man" cy="789.8886" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-726.31055"
+                class="id_The_Serpent" cy="840.2407" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.038658" cx="182.11456"
+                class="id_George_W._Bush" cy="1003.2091" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.038658" cx="363.9414"
+                class="id_Witney_Spuckler" cy="1119.0822" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="16.433796" cx="843.6212"
+                class="id_Birthday" cy="1200.1117" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="15.662504" cx="1042.2921"
+                class="id_Incest" cy="1249.6423" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.038658" cx="566.70654"
+                class="id_Jitney_Spuckler" cy="1060.7214" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="16.34508" cx="836.6784"
+                class="id_Crystal_Meth" cy="1299.3154" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-342.62698"
+                class="id_Kiefer_Sutherland" cy="1548.9532" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.349655" cx="-340.95847"
+                class="id_Strangles" cy="1647.753" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="20.161308" cx="596.7719"
+                class="id_Adult_Lisa" cy="593.10864" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1395.0559"
+                class="id_Barry_The_Satellite_Tv_Guy" cy="631.01404"
+                stroke="#000000" stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1225.9689"
+                class="id_Brazilian_Man" cy="263.12497" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1342.572"
+                class="id_Devon_Peacock" cy="509.43893" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1169.6589"
+                class="id_Hillbilly_M.C." cy="571.4061" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1107.5842"
+                class="id_Max_Weinberg" cy="456.1461" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.62695" cx="1242.7312"
+                class="id_Superhero_With_Claws" cy="398.98422" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="19.036514" cx="-639.1149"
+                class="id_Marksman" cy="1329.9027" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.27711" cx="358.63013"
+                class="id_Zombie_Milhouse" cy="688.9506" stroke="#000000"
+                stroke-opacity="1.0" stroke-width="1.0"/>
+        <circle fill-opacity="1.0" fill="#e60030" r="18.27711" cx="280.25934"
+                class="id_Santa&apos;S_Little_Hybrid" cy="779.00073"
+                stroke="#000000" stroke-opacity="1.0" stroke-width="1.0"/>
+    </g>
+    <g id="node-labels">
+        <text font-size="125" x="-654.74866" y="1014.376" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Chief_Wiggum">
+            Chief Wiggum
+        </text>
+        <text font-size="53" x="-1072.7594" y="1474.3806" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Eddie">
+            Eddie
+        </text>
+        <text font-size="103" x="-1017.31085" y="1306.7391" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Lou">
+            Lou
+        </text>
+        <text font-size="28" x="-1607.4214" y="1623.4668" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Tv_Husband">
+            Tv Husband
+        </text>
+        <text font-size="28" x="-1576.3339" y="1718.904" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Tv_Wife">
+            Tv Wife
+        </text>
+        <text font-size="29" x="-1654.074" y="2028.4414" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Champ">
+            Champ
+        </text>
+        <text font-size="29" x="-1646.525" y="2143.2478" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Cable_Guy">
+            Cable Guy
+        </text>
+        <text font-size="29" x="-1800.9973" y="2085.0496" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Challenger">
+            Challenger
+        </text>
+        <text font-size="29" x="-1747.1226" y="1972.3441" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Stock_Reporter">
+            Stock Reporter
+        </text>
+        <text font-size="34" x="-812.86633" y="1745.2756" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Gloria">
+            Gloria
+        </text>
+        <text font-size="31" x="-571.50244" y="1744.7915" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Customer">
+            Customer
+        </text>
+        <text font-size="34" x="-1581.868" y="545.06665" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Psychic">
+            Psychic
+        </text>
+        <text font-size="56" x="-379.75494" y="557.02936" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Angel">
+            Angel
+        </text>
+        <text font-size="29" x="-560.15344" y="1599.9115" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Driver">
+            Driver
+        </text>
+        <text font-size="29" x="-1118.7435" y="1355.849" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Dispatcher">
+            Dispatcher
+        </text>
+        <text font-size="32" x="-1255.3875" y="749.3628" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Tour_Guide">
+            Tour Guide
+        </text>
+        <text font-size="38" x="659.01245" y="497.77515" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Adult_Bart">
+            Adult Bart
+        </text>
+        <text font-size="39" x="-786.23364" y="1656.106" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Snake_Jailbird">
+            Snake Jailbird
+        </text>
+        <text font-size="31" x="-1416.5548" y="1295.5922" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Teenaged_Guide">
+            Teenaged Guide
+        </text>
+        <text font-size="31" x="-594.50806" y="1848.9387" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Park_Commissioner">
+            Park Commissioner
+        </text>
+        <text font-size="32" x="-599.41034" y="1143.5443" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Sarah_Wiggum">
+            Sarah Wiggum
+        </text>
+        <text font-size="27" x="-557.7265" y="1454.747" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Molloy">
+            Molloy
+        </text>
+        <text font-size="34" x="-209.56717" y="1088.5027" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Technician">
+            Technician
+        </text>
+        <text font-size="43" x="132.68295" y="898.5743" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Cletus_Spuckler">
+            Cletus Spuckler
+        </text>
+        <text font-size="56" x="-57.968582" y="581.3026" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Innkeeper">
+            Innkeeper
+        </text>
+        <text font-size="23" x="1247.5944" y="922.3225" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Fortune_Teller">
+            Fortune Teller
+        </text>
+        <text font-size="24" x="-192.05615" y="1438.4785" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Adult_Nelson">
+            Adult Nelson
+        </text>
+        <text font-size="23" x="889.84924" y="989.8988" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Aged_Krusty">
+            Aged Krusty
+        </text>
+        <text font-size="23" x="1318.0419" y="971.8655" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Nelson_Jr.">
+            Nelson Jr.
+        </text>
+        <text font-size="23" x="-1806.6816" y="-56.530506" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Pigeon">
+            Pigeon
+        </text>
+        <text font-size="37" x="-4.9676814" y="958.29474" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Brandine_Del_Roy">
+            Brandine Del Roy
+        </text>
+        <text font-size="32" x="-722.1101" y="2100.5518" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Businesswoman">
+            Businesswoman
+        </text>
+        <text font-size="27" x="-1131.2676" y="903.46027" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Very_Old_Clerk">
+            Very Old Clerk
+        </text>
+        <text font-size="33" x="-1163.601" y="1128.9346" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Rex_Banner">
+            Rex Banner
+        </text>
+        <text font-size="24" x="206.81824" y="1632.8861" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Clint_Eastwood">
+            Clint Eastwood
+        </text>
+        <text font-size="24" x="367.41254" y="1535.1498" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Female_Chorus">
+            Female Chorus
+        </text>
+        <text font-size="24" x="242.48401" y="1490.6617" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Hombre">
+            Hombre
+        </text>
+        <text font-size="24" x="456.96796" y="1446.5895" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Lee_Marvin">
+            Lee Marvin
+        </text>
+        <text font-size="24" x="362.20215" y="1676.9369" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Second_Female_Chorus">
+            Second Female Chorus
+        </text>
+        <text font-size="24" x="557.35254" y="1585.7272" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Townspeople_Chorus">
+            Townspeople Chorus
+        </text>
+        <text font-size="30" x="-1507.5734" y="229.46317" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Cooder">
+            Cooder
+        </text>
+        <text font-size="30" x="-1557.871" y="297.73834" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Spud">
+            Spud
+        </text>
+        <text font-size="30" x="-1406.3605" y="386.32422" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Camel">
+            Camel
+        </text>
+        <text font-size="30" x="-1740.1322" y="404.50064" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Fantastic_Dan">
+            Fantastic Dan
+        </text>
+        <text font-size="30" x="-1326.823" y="276.48776" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Performer">
+            Performer
+        </text>
+        <text font-size="27" x="-271.0883" y="1797.4479" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Rosey_Grier">
+            Rosey Grier
+        </text>
+        <text font-size="30" x="-2648.937" y="307.90646" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Archie_Bunker">
+            Archie Bunker
+        </text>
+        <text font-size="30" x="-2400.3467" y="262.37057" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Bad_Flanders">
+            Bad Flanders
+        </text>
+        <text font-size="30" x="-2555.559" y="400.03976" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Banker">
+            Banker
+        </text>
+        <text font-size="30" x="-2360.0283" y="359.51477" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Commander">
+            Commander
+        </text>
+        <text font-size="30" x="-2192.604" y="572.8496" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Detective_Homer_Simpson">
+            Detective Homer Simpson
+        </text>
+        <text font-size="30" x="-2536.749" y="213.0781" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Lieutenant">
+            Lieutenant
+        </text>
+        <text font-size="36" x="-1387.0562" y="2001.4193" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Trent">
+            Trent
+        </text>
+        <text font-size="36" x="-1307.094" y="1950.9491" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Ed_Begley,_Jr.">
+            Ed Begley, Jr.
+        </text>
+        <text font-size="36" x="-1321.6598" y="2104.7903" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Bald_Eagle">
+            Bald Eagle
+        </text>
+        <text font-size="36" x="-1156.3724" y="2048.649" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Police_Car">
+            Police Car
+        </text>
+        <text font-size="32" x="-797.3453" y="2259.2788" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Astronaut_In_Space_Suit">
+            Astronaut In Space Suit
+        </text>
+        <text font-size="32" x="-520.5622" y="2146.9211" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Curtis_E._Bear">
+            Curtis E. Bear
+        </text>
+        <text font-size="32" x="-619.42065" y="2201.33" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Sergeant_Crew">
+            Sergeant Crew
+        </text>
+        <text font-size="33" x="-1919.1854" y="1072.4276" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Burning_Bush">
+            Burning Bush
+        </text>
+        <text font-size="33" x="-1620.9563" y="1013.66766" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Moses/Milhouse">
+            Moses/Milhouse
+        </text>
+        <text font-size="33" x="-1410.4624" y="1081.7739" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Pharaoh_Skinner">
+            Pharaoh Skinner
+        </text>
+        <text font-size="33" x="-1690.9498" y="905.8875" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Slavedriver_Willie">
+            Slavedriver Willie
+        </text>
+        <text font-size="29" x="-1284.1649" y="1671.3923" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Goliath/Nelson">
+            Goliath/Nelson
+        </text>
+        <text font-size="33" x="-1388.9017" y="1504.4536" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Lion">
+            Lion
+        </text>
+        <text font-size="32" x="-1282.5917" y="645.3744" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Tourist">
+            Tourist
+        </text>
+        <text font-size="32" x="-1738.7262" y="1355.807" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Screamapillar">
+            Screamapillar
+        </text>
+        <text font-size="32" x="-1866.4526" y="1269.6923" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Mrs._Bellamy">
+            Mrs. Bellamy
+        </text>
+        <text font-size="32" x="-1676.836" y="1214.7717" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Carmen_Electra">
+            Carmen Electra
+        </text>
+        <text font-size="31" x="-1290.1184" y="960.79504" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Scary_Man">
+            Scary Man
+        </text>
+        <text font-size="33" x="-1310.3226" y="1406.0382" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Gina_Vendetti">
+            Gina Vendetti
+        </text>
+        <text font-size="30" x="-2011.2079" y="1775.2657" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Dr._Bartley">
+            Dr. Bartley
+        </text>
+        <text font-size="30" x="-2165.8215" y="1720.9442" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Eliza">
+            Eliza
+        </text>
+        <text font-size="30" x="-2172.2358" y="1838.4144" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Inspector_Wiggum">
+            Inspector Wiggum
+        </text>
+        <text font-size="30" x="-1998.9978" y="1644.4236" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Peter_Pan">
+            Peter Pan
+        </text>
+        <text font-size="24" x="-2513.9995" y="1418.7189" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Addicts">
+            Addicts
+        </text>
+        <text font-size="24" x="-2516.477" y="1311.2333" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Ebenezer_Burns">
+            Ebenezer Burns
+        </text>
+        <text font-size="24" x="-2426.7373" y="1376.1542" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Mao">
+            Mao
+        </text>
+        <text font-size="29" x="-953.23065" y="1894.5444" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Lt._Adventure">
+            Lt. Adventure
+        </text>
+        <text font-size="29" x="-893.3376" y="1993.9304" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Sgt._Activity">
+            Sgt. Activity
+        </text>
+        <text font-size="56" x="-367.33264" y="353.4146" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Goat">
+            Goat
+        </text>
+        <text font-size="56" x="-241.31387" y="649.7356" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Joseph">
+            Joseph
+        </text>
+        <text font-size="68" x="472.70038" y="305.27954" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Mary">
+            Mary
+        </text>
+        <text font-size="56" x="-132.81818" y="298.45447" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Frink_Wise_Man">
+            Frink Wise Man
+        </text>
+        <text font-size="56" x="-183.56348" y="467.86264" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_King_Herod">
+            King Herod
+        </text>
+        <text font-size="56" x="-45.358704" y="192.84152" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Skinner_Wise_Man">
+            Skinner Wise Man
+        </text>
+        <text font-size="56" x="-581.6978" y="240.18845" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Baby_Jesus">
+            Baby Jesus
+        </text>
+        <text font-size="56" x="-424.14044" y="137.1331" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Matthew">
+            Matthew
+        </text>
+        <text font-size="56" x="50.884766" y="363.61807" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Shepherd_Carl">
+            Shepherd Carl
+        </text>
+        <text font-size="56" x="-218.19537" y="78.110565" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Shepherd_Lenny">
+            Shepherd Lenny
+        </text>
+        <text font-size="29" x="-2462.1658" y="929.698" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_50-Foot_Lenny">
+            50-Foot Lenny
+        </text>
+        <text font-size="29" x="-2372.7517" y="979.63293" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Dr._Phil">
+            Dr. Phil
+        </text>
+        <text font-size="29" x="-2306.7126" y="759.60626" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Fudge_Box">
+            Fudge Box
+        </text>
+        <text font-size="29" x="-2287.0713" y="877.9164" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Invisible_Carl">
+            Invisible Carl
+        </text>
+        <text font-size="29" x="-2263.8054" y="724.4583" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Southern_Tv_Therapist">
+            Southern Tv Therapist
+        </text>
+        <text font-size="32" x="-1395.5596" y="699.1488" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Ipod">
+            Ipod
+        </text>
+        <text font-size="31" x="-1040.9788" y="795.49927" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Bart-Man">
+            Bart-Man
+        </text>
+        <text font-size="31" x="-726.31055" y="847.9907" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_The_Serpent">
+            The Serpent
+        </text>
+        <text font-size="29" x="182.11456" y="1010.4591" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_George_W._Bush">
+            George W. Bush
+        </text>
+        <text font-size="29" x="363.9414" y="1126.3322" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Witney_Spuckler">
+            Witney Spuckler
+        </text>
+        <text font-size="25" x="843.6212" y="1206.3617" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Birthday">
+            Birthday
+        </text>
+        <text font-size="24" x="1042.2921" y="1253.9861" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Incest">
+            Incest
+        </text>
+        <text font-size="29" x="566.70654" y="1067.9714" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Jitney_Spuckler">
+            Jitney Spuckler
+        </text>
+        <text font-size="25" x="836.6784" y="1305.5654" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Crystal_Meth">
+            Crystal Meth
+        </text>
+        <text font-size="31" x="-342.62698" y="1554.96" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Kiefer_Sutherland">
+            Kiefer Sutherland
+        </text>
+        <text font-size="31" x="-340.95847" y="1655.503" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Strangles">
+            Strangles
+        </text>
+        <text font-size="33" x="596.7719" y="599.46265" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Adult_Lisa">
+            Adult Lisa
+        </text>
+        <text font-size="30" x="1395.0559" y="638.51404" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Barry_The_Satellite_Tv_Guy">
+            Barry The Satellite Tv Guy
+        </text>
+        <text font-size="30" x="1225.9689" y="268.90134" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Brazilian_Man">
+            Brazilian Man
+        </text>
+        <text font-size="30" x="1342.572" y="515.21533" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Devon_Peacock">
+            Devon Peacock
+        </text>
+        <text font-size="30" x="1169.6589" y="578.9061" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Hillbilly_M.C.">
+            Hillbilly M.C.
+        </text>
+        <text font-size="30" x="1107.5842" y="463.6461" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Max_Weinberg">
+            Max Weinberg
+        </text>
+        <text font-size="30" x="1242.7312" y="406.48422" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Superhero_With_Claws">
+            Superhero With Claws
+        </text>
+        <text font-size="31" x="-639.1149" y="1335.8716" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Marksman">
+            Marksman
+        </text>
+        <text font-size="29" x="358.63013" y="694.5344" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Zombie_Milhouse">
+            Zombie Milhouse
+        </text>
+        <text font-size="29" x="280.25934" y="786.25073" fill="#000000"
+              style="text-anchor: middle; dominant-baseline: central;"
+              font-family="Noto Sans" class="id_Santa&apos;S_Little_Hybrid">
+            Santa&apos;S Little Hybrid
+        </text>
+    </g>
+</svg>
