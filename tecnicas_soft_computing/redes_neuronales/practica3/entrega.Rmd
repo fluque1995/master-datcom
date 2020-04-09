@@ -1,0 +1,498 @@
+---
+title: "Técnicas de soft computing para Aprendizaje y Optimización"
+subtitle: "Redes neuronales - práctica 3"
+author: "Francisco Luque Sánchez"
+date: "27/02/2020"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+
+library(caret)
+library(reticulate)
+library(knitr)
+library(kableExtra)
+use_virtualenv("master")
+```
+
+```{python, include=F}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import sklearn
+import minisom
+import pylab
+import scipy
+
+import sklearn.preprocessing
+```
+
+# Introducción
+
+En esta práctica aprenderemos a trabajar con dos nuevos tipos de redes
+neuronales: los mapas autoorganizativos de Kohonen y las redes
+neuronales de función de base radial. Para ello, resolveremos dos
+problemas distintos.
+
+Para el primer tipo de redes intentaremos segmentar una base de datos
+de clientes en dos grupos, aquellos que han cometido fraude y aquellos
+que no. En lugar de afrontar el problema desde el punto de vista del
+aprendizaje supervisado, lo haremos desde el punto de vista no
+supervisado. Después, trataremos de estudiar gráficamente si los
+resultados obtenidos son satisfactorios.
+
+Para el segundo tipo de redes, trataremos de resolver un problema de
+regresión, en el que aprendemos la función seno a partir de una
+muestra ruidosa de la misma (pares de valores (`x`, `sin(x)` +
+$\varepsilon$), con $\varepsilon \sim U(-0.1,0.1)$).
+
+# Mapas autoorganizativos de Kohonen
+
+En primer lugar, estudiaremos los mapas organizativos
+(_Self-organizing map_, o SOM por sus siglas en inglés). Estas
+estructuras de red neuronal mapean el espacio de entrada en un espacio
+discreto de baja dimensionalidad, entrenadas utilizando el paradigma
+de aprendizaje no supervisado. Concretamente, se entrenan por
+competición entre las neuronas que forman la capa competitiva. La
+actualización de los pesos de la red no se hace utilizando un
+gradiente descendente, si no que para cada elemento entrada se busca
+el nodo de la capa competitiva con mayor similaridad al dato de
+entrada, y se actualizan sólamente sus pesos y los de los nodos más
+cercanos, utilizando una función de vecindad. De esta manera, se
+consigue que partes cercanas de la capa competitiva representen
+ejemplos de entrada similares, y partes que se encuentran distanciadas
+representen ejemplos de entrada distintos.
+
+Veamos cómo podemos entrenar un mapa autoorganizativo sobre nuestros
+datos. Comenzamos cargando el conjunto y visualizando sus primeros
+ejemplos:
+
+```{python}
+# Data reading
+dataset = pd.read_csv("Credit_Card_Applications.csv")
+```
+
+```{r echo=FALSE}
+kable(head(py$dataset), format="latex", booktabs = TRUE)  %>%
+    kable_styling(latex_options = "scale_down")
+```
+
+Como podemos observar, el conjunto de datos está compuesto por 14
+variables, la clase y un identificador por cada ejemplo. Separamos las
+características de la clase y descartamos el identificador. Además,
+escalamos los valores por columnas al intervalo $[0,1]$, porque para
+trabajar con distancias conviene que las columnas estén en rangos
+comparables, cosa que no ocurre con las características que se nos
+proporcionan:
+
+```{python}
+# First column is discarded because it is an ID
+X = dataset.iloc[:, 1:-1].values
+y = dataset.iloc[:, -1].values
+
+# Data scaling
+sc = sklearn.preprocessing.MinMaxScaler(feature_range=(0,1))
+X = sc.fit_transform(X)
+```
+
+Ahora, pasamos a construir el SOM. Para ello, nos ayudaremos de la
+librería `minisom`, en Python, que implementa este tipo de modelos
+con ayuda de `numpy`. En primer lugar, instanciamos un SOM de tamaño
+$10 \times 10$ en la capa competitiva, y con tamaño de entrada la
+longitud del vector de pesos:
+
+```{python}
+# SOM construction
+som = minisom.MiniSom(x=10, y=10, input_len= X.shape[1],
+                      sigma=1.0, learning_rate=0.5, random_seed=0)
+```
+
+Entrenamos el SOM sobre nuestros datos, inicializando los pesos de
+partida aleatoriamente, y entrenando sobre el conjunto de datos X.
+Como podemos observar, en ningún momento hemos hecho referencia a las
+etiquetas, como es propio del paradigma de aprendizaje no supervisado:
+
+```{python}
+# SOM training
+som.random_weights_init(X)
+som.train_random(X, num_iteration=150, verbose=0)
+```
+
+Una vez está entrenado el SOM, podemos visualizar el mapa de
+distancias que ha aprendido la capa competitiva de la red:
+
+```{python}
+# SOM visualization
+pylab.bone()
+pylab.pcolor(som.distance_map().T)
+pylab.colorbar()
+plt.show()
+```
+
+Las zonas en color más oscuro representan nodos cercanos entre sí, y
+que por tanto codifican elementos que son similares. Las zonas más
+claras, por el contrario, representan puntos alejados del resto, por
+lo que estamos hablando de nodos que codifican elementos que se
+separan de los demás. Podemos situar ahora los puntos de nuestro
+conjunto sobre el nodo en el que se proyectan en el SOM:
+
+```{python}
+# SOM visualization with markers
+pylab.bone()
+pylab.pcolor(som.distance_map().T)
+pylab.colorbar()
+markers = ['o', 's']
+colors = ['r', 'g']
+
+for i, x in enumerate(X):
+    w = som.winner(x)
+    pylab.plot(
+        w[0] + 0.5,
+        w[1] + 0.5,
+        markers[y[i]],
+        markeredgecolor = colors[y[i]],
+        markerfacecolor = 'None',
+        markersize= 10,
+        markeredgewidth = 2
+    )
+
+plt.show()
+```
+
+Para empezar, podemos observar que existe cierto solapamiento entre
+nuestras clases. Esto se observa en el hecho de que hay puntos
+solapados, es decir, puntos de distinta clase que se han proyectado
+sobre el mismo nodo del SOM, y que por tanto son similares, a pesar de
+pertenecer a clases distintas. Esto puede significar que, bajo los
+mismos parámetros, hay clientes que han cometido fraude y clientes que
+no.
+
+Por otra parte, podemos ver cómo existen ciertos grupos con clases
+predominantes, por lo que el SOM representa más o menos correctamente
+algunas partes de nuestro conjunto de datos. Por ejemplo, la esquina
+superior izquierda y la inferior derecha están ocupadas por elementos
+de la clase fraudulenta, mientras que el centro y la esquina superior
+derecha parecen tener más ejemplos de la clase no fraudulenta.
+
+En cuanto a las distancias entre nuestros ejemplos, vamos a ver cómo
+existe menor distancia entre elementosen regiones oscuras que con
+elementos en las regiones más claras. Podemos obtener los vectores que
+se han mapeado a cada celda del SOM con la siguiente función:
+
+```{python}
+mappings = som.win_map(X)
+```
+
+Ahora, haciendo uso de `scipy`, podemos calcular todos los pares de
+distancias entre elementos de una y otra celda de la siguiente forma.
+Sólamente nos quedaremos con las 10 primeras distancias en cada caso:
+
+```{python}
+# Distances calculation
+dist_equals = scipy.spatial.distance.cdist(
+    np.array(mappings[(9,0)]), # Fraudulents in bottom right
+    np.array(mappings[(7,0)]), # Fraudulents in bottom quasi-right
+)[0,0:10]
+
+dist_nonequals = scipy.spatial.distance.cdist(
+    np.array(mappings[(7,0)]), # Fraudulents in bottom quasi-right
+    np.array(mappings[(5,0)]), # Non-fraudulents in bottom center
+)[0,0:10]
+```
+
+```{r echo=FALSE}
+kable(t(py$dist_equals), format="latex", booktabs = TRUE,
+      caption="Distancias entre instancias cercanas en el mapa (fraudulentos en el (9,0) y en el (7,0))")  %>%
+    kable_styling(latex_options = c("scale_down", "HOLD_position"))
+
+kable(t(py$dist_nonequals), format="latex", booktabs = TRUE,
+      caption="Distancias entre instancias más alejadas en el mapa (fraudulentos en el (7,0) y no fraudulentos en el (5,0))")  %>%
+    kable_styling(latex_options = c("scale_down", "HOLD_position"))
+```
+
+Podemos observar cómo las distancias entre la celda (9,0) y la celda
+(7,0), que son las dos últimas con elementos de la fila inferior, son
+significativamente menores que las que hay entre la celda (7,0) y la
+celda (5,0), que es la que se encuentra en la misma fila, en el
+centro, y que contiene elementos de la otra clase.
+
+Una vez hemos visto cómo funcionan los mapas autoorganizativos de
+Kohonen, pasamos a estudiar las redes neuronales de función de base
+radial (RBF).
+
+# Redes neuronales RBF
+
+En este apartado, veremos cómo podemos utilizar las redes neuronales
+RBF. Este tipo de redes nos permiten aproximar funciones utilizando
+distribuciones gaussianas. La estructura de estas redes está compuesta
+por tres capas; la capa de entrada, una capa oculta en la que las
+neuronas tienen como funciones de activación funciones de base radial,
+y la capa de salida, que agrega las activaciones de las neuronas por
+medio de una combinación lineal ponderada, sin función de activación.
+
+En este caso, en lugar de utilizar una librería que nos simplifique la
+creación y entrenamiento de este tipo de redes, vamos a proporcionar
+nosotros una implementación. En primer lugar, tenemos que implementar
+la función de base radial:
+
+```{python}
+def rbf(x, c, s):
+    return np.exp(-1 / (2 * s**2) * (x-c)**2)
+```
+
+Como podemos observar, para la evaluación de esta función necesitamos
+especificar, por un lado, el centro de la distribución, y por otro, la
+desviación típica de la distribución que consideramos.
+
+Para entrenar este tipo de redes, tenemos que llevar a cabo dos
+etapas. En una primera etapa tenemos que identificar los centros de
+nuestras funciones de base radial. Podemos inicializar dichos centros
+de forma aleatoria, o llevar a cabo un algoritmo de clustering para
+identificarlos. En nuestro caso, aplicaremos el algoritmo de
+clustering de las k-medias sobre las características de entrada. Hay
+que observar que este paso de entrenamiento es no supervisado, y sólo
+nos sirve para colocar los centros. Aún no estamos optimizando la
+salida de la red:
+
+```{python}
+def kmeans(X, k):
+    """Performs k-means clustering for 1D input
+    Arguments:
+    X {ndarray} -- A Mx1 array of inputs
+    k {int} -- Number of clusters
+    Returns:
+    ndarray -- A kx1 array of final cluster centers
+    """
+    # randomly select initial clusters from input data
+    clusters = np.random.choice(np.squeeze(X), size=k)
+    prevClusters = clusters.copy()
+    stds = np.zeros(k)
+    converged = False
+
+    while not converged:
+        """
+        compute distances for each cluster center to each point
+        where (distances[i, j] represents the distance between the ith poi
+        nt and jth cluster)
+        """
+        distances = np.squeeze(
+            np.abs(X[:, np.newaxis] - clusters[np.newaxis, :])
+        )
+
+        # find the cluster that's closest to each point
+        closestCluster = np.argmin(distances, axis=1)
+
+        # update clusters by taking the mean of all of the points
+        # assigned to that cluster
+
+        for i in range(k):
+            pointsForCluster = X[closestCluster == i]
+            if len(pointsForCluster) > 0:
+                clusters[i] = np.mean(pointsForCluster, axis=0)
+
+        # converge if clusters haven't moved
+        converged = np.linalg.norm(clusters - prevClusters) < 1e-6
+        prevClusters = clusters.copy()
+    distances = np.squeeze(
+        np.abs(X[:, np.newaxis] - clusters[np.newaxis, :])
+    )
+    closestCluster = np.argmin(distances, axis=1)
+    clustersWithNoPoints = []
+    for i in range(k):
+        pointsForCluster = X[closestCluster == i]
+        if len(pointsForCluster) < 2:
+            # keep track of clusters with no points or 1 point
+            clustersWithNoPoints.append(i)
+            continue
+        else:
+            stds[i] = np.std(X[closestCluster == i])
+
+    # if there are clusters with 0 or 1 points, take the mean std of
+    # the other clusters
+    if len(clustersWithNoPoints) > 0:
+        pointsToAverage = []
+        for i in range(k):
+            if i not in clustersWithNoPoints:
+                pointsToAverage.append(X[closestCluster == i])
+        pointsToAverage = np.concatenate(pointsToAverage).ravel()
+        stds[clustersWithNoPoints] = np.mean(np.std(pointsToAverage))
+
+    return clusters, stds
+```
+
+Una vez tenemos implementado el algoritmo de clústering, pasamos a
+implementar la red de base radial. Implementaremos este modelo como
+una clase, la cual tendrá un método `fit`, el cual nos permite
+aprender la función, y otro método `predict`, la cual nos permite
+realizar predicciones a partir del modelo aprendido. En el
+entrenamiento, ejecutaremos los dos pasos. En una primera etapa,
+aprendemos los centros en cuestión, y en una segunda, entrenamos
+con gradiente descendente los pesos que conectan la salida de las
+neuronas radiales con la neurona de salida:
+
+```{python}
+class RBFNet(object):
+    """Implementation of a Radial Basis Function Network"""
+    def __init__(self, k=2, lr=0.01, epochs=100, rbf=rbf, inferStds=True):
+        self.k = k
+        self.lr = lr
+        self.epochs = epochs
+        self.rbf = rbf
+        self.inferStds = inferStds
+
+        self.w = np.random.randn(k)
+        self.b = np.random.randn(1)
+
+    def fit(self, X, y, verbose = 0):
+        if self.inferStds:
+            # compute stds from data
+            self.centers, self.stds = kmeans(X, self.k)
+        else:
+            # use a fixed std
+            self.centers, _ = kmeans(X, self.k)
+            dMax = max([np.abs(c1 - c2)
+                        for c1 in self.centers
+                        for c2 in self.centers])
+            self.stds = np.repeat(dMax / np.sqrt(2*self.k), self.k)
+
+        # training
+        for epoch in range(self.epochs):
+            for i in range(X.shape[0]):
+                # forward pass
+                a = np.array([self.rbf(X[i], c, s)
+                              for c, s, in zip(self.centers, self.stds)])
+                F = a.T.dot(self.w) + self.b
+
+                loss = (y[i] - F).flatten() ** 2
+                if verbose:
+                    print('Loss: {0:.2f}'.format(loss[0]))
+
+                # backward pass
+                error = -(y[i] - F).flatten()
+                # online update
+                self.w = self.w - self.lr * a * error
+                self.b = self.b - self.lr * error
+
+    def predict(self, X):
+        y_pred = []
+        for i in range(X.shape[0]):
+            a = np.array([self.rbf(X[i], c, s)
+                          for c, s, in zip(self.centers, self.stds)])
+            F = a.T.dot(self.w) + self.b
+            y_pred.append(F)
+        return np.array(y_pred)
+```
+
+Una vez tenemos la clase implementada, podemos utilizar este modelo
+para aprender funciones. En primer lugar, vamos a intentar aprender la
+función seno en el intervalo $[0, 2\pi]$. Generaremos una población
+uniforme en el intervalo $[0,1]$, y evaluaremos la función $f(x) =
+\sin(2 \pi x)$. Además, generaremos un vector de ruido aleatorio
+uniforme en el intervalo $[-0.1, 0.1]$ y lo sumaremos a las
+evaluaciones, para introducir ruido en la muestra. El código que
+implementa dicho experimento es el siguiente:
+
+```{python}
+# sample inputs and add noise
+NUM_SAMPLES = 100
+X = np.random.uniform(0., 1., NUM_SAMPLES)
+X = np.sort(X, axis=0)
+noise = np.random.uniform(-0.1, 0.1, NUM_SAMPLES)
+y = np.sin(2 * np.pi * X) + noise
+
+rbfnet = RBFNet(lr=1e-2, k=2, epochs=500)
+rbfnet.fit(X, y)
+
+y_pred = rbfnet.predict(X)
+```
+
+Mostramos por pantalla los resultados obtenidos:
+
+```{python}
+plt.plot(X, y, '-o')
+plt.plot(X, y_pred, '-o')
+plt.legend(["True data", "RBFNet prediction"])
+plt.show()
+```
+
+Podemos observar que los resultados obtenidos son relativamente
+buenos. La curva que hemos aprendido se ajusta bastante bien a los
+datos originales. En este ejemplo, hemos utilizado 2 unidades ocultas
+(lo podemos observar en el constructor de la clase, cuando hemos
+especificado $k=2$). Si aumentamos el valor de $k$, podemos observar
+el comportamiento que tiene el sistema:
+
+```{python}
+rbfnet = RBFNet(lr=1e-2, k=3, epochs=500)
+rbfnet.fit(X, y)
+
+y_pred = rbfnet.predict(X)
+```
+
+```{python, echo=FALSE}
+plt.plot(X, y, '-o')
+plt.plot(X, y_pred, '-o')
+plt.legend(["True data", "RBFNet prediction"])
+plt.show()
+```
+
+Podemos observar el comportamiento que tiene el valor $k$ en la
+distribución de puntos. Al parecer, cada centro tiene mayor influencia
+en el comportamiento de los puntos cercanos a una determinada zona del
+espacio, provocando una curva la función aprendida, y en las zonas
+intermedias la función se define, aproximadamente, como una función
+lineal. Dado que los datos originales están formados por dos curvas
+(a grandes rasos), el valor $k = 2$ es el más adecuado para aprender
+dicha función. Si cambiamos la función al intervalo $3 \pi$, de forma
+que haya tres partes curvadas, en lugar de dos, ocurre lo siguiente
+si intentamos utilizar sólo dos neuronas en la capa oculta:
+
+```{python}
+X = np.random.uniform(0., 1., NUM_SAMPLES)
+X = np.sort(X, axis=0)
+noise = np.random.uniform(-0.1, 0.1, NUM_SAMPLES)
+y = np.sin(3 * np.pi * X) + noise
+
+rbfnet = RBFNet(lr=1e-2, k=2, epochs=500)
+rbfnet.fit(X, y)
+
+y_pred = rbfnet.predict(X)
+```
+
+```{python, echo=FALSE}
+plt.plot(X, y, '-o')
+plt.plot(X, y_pred, '-o')
+plt.legend(["True data", "RBFNet prediction"])
+plt.show()
+```
+
+Podemos observar que los resultados no son satisfactorios, y el modelo
+no tiene la potencia suficiente como para aprender la función en
+cuestión. En cambio, ahora sí podemos aprender la función utilizando
+3 neuronas ocultas:
+
+```{python}
+rbfnet = RBFNet(lr=1e-2, k=3, epochs=500)
+rbfnet.fit(X, y)
+
+y_pred = rbfnet.predict(X)
+```
+
+```{python, echo=FALSE}
+plt.plot(X, y, '-o')
+plt.plot(X, y_pred, '-o')
+plt.legend(["True data", "RBFNet prediction"])
+plt.show()
+```

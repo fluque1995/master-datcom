@@ -1,0 +1,926 @@
+%%
+% Copyright (c) 2017 - 2019, Pascal Wagler;
+% Copyright (c) 2014 - 2019, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*,table}{xcolor}
+%
+\documentclass[
+  a4paper,
+,tablecaptionabove
+]{scrartcl}
+\usepackage{lmodern}
+\usepackage{setspace}
+\setstretch{1.2}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\renewcommand{\verbatim@font}{\ttfamily\scriptsize}
+\makeatother
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Técnicas de soft computing para Aprendizaje y Optimización},
+  pdfauthor={Francisco Luque Sánchez},
+  colorlinks=true,
+  linkcolor=default-linkcolor,
+  filecolor=default-filecolor,
+  citecolor=default-citecolor,
+  urlcolor=blue,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+
+% Workaround/bugfix from jannick0.
+% See https://github.com/jgm/pandoc/issues/4302#issuecomment-360669013)
+% or https://github.com/Wandmalfarbe/pandoc-latex-template/issues/2
+%
+% Redefine the verbatim environment 'Highlighting' to break long lines (with
+% the help of fvextra). Redefinition is necessary because it is unlikely that
+% pandoc includes fvextra in the default template.
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,fontsize=\small,commandchars=\\\{\}}
+
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{3}
+
+% Make use of float-package and set default placement for figures to H.
+% The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+\usepackage{float}
+\floatplacement{figure}{H}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
+\title{Técnicas de soft computing para Aprendizaje y Optimización}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Redes neuronales - práctica 3}
+\author{Francisco Luque Sánchez}
+\date{27/02/2020}
+
+
+
+%%
+%% added
+%%
+
+%
+% language specification
+%
+% If no language is specified, use English as the default main document language.
+%
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,main=english]{babel}
+\else
+    % Workaround for bug in Polyglossia that breaks `\familydefault` when `\setmainlanguage` is used.
+  % See https://github.com/Wandmalfarbe/pandoc-latex-template/issues/8
+  % See https://github.com/reutenauer/polyglossia/issues/186
+  % See https://github.com/reutenauer/polyglossia/issues/127
+  \renewcommand*\familydefault{\sfdefault}
+    % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+  \usepackage{polyglossia}
+  \setmainlanguage[]{english}
+\fi
+
+
+
+%
+% for the background color of the title page
+%
+\usepackage{pagecolor}
+\usepackage{afterpage}
+\usepackage{tikz}
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering]{geometry}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the de­fault font fam­ily
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title and author
+%
+\usepackage{titling}
+\title{Técnicas de soft computing para Aprendizaje y Optimización}
+\author{Francisco Luque Sánchez}
+
+%
+% tables
+%
+
+%
+% remove paragraph indention
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% header and footer
+%
+\usepackage{fancyhdr}
+
+\fancypagestyle{eisvogel-header-footer}{
+  \fancyhead{}
+  \fancyfoot{}
+  \lhead[27/02/2020]{Técnicas de soft computing para Aprendizaje y Optimización}
+  \chead[]{}
+  \rhead[Técnicas de soft computing para Aprendizaje y Optimización]{27/02/2020}
+  \lfoot[\thepage]{Francisco Luque Sánchez}
+  \cfoot[]{}
+  \rfoot[Francisco Luque Sánchez]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{eisvogel-header-footer}
+
+%%
+%% end added
+%%
+
+\begin{document}
+
+%%
+%% begin titlepage
+%%
+\begin{titlepage}
+\newgeometry{top=2cm, right=4cm, bottom=3cm, left=4cm}
+\tikz[remember picture,overlay] \node[inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{background.pdf}};
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{5F5F5F}
+\makebox[0pt][l]{\colorRule[435488]{1.3\textwidth}{4pt}}
+\par
+\noindent
+
+% The titlepage with a background image has other text spacing and text size
+{
+  \setstretch{2}
+  \vfill
+  \vskip -8em
+  \noindent {\huge \textbf{\textsf{Técnicas de soft computing para Aprendizaje y Optimización}}}
+    \vskip 1em
+  {\Large \textsf{Redes neuronales - práctica 3}}
+    \vskip 2em
+  \noindent {\Large \textsf{Francisco Luque Sánchez} \vskip 0.6em \textsf{27/02/2020}}
+  \vfill
+}
+
+
+\end{flushleft}
+\end{titlepage}
+\restoregeometry
+
+%%
+%% end titlepage
+%%
+
+
+
+\hypertarget{introducciuxf3n}{%
+\section{Introducción}\label{introducciuxf3n}}
+
+En esta práctica aprenderemos a trabajar con dos nuevos tipos de redes
+neuronales: los mapas autoorganizativos de Kohonen y las redes
+neuronales de función de base radial. Para ello, resolveremos dos
+problemas distintos.
+
+Para el primer tipo de redes intentaremos segmentar una base de datos de
+clientes en dos grupos, aquellos que han cometido fraude y aquellos que
+no. En lugar de afrontar el problema desde el punto de vista del
+aprendizaje supervisado, lo haremos desde el punto de vista no
+supervisado. Después, trataremos de estudiar gráficamente si los
+resultados obtenidos son satisfactorios.
+
+Para el segundo tipo de redes, trataremos de resolver un problema de
+regresión, en el que aprendemos la función seno a partir de una muestra
+ruidosa de la misma (pares de valores (\texttt{x}, \texttt{sin(x)} +
+\(\varepsilon\)), con \(\varepsilon \sim U(-0.1,0.1)\)).
+
+\hypertarget{mapas-autoorganizativos-de-kohonen}{%
+\section{Mapas autoorganizativos de
+Kohonen}\label{mapas-autoorganizativos-de-kohonen}}
+
+En primer lugar, estudiaremos los mapas organizativos
+(\emph{Self-organizing map}, o SOM por sus siglas en inglés). Estas
+estructuras de red neuronal mapean el espacio de entrada en un espacio
+discreto de baja dimensionalidad, entrenadas utilizando el paradigma de
+aprendizaje no supervisado. Concretamente, se entrenan por competición
+entre las neuronas que forman la capa competitiva. La actualización de
+los pesos de la red no se hace utilizando un gradiente descendente, si
+no que para cada elemento entrada se busca el nodo de la capa
+competitiva con mayor similaridad al dato de entrada, y se actualizan
+sólamente sus pesos y los de los nodos más cercanos, utilizando una
+función de vecindad. De esta manera, se consigue que partes cercanas de
+la capa competitiva representen ejemplos de entrada similares, y partes
+que se encuentran distanciadas representen ejemplos de entrada
+distintos.
+
+Veamos cómo podemos entrenar un mapa autoorganizativo sobre nuestros
+datos. Comenzamos cargando el conjunto y visualizando sus primeros
+ejemplos:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Data reading}
+\NormalTok{dataset }\OperatorTok{=}\NormalTok{ pd.read_csv(}\StringTok{"Credit_Card_Applications.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{rrrrrrrrrrrrrrrr}
+\toprule
+CustomerID & A1 & A2 & A3 & A4 & A5 & A6 & A7 & A8 & A9 & A10 & A11 & A12 & A13 & A14 & Class\\
+\midrule
+15776156 & 1 & 22.08 & 11.460 & 2 & 4 & 4 & 1.585 & 0 & 0 & 0 & 1 & 2 & 100 & 1213 & 0\\
+15739548 & 0 & 22.67 & 7.000 & 2 & 8 & 4 & 0.165 & 0 & 0 & 0 & 0 & 2 & 160 & 1 & 0\\
+15662854 & 0 & 29.58 & 1.750 & 1 & 4 & 4 & 1.250 & 0 & 0 & 0 & 1 & 2 & 280 & 1 & 0\\
+15687688 & 0 & 21.67 & 11.500 & 1 & 5 & 3 & 0.000 & 1 & 1 & 11 & 1 & 2 & 0 & 1 & 1\\
+15715750 & 1 & 20.17 & 8.170 & 2 & 6 & 4 & 1.960 & 1 & 1 & 14 & 0 & 2 & 60 & 159 & 1\\
+\addlinespace
+15571121 & 0 & 15.83 & 0.585 & 2 & 8 & 8 & 1.500 & 1 & 1 & 2 & 0 & 2 & 100 & 1 & 1\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Como podemos observar, el conjunto de datos está compuesto por 14
+variables, la clase y un identificador por cada ejemplo. Separamos las
+características de la clase y descartamos el identificador. Además,
+escalamos los valores por columnas al intervalo \([0,1]\), porque para
+trabajar con distancias conviene que las columnas estén en rangos
+comparables, cosa que no ocurre con las características que se nos
+proporcionan:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# First column is discarded because it is an ID}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ dataset.iloc[:, }\DecValTok{1}\NormalTok{:}\OperatorTok{-}\DecValTok{1}\NormalTok{].values}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ dataset.iloc[:, }\DecValTok{-1}\NormalTok{].values}
+
+\CommentTok{# Data scaling}
+\NormalTok{sc }\OperatorTok{=}\NormalTok{ sklearn.preprocessing.MinMaxScaler(feature_range}\OperatorTok{=}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ sc.fit_transform(X)}
+\end{Highlighting}
+\end{Shaded}
+
+Ahora, pasamos a construir el SOM. Para ello, nos ayudaremos de la
+librería \texttt{minisom}, en Python, que implementa este tipo de
+modelos con ayuda de \texttt{numpy}. En primer lugar, instanciamos un
+SOM de tamaño \(10 \times 10\) en la capa competitiva, y con tamaño de
+entrada la longitud del vector de pesos:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# SOM construction}
+\NormalTok{som }\OperatorTok{=}\NormalTok{ minisom.MiniSom(x}\OperatorTok{=}\DecValTok{10}\NormalTok{, y}\OperatorTok{=}\DecValTok{10}\NormalTok{, input_len}\OperatorTok{=}\NormalTok{ X.shape[}\DecValTok{1}\NormalTok{],}
+\NormalTok{                      sigma}\OperatorTok{=}\FloatTok{1.0}\NormalTok{, learning_rate}\OperatorTok{=}\FloatTok{0.5}\NormalTok{, random_seed}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Entrenamos el SOM sobre nuestros datos, inicializando los pesos de
+partida aleatoriamente, y entrenando sobre el conjunto de datos X. Como
+podemos observar, en ningún momento hemos hecho referencia a las
+etiquetas, como es propio del paradigma de aprendizaje no supervisado:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# SOM training}
+\NormalTok{som.random_weights_init(X)}
+\NormalTok{som.train_random(X, num_iteration}\OperatorTok{=}\DecValTok{150}\NormalTok{, verbose}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Una vez está entrenado el SOM, podemos visualizar el mapa de distancias
+que ha aprendido la capa competitiva de la red:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# SOM visualization}
+\NormalTok{pylab.bone()}
+\NormalTok{pylab.pcolor(som.distance_map().T)}
+\NormalTok{pylab.colorbar()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## <matplotlib.colorbar.Colorbar object at 0x7efd9c324150>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Las zonas en color más oscuro representan nodos cercanos entre sí, y que
+por tanto codifican elementos que son similares. Las zonas más claras,
+por el contrario, representan puntos alejados del resto, por lo que
+estamos hablando de nodos que codifican elementos que se separan de los
+demás. Podemos situar ahora los puntos de nuestro conjunto sobre el nodo
+en el que se proyectan en el SOM:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# SOM visualization with markers}
+\NormalTok{pylab.bone()}
+\NormalTok{pylab.pcolor(som.distance_map().T)}
+\NormalTok{pylab.colorbar()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## <matplotlib.colorbar.Colorbar object at 0x7efd9c2daf10>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{markers }\OperatorTok{=}\NormalTok{ [}\StringTok{'o'}\NormalTok{, }\StringTok{'s'}\NormalTok{]}
+\NormalTok{colors }\OperatorTok{=}\NormalTok{ [}\StringTok{'r'}\NormalTok{, }\StringTok{'g'}\NormalTok{]}
+
+\ControlFlowTok{for}\NormalTok{ i, x }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(X):}
+\NormalTok{    w }\OperatorTok{=}\NormalTok{ som.winner(x)}
+\NormalTok{    pylab.plot(}
+\NormalTok{        w[}\DecValTok{0}\NormalTok{] }\OperatorTok{+} \FloatTok{0.5}\NormalTok{,}
+\NormalTok{        w[}\DecValTok{1}\NormalTok{] }\OperatorTok{+} \FloatTok{0.5}\NormalTok{,}
+\NormalTok{        markers[y[i]],}
+\NormalTok{        markeredgecolor }\OperatorTok{=}\NormalTok{ colors[y[i]],}
+\NormalTok{        markerfacecolor }\OperatorTok{=} \StringTok{'None'}\NormalTok{,}
+\NormalTok{        markersize}\OperatorTok{=} \DecValTok{10}\NormalTok{,}
+\NormalTok{        markeredgewidth }\OperatorTok{=} \DecValTok{2}
+\NormalTok{    )}
+
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+Para empezar, podemos observar que existe cierto solapamiento entre
+nuestras clases. Esto se observa en el hecho de que hay puntos
+solapados, es decir, puntos de distinta clase que se han proyectado
+sobre el mismo nodo del SOM, y que por tanto son similares, a pesar de
+pertenecer a clases distintas. Esto puede significar que, bajo los
+mismos parámetros, hay clientes que han cometido fraude y clientes que
+no.
+
+Por otra parte, podemos ver cómo existen ciertos grupos con clases
+predominantes, por lo que el SOM representa más o menos correctamente
+algunas partes de nuestro conjunto de datos. Por ejemplo, la esquina
+superior izquierda y la inferior derecha están ocupadas por elementos de
+la clase fraudulenta, mientras que el centro y la esquina superior
+derecha parecen tener más ejemplos de la clase no fraudulenta.
+
+En cuanto a las distancias entre nuestros ejemplos, vamos a ver cómo
+existe menor distancia entre elementosen regiones oscuras que con
+elementos en las regiones más claras. Podemos obtener los vectores que
+se han mapeado a cada celda del SOM con la siguiente función:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mappings }\OperatorTok{=}\NormalTok{ som.win_map(X)}
+\end{Highlighting}
+\end{Shaded}
+
+Ahora, haciendo uso de \texttt{scipy}, podemos calcular todos los pares
+de distancias entre elementos de una y otra celda de la siguiente forma.
+Sólamente nos quedaremos con las 10 primeras distancias en cada caso:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Distances calculation}
+\NormalTok{dist_equals }\OperatorTok{=}\NormalTok{ scipy.spatial.distance.cdist(}
+\NormalTok{    np.array(mappings[(}\DecValTok{9}\NormalTok{,}\DecValTok{0}\NormalTok{)]), }\CommentTok{# Fraudulents in bottom right}
+\NormalTok{    np.array(mappings[(}\DecValTok{7}\NormalTok{,}\DecValTok{0}\NormalTok{)]), }\CommentTok{# Fraudulents in bottom quasi-right}
+\NormalTok{)[}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{:}\DecValTok{10}\NormalTok{]}
+
+\NormalTok{dist_nonequals }\OperatorTok{=}\NormalTok{ scipy.spatial.distance.cdist(}
+\NormalTok{    np.array(mappings[(}\DecValTok{7}\NormalTok{,}\DecValTok{0}\NormalTok{)]), }\CommentTok{# Fraudulents in bottom quasi-right}
+\NormalTok{    np.array(mappings[(}\DecValTok{5}\NormalTok{,}\DecValTok{0}\NormalTok{)]), }\CommentTok{# Non-fraudulents in bottom center}
+\NormalTok{)[}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{:}\DecValTok{10}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Distancias entre instancias cercanas en el mapa (fraudulentos en el (9,0) y en el (7,0))}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{rrrrrrrrrr}
+\toprule
+0,7853471 & 0,7568143 & 0,5184572 & 0,5874659 & 0,7817503 & 0,5709737 & 0,6464912 & 0,6787455 & 0,7046785 & 0,7776254\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Distancias entre instancias más alejadas en el mapa (fraudulentos en el (7,0) y no fraudulentos en el (5,0))}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}[t]{rrrrrrrrrr}
+\toprule
+1,904197 & 1,92279 & 1,924613 & 1,896483 & 2,063192 & 1,9327 & 1,973504 & 1,911055 & 1,957083 & 2,015116\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Podemos observar cómo las distancias entre la celda (9,0) y la celda
+(7,0), que son las dos últimas con elementos de la fila inferior, son
+significativamente menores que las que hay entre la celda (7,0) y la
+celda (5,0), que es la que se encuentra en la misma fila, en el centro,
+y que contiene elementos de la otra clase.
+
+Una vez hemos visto cómo funcionan los mapas autoorganizativos de
+Kohonen, pasamos a estudiar las redes neuronales de función de base
+radial (RBF).
+
+\hypertarget{redes-neuronales-rbf}{%
+\section{Redes neuronales RBF}\label{redes-neuronales-rbf}}
+
+En este apartado, veremos cómo podemos utilizar las redes neuronales
+RBF. Este tipo de redes nos permiten aproximar funciones utilizando
+distribuciones gaussianas. La estructura de estas redes está compuesta
+por tres capas; la capa de entrada, una capa oculta en la que las
+neuronas tienen como funciones de activación funciones de base radial, y
+la capa de salida, que agrega las activaciones de las neuronas por medio
+de una combinación lineal ponderada, sin función de activación.
+
+En este caso, en lugar de utilizar una librería que nos simplifique la
+creación y entrenamiento de este tipo de redes, vamos a proporcionar
+nosotros una implementación. En primer lugar, tenemos que implementar la
+función de base radial:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ rbf(x, c, s):}
+    \ControlFlowTok{return}\NormalTok{ np.exp(}\OperatorTok{-}\DecValTok{1} \OperatorTok{/}\NormalTok{ (}\DecValTok{2} \OperatorTok{*}\NormalTok{ s}\OperatorTok{**}\DecValTok{2}\NormalTok{) }\OperatorTok{*}\NormalTok{ (x}\OperatorTok{-}\NormalTok{c)}\OperatorTok{**}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Como podemos observar, para la evaluación de esta función necesitamos
+especificar, por un lado, el centro de la distribución, y por otro, la
+desviación típica de la distribución que consideramos.
+
+Para entrenar este tipo de redes, tenemos que llevar a cabo dos etapas.
+En una primera etapa tenemos que identificar los centros de nuestras
+funciones de base radial. Podemos inicializar dichos centros de forma
+aleatoria, o llevar a cabo un algoritmo de clustering para
+identificarlos. En nuestro caso, aplicaremos el algoritmo de clustering
+de las k-medias sobre las características de entrada. Hay que observar
+que este paso de entrenamiento es no supervisado, y sólo nos sirve para
+colocar los centros. Aún no estamos optimizando la salida de la red:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ kmeans(X, k):}
+    \CommentTok{"""Performs k-means clustering for 1D input}
+\CommentTok{    Arguments:}
+\CommentTok{    X \{ndarray\} -- A Mx1 array of inputs}
+\CommentTok{    k \{int\} -- Number of clusters}
+\CommentTok{    Returns:}
+\CommentTok{    ndarray -- A kx1 array of final cluster centers}
+\CommentTok{    """}
+    \CommentTok{# randomly select initial clusters from input data}
+\NormalTok{    clusters }\OperatorTok{=}\NormalTok{ np.random.choice(np.squeeze(X), size}\OperatorTok{=}\NormalTok{k)}
+\NormalTok{    prevClusters }\OperatorTok{=}\NormalTok{ clusters.copy()}
+\NormalTok{    stds }\OperatorTok{=}\NormalTok{ np.zeros(k)}
+\NormalTok{    converged }\OperatorTok{=} \VariableTok{False}
+
+    \ControlFlowTok{while} \KeywordTok{not}\NormalTok{ converged:}
+        \CommentTok{"""}
+\CommentTok{        compute distances for each cluster center to each point}
+\CommentTok{        where (distances[i, j] represents the distance between the ith poi}
+\CommentTok{        nt and jth cluster)}
+\CommentTok{        """}
+\NormalTok{        distances }\OperatorTok{=}\NormalTok{ np.squeeze(}
+\NormalTok{            np.}\BuiltInTok{abs}\NormalTok{(X[:, np.newaxis] }\OperatorTok{-}\NormalTok{ clusters[np.newaxis, :])}
+\NormalTok{        )}
+
+        \CommentTok{# find the cluster that's closest to each point}
+\NormalTok{        closestCluster }\OperatorTok{=}\NormalTok{ np.argmin(distances, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
+
+        \CommentTok{# update clusters by taking the mean of all of the points}
+        \CommentTok{# assigned to that cluster}
+
+        \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(k):}
+\NormalTok{            pointsForCluster }\OperatorTok{=}\NormalTok{ X[closestCluster }\OperatorTok{==}\NormalTok{ i]}
+            \ControlFlowTok{if} \BuiltInTok{len}\NormalTok{(pointsForCluster) }\OperatorTok{>} \DecValTok{0}\NormalTok{:}
+\NormalTok{                clusters[i] }\OperatorTok{=}\NormalTok{ np.mean(pointsForCluster, axis}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+
+        \CommentTok{# converge if clusters haven't moved}
+\NormalTok{        converged }\OperatorTok{=}\NormalTok{ np.linalg.norm(clusters }\OperatorTok{-}\NormalTok{ prevClusters) }\OperatorTok{<} \FloatTok{1e-6}
+\NormalTok{        prevClusters }\OperatorTok{=}\NormalTok{ clusters.copy()}
+\NormalTok{    distances }\OperatorTok{=}\NormalTok{ np.squeeze(}
+\NormalTok{        np.}\BuiltInTok{abs}\NormalTok{(X[:, np.newaxis] }\OperatorTok{-}\NormalTok{ clusters[np.newaxis, :])}
+\NormalTok{    )}
+\NormalTok{    closestCluster }\OperatorTok{=}\NormalTok{ np.argmin(distances, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
+\NormalTok{    clustersWithNoPoints }\OperatorTok{=}\NormalTok{ []}
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(k):}
+\NormalTok{        pointsForCluster }\OperatorTok{=}\NormalTok{ X[closestCluster }\OperatorTok{==}\NormalTok{ i]}
+        \ControlFlowTok{if} \BuiltInTok{len}\NormalTok{(pointsForCluster) }\OperatorTok{<} \DecValTok{2}\NormalTok{:}
+            \CommentTok{# keep track of clusters with no points or 1 point}
+\NormalTok{            clustersWithNoPoints.append(i)}
+            \ControlFlowTok{continue}
+        \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{            stds[i] }\OperatorTok{=}\NormalTok{ np.std(X[closestCluster }\OperatorTok{==}\NormalTok{ i])}
+
+    \CommentTok{# if there are clusters with 0 or 1 points, take the mean std of}
+    \CommentTok{# the other clusters}
+    \ControlFlowTok{if} \BuiltInTok{len}\NormalTok{(clustersWithNoPoints) }\OperatorTok{>} \DecValTok{0}\NormalTok{:}
+\NormalTok{        pointsToAverage }\OperatorTok{=}\NormalTok{ []}
+        \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(k):}
+            \ControlFlowTok{if}\NormalTok{ i }\KeywordTok{not} \KeywordTok{in}\NormalTok{ clustersWithNoPoints:}
+\NormalTok{                pointsToAverage.append(X[closestCluster }\OperatorTok{==}\NormalTok{ i])}
+\NormalTok{        pointsToAverage }\OperatorTok{=}\NormalTok{ np.concatenate(pointsToAverage).ravel()}
+\NormalTok{        stds[clustersWithNoPoints] }\OperatorTok{=}\NormalTok{ np.mean(np.std(pointsToAverage))}
+
+    \ControlFlowTok{return}\NormalTok{ clusters, stds}
+\end{Highlighting}
+\end{Shaded}
+
+Una vez tenemos implementado el algoritmo de clústering, pasamos a
+implementar la red de base radial. Implementaremos este modelo como una
+clase, la cual tendrá un método \texttt{fit}, el cual nos permite
+aprender la función, y otro método \texttt{predict}, la cual nos permite
+realizar predicciones a partir del modelo aprendido. En el
+entrenamiento, ejecutaremos los dos pasos. En una primera etapa,
+aprendemos los centros en cuestión, y en una segunda, entrenamos con
+gradiente descendente los pesos que conectan la salida de las neuronas
+radiales con la neurona de salida:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{class}\NormalTok{ RBFNet(}\BuiltInTok{object}\NormalTok{):}
+    \CommentTok{"""Implementation of a Radial Basis Function Network"""}
+    \KeywordTok{def} \FunctionTok{__init__}\NormalTok{(}\VariableTok{self}\NormalTok{, k}\OperatorTok{=}\DecValTok{2}\NormalTok{, lr}\OperatorTok{=}\FloatTok{0.01}\NormalTok{, epochs}\OperatorTok{=}\DecValTok{100}\NormalTok{, rbf}\OperatorTok{=}\NormalTok{rbf, inferStds}\OperatorTok{=}\VariableTok{True}\NormalTok{):}
+        \VariableTok{self}\NormalTok{.k }\OperatorTok{=}\NormalTok{ k}
+        \VariableTok{self}\NormalTok{.lr }\OperatorTok{=}\NormalTok{ lr}
+        \VariableTok{self}\NormalTok{.epochs }\OperatorTok{=}\NormalTok{ epochs}
+        \VariableTok{self}\NormalTok{.rbf }\OperatorTok{=}\NormalTok{ rbf}
+        \VariableTok{self}\NormalTok{.inferStds }\OperatorTok{=}\NormalTok{ inferStds}
+
+        \VariableTok{self}\NormalTok{.w }\OperatorTok{=}\NormalTok{ np.random.randn(k)}
+        \VariableTok{self}\NormalTok{.b }\OperatorTok{=}\NormalTok{ np.random.randn(}\DecValTok{1}\NormalTok{)}
+
+    \KeywordTok{def}\NormalTok{ fit(}\VariableTok{self}\NormalTok{, X, y, verbose }\OperatorTok{=} \DecValTok{0}\NormalTok{):}
+        \ControlFlowTok{if} \VariableTok{self}\NormalTok{.inferStds:}
+            \CommentTok{# compute stds from data}
+            \VariableTok{self}\NormalTok{.centers, }\VariableTok{self}\NormalTok{.stds }\OperatorTok{=}\NormalTok{ kmeans(X, }\VariableTok{self}\NormalTok{.k)}
+        \ControlFlowTok{else}\NormalTok{:}
+            \CommentTok{# use a fixed std}
+            \VariableTok{self}\NormalTok{.centers, _ }\OperatorTok{=}\NormalTok{ kmeans(X, }\VariableTok{self}\NormalTok{.k)}
+\NormalTok{            dMax }\OperatorTok{=} \BuiltInTok{max}\NormalTok{([np.}\BuiltInTok{abs}\NormalTok{(c1 }\OperatorTok{-}\NormalTok{ c2)}
+                        \ControlFlowTok{for}\NormalTok{ c1 }\KeywordTok{in} \VariableTok{self}\NormalTok{.centers}
+                        \ControlFlowTok{for}\NormalTok{ c2 }\KeywordTok{in} \VariableTok{self}\NormalTok{.centers])}
+            \VariableTok{self}\NormalTok{.stds }\OperatorTok{=}\NormalTok{ np.repeat(dMax }\OperatorTok{/}\NormalTok{ np.sqrt(}\DecValTok{2}\OperatorTok{*}\VariableTok{self}\NormalTok{.k), }\VariableTok{self}\NormalTok{.k)}
+
+        \CommentTok{# training}
+        \ControlFlowTok{for}\NormalTok{ epoch }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\VariableTok{self}\NormalTok{.epochs):}
+            \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(X.shape[}\DecValTok{0}\NormalTok{]):}
+                \CommentTok{# forward pass}
+\NormalTok{                a }\OperatorTok{=}\NormalTok{ np.array([}\VariableTok{self}\NormalTok{.rbf(X[i], c, s)}
+                              \ControlFlowTok{for}\NormalTok{ c, s, }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(}\VariableTok{self}\NormalTok{.centers, }\VariableTok{self}\NormalTok{.stds)])}
+\NormalTok{                F }\OperatorTok{=}\NormalTok{ a.T.dot(}\VariableTok{self}\NormalTok{.w) }\OperatorTok{+} \VariableTok{self}\NormalTok{.b}
+
+\NormalTok{                loss }\OperatorTok{=}\NormalTok{ (y[i] }\OperatorTok{-}\NormalTok{ F).flatten() }\OperatorTok{**} \DecValTok{2}
+                \ControlFlowTok{if}\NormalTok{ verbose:}
+                    \BuiltInTok{print}\NormalTok{(}\StringTok{'Loss: }\SpecialCharTok{\{0:.2f\}}\StringTok{'}\NormalTok{.}\BuiltInTok{format}\NormalTok{(loss[}\DecValTok{0}\NormalTok{]))}
+
+                \CommentTok{# backward pass}
+\NormalTok{                error }\OperatorTok{=} \OperatorTok{-}\NormalTok{(y[i] }\OperatorTok{-}\NormalTok{ F).flatten()}
+                \CommentTok{# online update}
+                \VariableTok{self}\NormalTok{.w }\OperatorTok{=} \VariableTok{self}\NormalTok{.w }\OperatorTok{-} \VariableTok{self}\NormalTok{.lr }\OperatorTok{*}\NormalTok{ a }\OperatorTok{*}\NormalTok{ error}
+                \VariableTok{self}\NormalTok{.b }\OperatorTok{=} \VariableTok{self}\NormalTok{.b }\OperatorTok{-} \VariableTok{self}\NormalTok{.lr }\OperatorTok{*}\NormalTok{ error}
+
+    \KeywordTok{def}\NormalTok{ predict(}\VariableTok{self}\NormalTok{, X):}
+\NormalTok{        y_pred }\OperatorTok{=}\NormalTok{ []}
+        \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(X.shape[}\DecValTok{0}\NormalTok{]):}
+\NormalTok{            a }\OperatorTok{=}\NormalTok{ np.array([}\VariableTok{self}\NormalTok{.rbf(X[i], c, s)}
+                          \ControlFlowTok{for}\NormalTok{ c, s, }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(}\VariableTok{self}\NormalTok{.centers, }\VariableTok{self}\NormalTok{.stds)])}
+\NormalTok{            F }\OperatorTok{=}\NormalTok{ a.T.dot(}\VariableTok{self}\NormalTok{.w) }\OperatorTok{+} \VariableTok{self}\NormalTok{.b}
+\NormalTok{            y_pred.append(F)}
+        \ControlFlowTok{return}\NormalTok{ np.array(y_pred)}
+\end{Highlighting}
+\end{Shaded}
+
+Una vez tenemos la clase implementada, podemos utilizar este modelo para
+aprender funciones. En primer lugar, vamos a intentar aprender la
+función seno en el intervalo \([0, 2\pi]\). Generaremos una población
+uniforme en el intervalo \([0,1]\), y evaluaremos la función
+\(f(x) = \sin(2 \pi x)\). Además, generaremos un vector de ruido
+aleatorio uniforme en el intervalo \([-0.1, 0.1]\) y lo sumaremos a las
+evaluaciones, para introducir ruido en la muestra. El código que
+implementa dicho experimento es el siguiente:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# sample inputs and add noise}
+\NormalTok{NUM_SAMPLES }\OperatorTok{=} \DecValTok{100}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ np.random.uniform(}\FloatTok{0.}\NormalTok{, }\FloatTok{1.}\NormalTok{, NUM_SAMPLES)}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ np.sort(X, axis}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\NormalTok{noise }\OperatorTok{=}\NormalTok{ np.random.uniform(}\OperatorTok{-}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{, NUM_SAMPLES)}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ np.sin(}\DecValTok{2} \OperatorTok{*}\NormalTok{ np.pi }\OperatorTok{*}\NormalTok{ X) }\OperatorTok{+}\NormalTok{ noise}
+
+\NormalTok{rbfnet }\OperatorTok{=}\NormalTok{ RBFNet(lr}\OperatorTok{=}\FloatTok{1e-2}\NormalTok{, k}\OperatorTok{=}\DecValTok{2}\NormalTok{, epochs}\OperatorTok{=}\DecValTok{500}\NormalTok{)}
+\NormalTok{rbfnet.fit(X, y)}
+
+\NormalTok{y_pred }\OperatorTok{=}\NormalTok{ rbfnet.predict(X)}
+\end{Highlighting}
+\end{Shaded}
+
+Mostramos por pantalla los resultados obtenidos:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plt.plot(X, y, }\StringTok{'-o'}\NormalTok{)}
+\NormalTok{plt.plot(X, y_pred, }\StringTok{'-o'}\NormalTok{)}
+\NormalTok{plt.legend([}\StringTok{"True data"}\NormalTok{, }\StringTok{"RBFNet prediction"}\NormalTok{])}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+Podemos observar que los resultados obtenidos son relativamente buenos.
+La curva que hemos aprendido se ajusta bastante bien a los datos
+originales. En este ejemplo, hemos utilizado 2 unidades ocultas (lo
+podemos observar en el constructor de la clase, cuando hemos
+especificado \(k=2\)). Si aumentamos el valor de \(k\), podemos observar
+el comportamiento que tiene el sistema:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rbfnet }\OperatorTok{=}\NormalTok{ RBFNet(lr}\OperatorTok{=}\FloatTok{1e-2}\NormalTok{, k}\OperatorTok{=}\DecValTok{3}\NormalTok{, epochs}\OperatorTok{=}\DecValTok{500}\NormalTok{)}
+\NormalTok{rbfnet.fit(X, y)}
+
+\NormalTok{y_pred }\OperatorTok{=}\NormalTok{ rbfnet.predict(X)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+Podemos observar el comportamiento que tiene el valor \(k\) en la
+distribución de puntos. Al parecer, cada centro tiene mayor influencia
+en el comportamiento de los puntos cercanos a una determinada zona del
+espacio, provocando una curva la función aprendida, y en las zonas
+intermedias la función se define, aproximadamente, como una función
+lineal. Dado que los datos originales están formados por dos curvas (a
+grandes rasos), el valor \(k = 2\) es el más adecuado para aprender
+dicha función. Si cambiamos la función al intervalo \(3 \pi\), de forma
+que haya tres partes curvadas, en lugar de dos, ocurre lo siguiente si
+intentamos utilizar sólo dos neuronas en la capa oculta:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{X }\OperatorTok{=}\NormalTok{ np.random.uniform(}\FloatTok{0.}\NormalTok{, }\FloatTok{1.}\NormalTok{, NUM_SAMPLES)}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ np.sort(X, axis}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\NormalTok{noise }\OperatorTok{=}\NormalTok{ np.random.uniform(}\OperatorTok{-}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{, NUM_SAMPLES)}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ np.sin(}\DecValTok{3} \OperatorTok{*}\NormalTok{ np.pi }\OperatorTok{*}\NormalTok{ X) }\OperatorTok{+}\NormalTok{ noise}
+
+\NormalTok{rbfnet }\OperatorTok{=}\NormalTok{ RBFNet(lr}\OperatorTok{=}\FloatTok{1e-2}\NormalTok{, k}\OperatorTok{=}\DecValTok{2}\NormalTok{, epochs}\OperatorTok{=}\DecValTok{500}\NormalTok{)}
+\NormalTok{rbfnet.fit(X, y)}
+
+\NormalTok{y_pred }\OperatorTok{=}\NormalTok{ rbfnet.predict(X)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+Podemos observar que los resultados no son satisfactorios, y el modelo
+no tiene la potencia suficiente como para aprender la función en
+cuestión. En cambio, ahora sí podemos aprender la función utilizando 3
+neuronas ocultas:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rbfnet }\OperatorTok{=}\NormalTok{ RBFNet(lr}\OperatorTok{=}\FloatTok{1e-2}\NormalTok{, k}\OperatorTok{=}\DecValTok{3}\NormalTok{, epochs}\OperatorTok{=}\DecValTok{500}\NormalTok{)}
+\NormalTok{rbfnet.fit(X, y)}
+
+\NormalTok{y_pred }\OperatorTok{=}\NormalTok{ rbfnet.predict(X)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{/home/fluque1995/dev/master/tecnicas_soft_computing/redes_neuronales/practica3/entrega_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+\end{document}

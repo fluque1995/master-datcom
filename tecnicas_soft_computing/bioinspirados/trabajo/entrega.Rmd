@@ -1,0 +1,318 @@
+---
+title: "Técnicas de soft computing para Aprendizaje y Optimización"
+subtitle: "Algoritmos bionispirados"
+author: "Francisco Luque Sánchez"
+date: "02/04/2020"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+library(ggplot2)
+library(reshape2)
+```
+
+
+# Introducción
+
+En este trabajo se va a realizar un pequeño estudio comparativo entre
+tres modelos distintos de algoritmos bioinspirados. Los modelos que
+estudiaremos son los algoritmos genéticos (GA), los algoritmos de
+optimización basados en enjambres (PSO), y los algoritmos de
+optimización por colonia de abejas (ABC). Estos tres modelos forman
+parte, como hemos dicho anteriormente, de lo que se conocen como
+algoritmos bioinspirados. Dichas metaheurísticas son aquellas que
+tratan de encontrar soluciones a problemas, normalmente de
+optimización, en las que la búsqueda de soluciones óptimas de forma
+exacta no es viable en términos de recursos, y por tanto, recurren a
+inspiraciones basadas en sistemas naturales para guiar el proceso de
+búsqueda de soluciones, sacrificando la optimalidad de la solución a
+cambio de cierta eficiencia. De esta forma, se consiguen soluciones
+razonablemente buenas al problema en cuestión en un tiempo asumible.
+
+La principal diferencia entre estos tres paradigmas radica en el
+sistema biológico en el que toman su inspiración para la búsqueda de
+soluciones. En todos los casos, se estudia el comportamiento de un
+sistema biológico complejo y se modela matemáticamente su
+comportamiento en términos de la evolución del mismo. En este caso:
+
+- GA: La inspiración de estos algoritmos viene de la teoría de la
+  evolución Darwiniana.
+- PSO: Estos algoritmos toman como inspiración el comportamiento de
+  de animales que forman colonias de individuos
+- ABC: La inspiración viene del comportamiento de los enjambres de
+  abejas a la hora de recolectar comida
+
+A continuación, daremos una descripción más precisa de cada uno de los
+modelos.
+
+# Resumen del funcionamiento de los modelos
+
+En este apartado veremos cómo funcionan los modelos nombrados
+anteriormente.
+
+## Algoritmos genéticos
+
+Este tipo de modelos están inspirados en la teoría de la evolución
+propuesta por Darwin. Dado un problema de optimización, el algoritmo
+genético propone considerar una población de soluciones, de forma que
+cada individuo de la población represente una solución al problema a
+resolver. De esta forma, en sucesivas iteraciones, los individuos de
+la población compiten entre sí para generar descendencia, de forma que
+cuanto mejores sean las soluciones al problema, más probable será que
+se reproduzcan o sobrevivan entre dos iteraciones del algoritmo.
+Además, aleatoriamente pueden aparecer mutaciones en ciertos
+individuos de la población.
+
+Concretamente, independientemente del problema a resolver, el flujo de
+un algoritmo genético para resolver un problema es más o menos
+estándar. Dado un problema de optimización, en el que supondremos que
+podemos evaluar la calidad de una solución a partir de una función $f$
+(que en la mayoría de los casos será la función a optimizar
+directamente, o acompañada de algún término de penalización):
+
+- Se parte de una población de soluciones inicial (la cual puede ser
+  generada aleatoriamente o mediante alguna política establecida de
+  antemano)
+- Mientras no se haya cumplido la condición de parada (usualmente,
+  número de etapas del algoritmo, o número de evaluaciones de la
+  función objetivo $f$):
+  - Se evalúan los individuos de la población
+  - Se establece un criterio de selección de padres para generar la
+  población de hijos
+  - Se genera la población de hijos a partir de los padres utilizando
+  una estrategia de cruce
+  - Se producen mutaciones en la población
+  - A través de una estrategia de supervivencia, se seleccionan los
+  individuos que conformarán la siguiente generación de padres
+  (supervivientes)
+
+Necesitamos, por tanto, definir los siguientes elementos para definir
+por completo un algoritmo genético:
+
+- La función de evaluación, la cual recibe como entrada una solución y
+  devuelve su calidad. Suele coincidir con la función a optimizar.
+- Codificación de la solución. Hace referencia a cómo se representa y
+  se interpreta una solución al problema. Cada uno de los individuos de
+  nuestra población vendrá determinado por una de estas codificaciones
+- Criterio de selección. Determina cómo se seleccionan los padres a la
+  hora de generar la población de hijos. Algunos ejemplos típicos son
+  el torneo binario o la ruleta ponderada por la bondad de la solución
+- Operador de cruce. Indica cómo se deben mezclar dos soluciones padres
+  para dar lugar a un hijo.
+- Operador de mutación. Indica cómo se deben alterar los elementos de
+  la población individualmente. Asociada a esta función, también hay
+  que determinar la tasa de mutación, es decir, cuán probable es que
+  se produzcan mutaciones en la población
+- Estrategia de supervivencia. Especifica cómo se conforma la
+  población de la siguiente época a partir de la población anterior y
+  los hijos generados.
+
+## Optimización basada en enjambres
+
+Pasamos a comentar la optimización basada en enjambres (Particle Swarm
+Optimization, o PSO en inglés). Este conjunto de algoritmos toma como
+inspiración el comportamiento de animales que se organizan en
+enjambres para tratar de optimizar una función. En particular, estos
+algoritmos son ampliamente utilizados para la optimización de
+funciones de variable real.
+
+Este algoritmo ha sufrido distintas modificaciones a lo largo del
+tiempo, que trataban de mejorar la propuesta original. El
+funcionamiento básico del algoritmo es el siguiente:
+
+- Se inicializa aleatoriamente la población de soluciones, las cuales
+  suelen venir representadas por un punto del espacio $\mathbb{R}^n$,
+  y una velocidad.
+- Se evalúa la calidad de dichas soluciones a través de la función a
+  optimizar.
+- Se calcula la mejor posición hasta el momento de cada partícula.
+- Se calcula la mejor solución del conjunto completo.
+- Se actualiza la posición y la velocidad de las partículas en función
+  de su mejor posición, la mejor posición global, y las ecuaciones de
+  actualización.
+
+Las sucesivas modificaciones que ha ido sufriendo el algoritmo han
+sido prácticamente en su totalidad en las ecuaciones que se utilizan
+para actualizar la posición y la velocidad. En una primera instancia,
+las ecuaciones de movimiento eran bastante simples. La velocidad se
+actualizaba en cada iteración teniendo en cuenta exclusivamente la
+mejor posición global, de forma que se apuntaba el vector director en
+dicha dirección, y la nueva posición se calculaba sumando a la
+posición anterior la velocidad actual. El problema que surgía en este
+caso era la falta de capacidad de exploración del algoritmo, que
+convergía prematuramente. En sucesivas actualizaciones del modelo, se
+añadieron términos de inercia, los cuales favorecen que las partículas
+mantengan su dirección de movimiento, así como términos que
+modificaban la velocidad en función de la mejor posición de la propia
+partícula hasta el momento, no sólo a partir de la mejor posición
+global. De esta forma, existen tres fuentes de variabilidad para el
+cambio de velocidad de cada partícula. La ecuación de actualización de
+la posición es esencialmente la misma desde la propuesta original.
+Una vez tenemos la ecuación de actualización de la velocidad, podemos
+añadir tres constantes multiplicativas, que representan la importancia
+que tiene en nuestro modelo la componente inercial, la componente
+individual (dirección hasta nuestra mejor posición) y la componente
+social (dirección hacia la mejor posición global). Además, se
+introducen dos valores aleatorios, en las componentes social e
+individual, que se modifican en cada iteración y que añaden
+variabilidad al sistema (también multiplicativas). Finalmente, aparece
+una constante de escalado, la cual podemos asemejar a la tasa de
+aprendizaje de los modelos basados en gradiente, la cual hace de
+factor de escala para todo el vector velocidad, y que va decreciendo
+en etapas tardías del algoritmo, para hacer que el movimiento en
+etapas tardías sea más lento, con la finalidad de explotar los
+vecindarios de las buenas soluciones al final del proceso de búsqueda.
+
+## Optimización por colonia de abejas
+
+Este último grupo de algoritmos tiene su inspiración en un tipo
+particular de colonia. La inspiración de el modelo de colonia de
+abejas (Artificial Bee Colony, o ABC) aparece del estudio de la
+conducta de las colmenas de abejas a la hora de recolectar comida.
+Podría decirse que este algoritmo es una especialización del modelo
+anterior. En este caso, tenemos un conjunto de partículas en el
+espacio de soluciones que simulan el comportamiento de las abejas.
+Tendremos, por tanto, tres tipos distintos de partículas en el
+espacio:
+
+- Buscadoras: Estas partículas estarán dedicadas a localizar fuentes
+  de comida en el espacio de búsqueda (puntos en los que la función
+  toma valores bajos o altos, en función de si estamos resolviendo
+  un problema de minimización o maximización)
+- Recolectoras: Dedicadas a explotar las fuentes de alimento
+  localizadas por las buscadoras (se dedican a hacer búsquedas locales
+  en el vecindario de las buenas soluciones obtenidas, tratando de
+  encontrar soluciones mejores en el entorno)
+- Observadoras: Partículas sin actividad, las cuales se convertirán en
+  recolectoras a partir de la observación de otras recolectoras y sus
+  indicaciones para buscar las fuentes de alimento
+
+Para tratar de asemejarse lo más posible al comportamiento de los
+enjambres, existe una comunicación entre los distintos tipos de
+abejas. El algoritmo transcurre en tres fases que se repiten hasta
+que se produzca la condición de parada del algoritmo:
+
+- Fase de recolectoras: Las abejas recolectoras buscan fuentes de
+  néctar más abundantes que se encuentren cercanas a la fuente de
+  néctar en la que se encuentran (búsqueda local)
+- Fase de observadoras: Las abejas observadoras eligen
+  probabilísticamente dirigirse a recolectar (se convierten en
+  recolectoras) a los distintos focos de alimento en función de la
+  cantidad que hay en cada uno. Cuanto mejor sea la fuente (tenga
+  una mejor puntuación de la función de evaluación), más probable
+  será que las abejas observadoras se dirijan a ella.
+- Fase de buscadoras: Las abejas recolectoras que hayan pasado un
+  número de iteraciones límite sin encontrar mejores fuentes de
+  alimento en su vecindario, darán el vecindario como exhausto y
+  comenzarán a buscar nuevas soluciones aleatoriamente, moviéndose por
+  el resto del espacio.
+
+La ventaja de este algoritmo respecto a PSO, a pesar de estar basado
+en ideas relativamente similares, es que ABC se puede aplicar de forma
+más sencilla a problemas con una codificación distinta. Dado que aquí
+no tenemos el concepto de velocidad para modificar las soluciones, si
+no que exploramos el vecindario de las buenas soluciones por medio de
+una búsqueda local, no necesitamos que el espacio de soluciones esa un
+subconjunto convexo de $\mathbb{R}^n$, nos es suficiente con definir
+un operador que nos genere soluciones vecinas a una dada.
+
+Una vez hemos resumido el funcionamiento básico de los tres modelos,
+vamos a hacer un pequeño estudio comparativo entre las tres técnicas
+
+# Impacto de las tres técnicas en trabajos de investigación
+
+En este apartado, vamos a realizar una pequeña comparación en el
+impacto que estas tres técnicas han tenido en el ámbito científico,
+viendo la cantidad de publicaciones relacionadas con cada temática
+que se han publicado.
+
+Para cada uno de los algoritmos, se ha buscado utilizando Scopus el
+número de publicaciones que contienen en su título, _abstract_ o
+palabras clave las palabras "genetic algorithm", "particle swarm
+optimization" y "artificial bee colony", respectivamente. Se han
+recopilado los datos entre el año 1990 y la actualidad. El primer
+artículo sobre algoritmos genéticos registrado en la plataforma tiene
+fecha de 1972. Hemos excluido los años anteriores a 1990 debido a que
+existen pocas publicaciones hasta esa fecha, y sólamente sobre
+algoritmos genéticos, por lo que la gráfica presentaba muy poca
+información en su parte izquierda.
+
+Mostramos los datos a continuación
+
+```{r}
+ga <- c(67,157,268,450,923,1352,1724,1940,2256,2514, 1973,3254,
+        3807,4639,6297,7100,8089,8429,9194,9920,10548,10909,10774,
+        10784, 11195,10631,11220,11485,12755,14391)
+
+pso <- c(rep(0,5),
+    1,2,3,7,6,11,13,73,120,332,628,1223,1606,2346,3246,3994,4182,4830,4817,
+    5226,5179,5800,6092,7098,8010
+)
+
+abc <- c(rep(0,14),2,1,1,5,4,31,103,256,430,554,622,696,778,783,974,1070)
+
+years <- 1990:2019
+
+data <- data.frame(year = years, GA = ga, PSO = pso, ABC = abc)
+
+melted.data <- melt(data, id.vars = 1)
+
+colnames(melted.data) <- c("year", "algorithm", "value")
+
+ggplot(melted.data, aes(x=year, y = value, fill = algorithm)) +
+    geom_bar(stat="identity", position = "dodge2") +
+    ylab("Publications")
+```
+
+Lo primero que podemos observar es que el número de publicaciones
+sobre algoritmos genéticos sobrepasa en una cantidad muy considerable
+a los otros dos paradigmas. Esto puede deberse, en primer lugar, a la
+generalidad del primer enfoque con respecto a los otros dos. Mientras
+que PSO y ABC son algoritmos más o menos concretos, en los que el
+funcionamiento del mismo está más o menos bien determinado, y las
+modificaciones que pueden hacerse son reducidas, para el algoritmo
+genético aparece mucha más variabilidad. Una propuesta de operador de
+cruce o una estrategia de selección novedosa pueden ser motivo de
+publicación, cosa que no ocurre en los otros dos ámbitos, que están
+mucho más definidos. Además, el concepto de algoritmo genético es más
+maduro, por lo que ha habido más tiempo para investigar al respecto y
+por tanto es más probable que aparezcan nuevas ideas y aplicaciones
+del mismo.
+
+En los tres casos podemos observar una tendencia creciente en el
+número de publicaciones anuales, lo que sugiere que la investigación
+en estas áreas no está terminada. En los algoritmo genéticos puede
+apreciarse entre 2010 y 2015 una desaceleración en el número anual de
+publicaciones, lo cual podía sugerir que el área de investigación
+estaba exhausta, pero en los últimos años ha experimentado un repunte,
+lo cual indica que sigue siendo un área interesante. PSO parece estar
+experimentando una subida equivalente a la de GA entre el 1995 y el
+2005, y ABC, al ser el modelo más nuevo, está comenzando a tomar
+fuerza.
+
+Hablando del número total de citas, podemos observar la abismal
+diferencia entre los tres modelos:
+
+```{r}
+kable(t(sapply(data, sum)[2:4]), caption="Número total de citas")
+```
+
+Lo cual reafirma la información que extrajimos en la gráfica. Es
+posible que debido a la diferencia en la antigüedad entre las tres
+aproximaciones llegue un momento en el cual haya aproximadamente el
+mismo número de publicaciones en las tres áreas, pero parece poco
+probable teniendo en cuenta la generalidad de la primera en
+comparación con las otras dos.
