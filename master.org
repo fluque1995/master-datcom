@@ -3,15 +3,17 @@
 *** DONE Diseño de un experimento ETL con Pig
     CLOSED: [2020-03-31 mar 12:29] DEADLINE: <2020-05-22 vie>
 ** Minería de medios sociales
-*** TODO Análisis de redes sociales con Gephy
+*** IN PROGRESS Análisis de redes sociales con Gephi
     SCHEDULED: <2020-03-09 lun> DEADLINE: <2020-05-11 lun>
+    Terminado pero no enviado
 *** TODO Minería de textos con Knime
     SCHEDULED: <2020-04-09 jue> DEADLINE: <2020-05-11 lun>
 *** TODO Análisis de sentimientos con Knime
     SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-11 lun>
 ** Técnicas de soft computing para aprendizaje y optimización
-*** TODO Trabajo de tercera sesión de algoritmos bioinspirados
+*** IN PROGRESS Trabajo de tercera sesión de algoritmos bioinspirados
     DEADLINE: <2020-04-19 dom>
+    Terminado pero enviado como borrador
 *** DONE Redes neuronales - Primer guión
     CLOSED: [2020-03-26 jue 10:00] DEADLINE: <2020-04-20 lun>
 *** DONE Redes neuronales - Segundo guión
