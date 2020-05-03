@@ -1,0 +1,8 @@
+# Ignore djgg project
+Ensembles/
+
+# Don't upload dataset
+dataset
+
+# Ignore compiled files
+target/

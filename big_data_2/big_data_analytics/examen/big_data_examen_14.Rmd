@@ -1,0 +1,92 @@
+Francisco Luque Sánchez, Big Data II, prueba 14 de abril
+
+## Haz una reflexión sobre ¿cómo ves el Big Data en el contexto de la Ciencia de datos e Inteligencia Artificial?
+
+La velocidad a la que se generan y almacenan datos en la actualidad,
+debido al abaratamiento de los dispositivos de recolección de
+información (sensórica, cámaras de vigilancia...) y de almacenamiento
+(principalmente discos duros), unido a la propia información que
+vertimos los seres humanos a través de internet, ha hecho que el
+procesamiento clásico de la información haya quedado prácticamente
+obsoleto. Por esto, se requieren nuevas alternativas para la gestión
+eficiente del volumen de datos ante el que nos encontramos. Además, la
+diversidad de las fuentes de información con las que nos encontramos
+obliga a establecer una unificación de los mismos, para poder agrupar
+y aprovechar la información de estas diversas fuentes de forma común.
+
+El Big Data aparece como una herramienta potente para gestionar todas
+estas problemáticas que hemos descrito anteriormente. Gracias a la
+potencia del _framework MapReduce_, podemos dividir grandes volúmenes
+de datos en pequeños fragmentos, estudiar dicha información por
+separado, y después agrupar el conocimiento aprendido para
+aprovecharlo conjuntamente. Además, si tenemos información de diversas
+fuentes y con distintas estructuras, el estudio de la misma por
+separado puede hacer que dentro de cada partición los datos tengan
+estructura homogénea y su estudio sea más sencillo, de forma que
+sólo haya que unificar la información a la salida del sistema, y no
+en todas las etapas intermedias del procesamiento de la misma.
+
+No obstante, este paradigma está aún en una etapa más o menos
+temprana. A pesar de que está relativamente asentado, la cantidad de
+algoritmos bien fundados e implementados es pequeña, y la base de
+código disponible aumenta y evoluciona a un ritmo importante
+aún. Además, todavía no se aprovecha completamente el potencial de
+cómputo disponible. Por ejemplo, el cómputo en GPU dentro del
+ecosistema de _MapReduce_ está en una fase muy temprana, y presenta
+muchas restricciones. Estas unidades de procesamiento están
+evolucionando a muchísima velocidad, y la posibilidad de incorporarlas
+de forma sencilla dentro de estos _pipeline_ produciría una mejora muy
+significativa en términos de tiempo.
+
+Por estos motivos, el Big Data se presenta como un futuro muy
+prometedor a la hora de liderar avances dentro del campo de la
+inteligencia artificial en los próximos años, ya que hablamos de un
+paradigma que empieza a ser maduro, pero que aún tiene un margen de
+desarrollo importante.
+
+## Si recibes un problema en el que tienes 10 millones de instancias y algunas anomalías (un número pequeño de un ciento o un par de cientos de instancias) ¿Cómo abordarías el problema desde la perspectiva del Big Data?
+
+En primer lugar, dependerá de la naturaleza del problema que estemos
+considerando. Podemos considerar el problema como una clasificación no
+balanceada o desde el punto de vista de la detección de anomalías.
+
+Si planteamos este problema desde el punto de vista de la
+clasificación no balanceada, en el cual suponemos que tenemos
+etiquetadas las anomalías, podríamos aprovechar este etiquetado para
+crear un _ensemble_ por _bagging_ de clasificadores balanceados. En la
+etapa de _map_ podemos dividir el conjunto de datos en $k$ particiones
+de la clase mayoritaria, y una única partición de la clase
+minoritaria, de forma que a cada nodo asignamos una de las $k$
+particiones de la clase mayoritaria, y todos los elementos de la clase
+minoritaria. De esta forma, reducimos en un factor de $k$ el
+desbalanceo, a costa de obtener $k$ clasificadores. En la etapa
+_reduce_, se devuelven los $k$ clasificadores y se agrupan creando un
+ensemble por voto. De esta manera, cuando nos llega un nuevo ejemplo,
+lo clasificamos con los $k$ clasificadores y devolvemos la etiqueta
+mayoritaria obtenida. Dado que el desbalanceo es muy extremo (estamos
+hablando de un factor de 100000, lo que nos haría trabajar con 100000
+particiones para que cada clasificador trabajase con datos
+balanceados, sería posible hacer un particionamiento en menos
+conjuntos, y en cada _map_ añadir una etapa de balanceo de datos,
+probablemente basado en _random undersampling_. Debido a que tenemos
+un desbalanceo tan alto, no será problemático descartar un cierto
+porcentaje de elementos de la clase mayoritaria, reduciendo así la
+diferencia entre ambos conjuntos. Así, uniendo estas dos
+aproximaciones, podemos conseguir un compromiso entre el número de
+clasificadores final que utilizamos y una reducción del número de
+ejemplos de la clase mayoritaria que llevamos a cabo.
+
+Si lo planteamos desde el punto de vista de la detección de anomalías,
+es decir, dentro del aprendizaje no supervisado, suponemos que no
+tenemos entonces los datos etiquetados. En este caso, se puede
+proponer un etiquetador de anomalías por umbral. Podemos aprender en
+cada partición un clasificador que aprenda la distribución normal de
+los datos, de forma que al llegar un nuevo elemento mida si dicha
+instancia difiere mucho de la distribución aprendida, y la marque como
+anómala si es así. Un ejemplo de este tipo de modelos pueden ser las
+_OneClass SVMs_. A la hora de establecer las particiones, dado que el
+número de anomalías es muy bajo, todos los modelos aprenderán
+correctamente la distribución de datos normal. Una vez entrenados los
+clasificadores de anomalías, cuando llegue un elemento nuevo, se
+clasifica con todos ellos, y se considera que el dato es anómalo si
+un porcentaje de los modelos etiquetan la instancia como anómala.
