@@ -1,0 +1,921 @@
+---
+title: "Minería de sentimientos con KNIME"
+subtitle: "Minería de Medios Sociales"
+author: ["Francisco Luque Sánchez", "31008316S", "fluque1995@correo.ugr.es"]
+date: "22/04/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+header-includes:
+    - \usepackage{subfloat}
+    - \usepackage{subcaption}
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+```
+
+# Introducción
+
+En esta práctica estudiaremos cómo podemos utilizar KNIME para el
+análisis de sentimientos en texto. Esta rama del aprendizaje
+automático persigue entender la intención con la que se escribe un
+mensaje, y si el contenido del mensaje es positivo, negativo o neutro.
+En nuestro caso, contaremos con una base de datos de 2000 valoraciones
+de películas en IMDb, las cuales están etiquetadas como positivas y
+negativas, teniendo 1000 elementos de cada clase.
+
+Afrontaremos la resolución del problema utilizando dos vías distintas.
+Por un lado, aplicaremos métodos de aprendizaje supervisado, en los
+que utilizaremos la información contenida en algunos documentos para
+entrenar clasificadores que luego evaluaremos sobre una partición de
+test. Por otro, haremos un aprendizaje no supervisado, utilizando
+diversos corpus de sentimientos para generar una puntuación para cada
+documento y así establecer su clasificación.
+
+Comenzamos desarrollando el sistema de clasificación basado en
+aprendizaje supervisado.
+
+# Clasificación supervisada: Uso de modelos de clasificación clásicos
+
+En esta sección vamos a estudiar cómo podemos afrontar el problema de
+la clasificación supervisada cuando tenemos información en forma de
+texto. Como ya aprendimos en prácticas anteriores, el principal
+problema con el que nos encontramos cuando tratamos de resolver de
+forma automática problemas que involucren texto es la falta de una
+estructura en la información, por lo que el preprocesamiento se
+convierte en una tarea fundamental. En esta etapa, se transforma el
+contenido del texto en una serie de características estructuradas que
+nos permitan comparar unos documentos con otros.
+
+En esta sección veremos cuál es el preprocesamiento que hemos llevado
+a cabo para preparar los documentos con los que trabajamos, de forma
+que podamos enfrentar el problema de clasificación supervisada sobre
+nuestras valoraciones de películas.
+
+Para resolver esta tarea se ha implementado un workflow en KNIME, el
+cual lleva a cabo un preprocesamiento genérico del texto, contabiliza
+las frecuencias de los términos en cada uno de los documentos, y
+construye el vector de términos para cada documento. Tras esto, se
+utilizan estos vectores como entrada para distintos modelos de
+clasificación. El workflow concreto implementado se compone de los
+siguientes nodos:
+
+- Lectura de datos desde CSV y creación del documento
+- Eliminación de signos de puntuación: No aportan información y crean
+ruido al formar parte de la cadena de texto que los precede.
+- Eliminación de valores numéricos: En la mayoría de contextos, un
+número no representa información subjetiva, por lo que no aportan
+información en el problema que queremos resolver.
+- Filtro de palabras cortas: Existen pocas palabras con menos de 3
+letras, y la mayoría de ellas son marcas discursivas (no aportan
+significado), por lo que las eliminamos para reducir la
+dimensionalidad.
+- Filtro de _Stop Words_: Las marcas discursivas no aportan demasiada
+información subjetiva, por lo que se eliminan de los documentos
+- Conversión a minúsculas: Para no considerar como términos distintos
+las mismas palabras cuando la primera letra está en mayúscula, se
+decide convertir todo a minúsculas.
+- Stemming: Se eliminan terminaciones verbales, plurales, etc. para
+reducir la dimensionalidad, haciendo que cada palabra esté representada
+únicamente por su raíz. De esta manera, se reduce la dimensionalidad sin
+afectar al contenido del mensaje.
+- Creación de la bolsa de palabras: Una vez está el texto
+preprocesado, se crea una bolsa de palabras con todos los conceptos
+presentes en la colección de documentos.
+- Cálculo de la frecuencia por documento de cada término
+- Filtrado de los términos que aparecen en pocos documentos: Para
+evitar tener una dimensionalidad excesivamente grande, se excluyen de
+la bolsa de palabras aquellos términos que están presentes en menos de
+20 documentos.
+- Creación del vector de documento: Para cada documento, se computa
+la frecuencia de los términos resultantes de la bolsa de palabras en el
+mismo.
+- Extracción de la etiqueta del documento: Dentro de la categoría del
+documento tenemos información de su etiqueta, la cual extraemos y
+convertimos en una nueva columna.
+
+Tras este proceso, tenemos para cada documento un vector de 1499
+componentes (el número de términos que han quedado tras el
+preprocesamiento) y su etiqueta (positiva o negativa). Una vez hemos
+llegado a este punto, podemos utilizar la información extraída como
+entrada para nuestros modelos de clasificación.
+
+Para la evaluación de todos los modelos se llevará a cabo una
+validación cruzada de 10 particiones, para garantizar que el resultado
+obtenido es robusto. Esta política consiste en dividir el conjunto de
+datos en $k$ conjuntos, y realizar $k$ entrenamientos distintos,
+tomando cada vez una de las particiones para test y el resto del
+conjunto para entrenamiento. De esta manera, conseguimos 10 medidas de
+la calidad del clasificador, en lugar de 1, lo cual hace que los
+resultados que obtengamos se puedan considerar más fiables. Además,
+para evitar que se produzcan resultados sesgados en los
+clasificadores, estas particiones aleatorias estarán estratificadas,
+de forma que se garantiza que la proporción de elementos de cada clase
+se mantiene en todas ellas.
+
+En primer lugar, utilizaremos tres técnicas clásicas de aprendizaje.
+Por un lado, entrenaremos un modelo de regresión logística sobre los
+vectores de entrada. Por otro, entrenaremos un _Random Forest_, y
+finalmente, un modelo basado en SVM.
+
+Los resultados que mostramos a continuación son los resultados
+obtenidos con las mejores configuraciones de parámetros que hemos
+conseguido encontrar. No se describe el proceso completo de búsqueda
+debido a que es lento y tedioso, y no aporta nueva información a
+la práctica.
+
+Los parámetros utilizados son los siguientes:
+
+- Regresión logística: No admite parámetros
+- Random Forest: Criterio de selección por índice de Gini y 100
+  árboles
+- SVM: Núcleo lineal
+
+Los resultados obtenidos por los tres modelos son los siguientes:
+
+|                | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Reg. logística | 858           | 142            | 129            | 871           | 86.45 %  |
+| Random Forest  | 914           | 86             | 106            | 897           | 90.55 %  |
+| SVM            | 849           | 151            | 135            | 865           | 85.7 %   |
+
+Podemos observar que los resultados obtenidos son bastante favorables.
+Con Random Forest hemos llegado a superar la precisión del 90 %, y con
+la regresión logística y la SVM obtenemos unos valores bastante
+similares, en ambos casos superiores al 85 %. Las curvas ROC de los
+tres modelos se muestran a continuación:
+
+\begin{figure}[H]
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_logistic}
+\caption{Regresión logística}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_rf}
+\caption{Random Forest}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_svm}
+\caption{SVM}
+\end{subfigure}
+\caption{Curvas ROC obtenidas con los tres modelos de aprendizaje}
+\label{fig:roc-classification}
+\end{figure}
+
+Podemos observar que en los tres casos tenemos una curva ROC bastante
+deseable. El área bajo la curva se comporta de forma esperada, siendo
+Random Forest el algoritmo que obtiene un valor más alto, seguido de
+la regresión logística y finalmente el modelo SVM. En todos los casos
+obtenemos un AUC superior a 0.9, lo que indica que los tres modelos
+obtenidos son de bastante calidad.
+
+Aunque no se ha mostrado aquí, en cuanto a los tiempos de entrenamiento
+de los tres algoritmos, el modelo más adecuado para la resolución del
+problema es, probablemente, Random Forest, ya que es el que requiere
+menor tiempo de entrenamiento y obtiene mejores resultados.
+
+Aunque los resultados obtenidos son bastante adecuados, tienen la
+particularidad de que han sido obtenidos mediante técnicas de
+aprendizaje supervisado. Usualmente, cuando aplicamos técnicas de
+minería de textos nos encontramos ante entornos en los que no se
+dispone del contenido etiquetado, por lo que las técnicas anteriores
+no son aplicables.
+
+Para resolver esta problemática, se suele afrontar el problema de la
+minería de textos desde el punto de vista no supervisado, en el cual
+no se realiza un aprendizaje de un modelo de la misma forma que hemos
+hecho en este apartado, si no que se utilizan técnicas que utilizan
+otro tipo de información. En particular, para la clasificación de
+textos se suele utilizar lo que se conoce como corpus de sentimientos.
+Estos corpus son colecciones de conceptos con una etiqueta asociada,
+la cual da información de la intencionalidad de la misma dentro de un
+texto. Existen corpus de muy diversa índole, en función de la tarea
+que se quiera resolver.
+
+En particular, nosotros haremos uso de 3 corpus distintos; SentiWordNet,
+MPQA y SenticNet, los cuales tienen información sobre la polaridad de
+los distintos conceptos, tanto positivos como negativos. Utilizaremos
+esta información para decidir si un documento es positivo o negativo
+en función de los términos que contiene.
+
+# Análisis no supervisado: Uso de corpus de sentimientos
+
+En este apartado, veremos cómo podemos hacer uso de distintos corpus
+de sentimientos para el análisis de sentimientos no supervisado en un
+texto. Utilizaremos tres corpus distintos, SentiWordNet, MPQA y
+SenticNet. Estos tres corpus contienen información de términos en
+inglés, etiquetados de diversa manera. Esto requerirá establecer un
+preprocesamiento particular para cada uno de los corpus, de forma que
+tengamos la información estandarizada a la hora de analizar nuestros
+documentos. Además, estudiaremos cómo afecta el preprocesamiento del
+texto al resultado final obtenido.
+
+En el caso de SentiWordNet, se nos proporciona un listado de 117670
+palabras, etiquetadas con dos valores de puntuación, la puntuación de
+subjetividad positiva y la puntuación de subjetividad negativa. Esta
+puntuación se mueve entre 0 y 1, y nos da el sesgo subjetivo de cada
+uno de los términos hacia el lado positivo o negativo. El darnos estas
+dos puntuaciones nos permite calcular también la objetividad del
+término aunque nosotros no aprovecharemos dicha información a lo largo
+de esta práctica.
+
+MPQA nos proporciona un listado de 8222 términos, marcados por grado
+(subjetividad fuerte o débil), y polaridad (positiva o negativa), además
+de otra información en la que no estaremos interesados. Es el corpus
+más simple de los que disponemos.
+
+SenticNet nos proporciona 100000 términos etiquetados como positivos y
+negativos, y una puntuación entre -1 y 1 que indica la intensidad del
+mismo (términos positivos se mueven en el intervalo [0,1] y los
+negativos en el [-1,0]).
+
+En una primera etapa, para crear un workflow unificado que nos permita
+utilizar los tres corpus de la misma manera, introduciremos un
+preprocesado a cada uno de los lexicones para unificarlos, de forma que
+nos quedaremos sólo con la tupla _Término - Polaridad_. De esta forma,
+creamos un workflow con el resto de pasos estandarizados, y podemos
+elegir uno u otro corpus conectando la salida estándar del mismo con
+una entrada en un metanodo que marca la subjetividad de los términos
+que forman nuestros documentos.
+
+Tras esta etapa, y aprovechando que SentiWordNet y SenticNet tienen
+más información almacenada (no sólo la polaridad del término, si no
+también un cierto grado numérico que indica su intensidad), trataremos
+de crear un nuevo workflow que aproveche esa información de forma
+más inteligente.
+
+Empezamos comentando de forma genérica el workflow estándar que se
+ha implementado.
+
+## Workflow estandarizado de análisis de sentimientos
+
+La idea de este workflow es establecer un esqueleto estándar en el que
+se pueda utilizar cualquier corpus de sentimientos en el que la
+información venga etiquetada con el formato _Término - Polaridad_
+sobre la base de datos de críticas en IMDb.
+
+El pipeline generado es el siguiente:
+
+- Lectura de datos desde CSV: Este nodo simplemente lee las críticas
+desde el CSV que se le indica. En particular, el CSV con el que
+trabajamos durante toda la práctica tiene 2000 filas, con 1000 filas
+de cada clase.
+- Metanodo de creación del documento: En este metanodo se procesa la
+información leída para convertirla al tipo documento, utilizando el
+texto para el cuerpo y la polaridad como categoría. Además, se filtran
+todas las demás columnas, que ya no tienen información que nos resulte
+relevante (la polaridad está dentro del propio documento como
+metainformación), por lo que excluímos también esta columna para no
+tener información replicada.
+- Metanodo de preprocesado del documento: Este metanodo se ha creado
+para encapsular todo el pipeline de preprocesamiento del texto. Lo
+iremos modificando en diversos pasos para ver cómo influye en los
+resultados obtenidos. En particular, realizaremos ejecuciones sin
+preprocesamiento (el metanodo vacío, con una conexión entre la entrada
+y la salida sin nodos en medio), metiendo una fase de eliminación de
+_Stop words_, y utilizando _Stemming_.
+- Metanodo de etiquetado de términos: Este metanodo recibe dos
+entradas, los textos a etiquetar en la entrada superior y el lexicón a
+utilizar en la inferior, y devuelve como salida los documentos con las
+palabras en cuestión etiquetadas. En la entrada inferior colocaremos
+las tablas de nuestros tres corpus correctamente formateadas, y
+podremos así ver cómo influye el uso de uno u otro cuando el resto del
+sistema queda fijado.
+- Contador de número de términos por clase: En este metanodo se
+establece el recuento del número de términos de cada tipo que hay por
+cada documento. Para ello, se hace una bolsa de términos con los
+documentos de entrada, se filtra el resultado para conservar sólo los
+que tienen alguna etiqueta (se eliminan los términos neutros), se
+calcula su frecuencia absoluta en los documentos, se convierte el tag
+en una columna nueva (será necesario para el agrupamiento posterior)
+se agrupan los términos utilizando el documento y la etiqueta
+utilizada (así tenemos agrupados por cada documento los términos
+positivos y negativos de forma separada), y finalmente se suman las
+frecuencias en dichos grupos. Por último, se completan los valores
+perdidos con el valor 0 (se produce un valor perdido cuando no se ha
+encontrado ningún término de un tipo en un documento). De esta manera,
+a la salida de este nodo tenemos, para cada documento, dos columnas
+nuevas, las cuales contienen el número de términos positivos y
+negativos que hay presentes en el texto.
+- Snippet de Java - cálculo de la proporción de términos positivos: La
+política de etiquetado de documentos que hemos utilizado es la
+proporción de términos positivos que hay presentes en el mismo. La
+probabilidad de que un determinado documento tenga una etiqueta
+positiva, por tanto, es el número de términos positivos entre la suma
+de términos positivos y negativos, cálculo que se lleva a cabo en este
+nodo y se añade como una nueva columna.
+- Nodo de conversión lógica - etiqueta predicha: En este nodo se
+produce la predicción final, en función del resultado del cálculo
+anterior. Si la proporción anterior es superior a 0.5, se etiqueta el
+documento como positivo. En caso contrario, la etiqueta es negativa.
+- Nodo _Category to Class_: Este nodo extrae la categoría del
+documento y la coloca como una nueva columna, que representa la clase
+del documento.
+- Curva ROC y Scorer: Utilizando tanto la proporción de términos
+positivos (la cual, al ser un valor entre 0 y 1 se puede considerar
+como la probabilidad del documento de ser positivo) y la etiqueta
+final asignada al documento, se pueden calcular tanto la curva ROC del
+modelo como la matriz de confusión del mismo (así como las métricas
+derivadas de ella). Será esta información la que utilicemos para
+comprobar la calidad de los resultados obtenidos.
+
+Una vez hemos explicado el workflow estandarizado, sólo nos queda
+explicar, para cada uno de los corpus que se nos han proporcionado,
+cómo hemos convertido la información que contienen en parejas del tipo
+_Término - Polaridad_. Dedicaremos cada una de las siguientes tres
+secciones a explicar los distintos procedimientos empleados, así como
+a exponer los resultados de los distintos modelos implementados.
+
+## SentiWordNet
+
+El primer lexicón con el que hemos trabajado es SentiWordNet. Este
+lexicón almacena, para cada término dos valores de subjetividad entre
+0 y 1, uno para la subjetividad positiva y otro para la negativa. La
+adaptación que hemos aplicado en primera instancia es simple, se toma
+como polaridad de la palabra el valor de subjetividad mayor. Si hay
+empate, la palabra se considera neutra, y se filtra. Por tanto, el
+preprocesamiento de este lexicón está formado por tres nodos:
+
+- Nodo de Java que establece la etiqueta en función de los dos valores
+  de subjetividad
+- Nodo de filtro de columna para conservar sólo término y polaridad
+- Nodo de filtro de fila para eliminar las filas con términos neutros
+
+Hemos contemplado tres posibles configuraciones de preprocesamiento de
+texto para este lexicón (y que se repetirán en los siguientes); sin
+preprocesamiento de texto, introducción de un filtro de Stop Words, y
+stemming combinado con el filtro de stop words. Los resultados
+obtenidos en los tres casos se muestran en la siguiente tabla:
+
+|                       | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:----------------------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Sin preprocesado      | 807           | 193            | 645            | 355           | 58.1 %   |
+| Filtro de Stop Words  | 814           | 186            | 623            | 377           | 59.55 %  |
+| Stop Words + Stemming | 832           | 138            | 665            | 335           | 59.85 %  |
+
+Se muestran también las curvas ROC y la correspondiente área bajo la
+curva:
+
+\begin{figure}[H]
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_sentiword_1}
+\caption{Sin preprocesamiento}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_sentiword_2}
+\caption{Filtro de Stop Words}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_sentiword_3}
+\caption{Stop Words + Stemming}
+\end{subfigure}
+\caption{Curvas ROC obtenidas con el lexicón SentiWordNet}
+\label{fig:sentiwordnet-roc}
+\end{figure}
+
+Como podemos observar tanto en la tabla como en las gráficas, los
+resultados no son especialmente buenos en ninguno de los casos. La
+precisión obtenida no llega en ningún momento al 60 %. Sí puede
+observarse una mejoría más o menos importante cuando introducimos
+preprocesamiento, mejorando en casi dos puntos porcentuales entre
+el texto en bruto y el texto sin _stop words_ y normalizado.
+
+No obstante, los resultados son muy mejorables, debido a que el uso de
+la información que contiene el lexicón que hemos hecho en este caso es
+bastante pobre. Más adelante veremos si obtenemos una mejora cuando
+aprovechamos los valores de subjetividad de un modo más informativo,
+en lugar de coger simplemente el mayor en cada caso.
+
+Otra problemática apreciable es el posible sesgo que existe en el
+lexicón. El resultado obtenido está claramente sesgado a favor de las
+opiniones negativas, lo cual hace pensar que en el lexicón puede haber
+almacenada más información de términos negativos que
+positivos. Veremos si este sesgo se corrige más adelante, también.
+
+## MPQA
+
+En segundo lugar, hemos utilizado el lexicón MPQA. Este lexicón es el
+que contiene un menor número de palabras, y menor información para
+cada una de ellas. En este caso, tal y como viene la información
+almacenada, lo único que tendremos que hacer será parsear cada uno de
+los campos, que vienen separados por espacios y con un igual entre el
+nombre del campo y el valor que toma. Utilizando un nodo de Java,
+separaremos cada una de las líneas de entrada del texto por los
+caracteres espacio, y de cada uno de los campos resultantes nos
+quedaremos con la subcadena que hay después del igual. Tras esto,
+seleccionamos las columnas que nos interesan con un filtro de
+columna. No hace falta filtro de filas en este caso porque no tenemos
+palabras neutras dentro del lexicón. Los resultados que obtenemos
+ahora son los siguientes:
+
+|                       | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:----------------------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Sin preprocesado      | 600           | 400            | 191            | 809           | 70.45 %  |
+| Filtro de Stop Words  | 820           | 179            | 334            | 666           | 74.337 % |
+| Stop Words + Stemming | 811           | 188            | 321            | 679           | 74.534 % |
+
+Y las curvas ROC correspondientes:
+
+\begin{figure}[H]
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_mpqa_1}
+\caption{Sin preprocesamiento}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_mpqa_2}
+\caption{Filtro de Stop Words}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_mpqa_3}
+\caption{Stop Words + Stemming}
+\end{subfigure}
+\caption{Curvas ROC obtenidas con el lexicón MPQA}
+\label{fig:sentiwordnet-roc}
+\end{figure}
+
+En este caso, los resultados obtenidos son mucho mejores que con el
+lexicón anterior. Hablamos de una mejora de entre 12 y 14 puntos
+porcentuales. Además, ahora tenemos una mejora más significativa
+cuando metemos el preprocesamiento, especialmente con el filtro de
+_Stop Words_. Curiosamente, este filtro provoca un cambio importante
+en el sesgo de un lado al otro. Mientras que en el primer caso la
+mayoría de documentos bien clasificados pertenecían a los ejemplos
+positivos, cuando introducimos preprocesamiento ocurre justo al revés.
+Esto indica que en este lexicón se están marcando palabras de este
+tipo como palabras con contenido positivo. Habría que estudiar con más
+detenimiento estas palabras para averiguar cuáles son.
+
+Pasamos finalmente a ver los resultados obtenidos con SenticNet.
+
+## SenticNet
+
+Para este lexicón, la información que obtenemos es, además de la
+polaridad de los términos, la intensidad de los mismos, dados como un
+grado entre -1 y 1. El preprocesamiento que hemos llevado a cabo ha
+sido, por tanto, una umbralización. Hemos despreciado la etiqueta que
+se nos proporciona (en un primer intento las utilizamos pero los
+resultados estaban completamente sesgados a favor de los comentarios
+positivos) y hemos asignado la etiqueta negativa si el valor de
+intensidad estaba por debajo de -0.2 y la etiqueta positiva si el
+valor estaba por encima de 0.8. Ya en origen los términos estaban
+etiquetados como negativos si tenían una intensidad negativa, y como
+positivos si era positiva, así que lo que hemos hecho es equivalente a
+establecer como neutros los términos con una intensidad en el
+intervalo [-0.2, 0.8]. Mostramos los resultados a continuación:
+
+|                       | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:----------------------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Sin preprocesado      | 147           | 853            | 45             | 955           | 55.1 %   |
+| Filtro de Stop Words  | 530           | 469            | 253            | 747           | 63.882 % |
+| Stop Words + Stemming | 416           | 583            | 178            | 822           | 61.931 % |
+
+Y las curvas ROC se muestran a continuación:
+
+\begin{figure}[H]
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_senticnet_1}
+\caption{Sin preprocesamiento}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_senticnet_2}
+\caption{Filtro de Stop Words}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+\centering
+\includegraphics[width=\textwidth]{imgs/roc_senticnet_3}
+\caption{Stop Words + Stemming}
+\end{subfigure}
+\caption{Curvas ROC obtenidas con el lexicón SenticNet}
+\label{fig:sentiwordnet-roc}
+\end{figure}
+
+En primer lugar podemos ver que, a pesar de que hemos utilizado una
+umbralización bastante fuerte a favor de los términos negativos, el
+sistema sigue sesgado a favor de los términos positivos. Además, los
+resultados con el texto sin preprocesar son bastante mejorables,
+aunque cuando se mete el filtro de _Stop Words_ la mejora que se
+produce es notable, llegando a superar los resultados de SentiWordNet.
+Aún así, con los dos corpus supuestamente más potentes hemos obtenido
+los peores resultados, y el que mejor ha funcionado hasta el momento
+ha sido el menos completo de los tres. Por tanto, en los dos
+siguientes apartados vamos a intentar hacer un preprocesamiento más
+inteligente de SentiWordNet y SenticNet para tratar de mejorar los
+resultados obtenidos con ellos.
+
+Otro comportamiento curioso que ocurre con este lexicón es que, a
+pesar de que el sistema sin preprocesamiento es el que menos precisión
+consigue cuando se toma como punto de corte la probabilidad de 0.5, es
+el que más área bajo la curva consigue. Esto está indicando que el
+comportamiento global de este sistema podría ser mejor que el de los
+sistemas que utilizan preprocesamiento, es decir, es capaz de
+clasificar mejor los documentos, a costa de variar el umbral en el
+que se decide el cambio de clase, en lugar de utilizar el 0.5 clásico.
+
+Una vez hemos estudiado el pipeline estándar, en el que no
+aprovechamos toda la potencia de SenticNet y SentiWordNet, vamos a
+intentar mejorar los resultados obtenidos con estos dos lexicones
+modificando el pipeline con el que trabajamos. Tendremos el problema
+de que no podremos intercambiar el lexicón de forma tan sencilla, pero
+es posible que mejoremos los resultados al afrontar cada uno de los
+corpus de una forma diferente.
+
+# Uso inteligente de la información de SentiWordNet
+
+En este apartado se va a desarrollar un nuevo workflow de KNIME para
+aprovechar la información que contiene SentiWordNet y que con el
+sistema anterior hemos desaprovechado. Como ya comentamos previamente,
+SentiWordNet almacena información de polaridad positiva y negativa
+como dos valores entre 0 y 1 para cada término. Lo que haremos ahora
+será, en lugar de tomar el máximo para asignar la etiqueta al término,
+mantendremos estas dos columnas de forma que para cada palabra del
+documento se tendrá una polaridad positiva y otra negativa. Al final,
+sumaremos para cada documento la polaridad positiva y negativa de sus
+términos, y así tendremos una medida de polaridad positiva y negativa
+para cada documento. Luego, veremos dos formas distintas de combinar
+esta información. Por un lado, estableceremos una probabilidad de la
+misma forma que hicimos anteriormente (tomando el cociente del valor
+positivo entre la suma de los dos valores), y por otro, tomaremos la
+diferencia entre ambos valores y le aplicaremos la función sigmoide
+(lo cual nos transforma la recta real en el intervalo [0,1] con una
+función biyectiva y estrictamente creciente, tal que la imagen del 0
+se traduce en el punto 0.5, los valores negativos a valores inferiores
+a 0.5, y valores positivos a valores superiores a 0.5). De esta forma,
+si el valor resultante de la diferencia entre la polaridad positiva y
+negativa de un documento es negativo, se le asignará con la sigmoide
+un valor de menos de 0.5, y si es positivo, superior a dicho valor.
+Tenemos por tanto una probabilidad de pertenecer a la clase positiva.
+
+Los nodos de KNIME que se han utilizado en el proceso son los
+siguientes:
+
+- Preprocesamiento del documento: En este lado se tienen todos los nodos
+que nos han permitido convertir la entrada en información utilizable
+por nuestro sistema:
+    - Lector de CSV
+    - Creador de documentos y filtro de columnas
+    - Preprocesamiento: Al igual que anteriormente, sin
+    preprocesamiento, filtro de _Stop Words_ y Stemming, de forma
+    incremental. Adicionalmente, por necesidades de los nodos
+    posteriores, se convierten todas las cadenas de texto a minúscula
+    en todos los casos.
+    - Bolsa de palabras y conversión de términos a strings
+- Preprocesamiento del lexicón: Por este lado se tienen todos los nodos
+que preparan el corpus para su posterior utilización:
+    - Lector de archivo
+    - Filtro de columnas
+    - Renombrado de columnas
+- Combinación de las tablas - Left outer join sobre el concepto: Esta
+operación toma la tabla de documentos y conceptos y para cada fila
+(que contiene un concepto y el documento que la contiene), busca en la
+tabla del lexicón si aparece dicho concepto, y en caso afirmativo
+añade las columnas de valor positivo y valor negativo en la tabla
+resultado. De esta manera, a la salida de este nodo tenemos una tabla
+en la que están los conceptos de los documentos con sus valores de
+polaridad positivos y negativos.
+- Agrupamiento por documentos - Tabla pivote: Con la operación de
+pivote podemos agrupar las filas generadas anteriormente por
+documento, y sumar para cada uno las columnas de valor positivo y
+valor negativo, obteniendo así una tabla resultante con una sola fila
+por documento, y dos columnas, la polaridad positiva total y la
+polaridad negativa total, correspondiente a la suma de las polaridades
+de cada término.
+- Sistemas de puntuación: Tras la tabla pivote, se abren dos ramas
+distintas, las cuales corresponden a los dos sistemas de puntuación
+que hemos explicado. Por la rama superior se calcula el cociente entre
+la puntuación positiva y la suma de ambas, y por la inferior la
+diferencia y la aplicación de la función sigmoide. Para ambos cálculos
+se establece después la etiqueta correspondiente, y se calculan las
+métricas de calidad del modelo obtenido.
+
+Como hemos dicho anteriormente, en este caso vamos también a aplicar
+los tres preprocesamientos que vimos en los apartados anteriores. Como
+hemos dicho anteriormente, en todos los casos introduciremos una etapa
+de conversión a minúsculas, la cual es necesaria para el join
+posterior.
+
+## Texto sin preprocesar
+
+Comenzamos tomando el texto sin preprocesar. Mostramos los resultados
+obtenidos con las dos políticas de cálculo de probabilidades:
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 390           | 610            | 161            | 839           | 61.45 %  |
+| Sigmoide | 193           | 807            | 64             | 936           | 56.45 %  |
+
+Podemos observar que los resultados han mejorado ligeramente respecto
+a los obtenidos con la aproximación anterior, pero que aún son peores
+que los que obtuvimos con MPQA. También se aprecia un sesgo importante
+hacia la clase positiva, lo que nos hace pensar que el punto 0.5 puede
+no ser el más apropiado para establecer el corte. Además, en el caso
+de la sigmoide esta diferencia se hace mucho más notable, de forma que
+sólo se interpretan como negativos el 10 % del total de documentos.
+
+Vamos a intentar mejorar un poco estos resultados. Para el caso del
+cociente, estableceremos el umbral ligeramente más alto. Al parecer,
+la gente tiende a utilizar un mayor número de términos positivos que
+negativos, así que requeriremos que el cociente sea superior a 0.6
+para etiquetar el documento como positivo. Así contrarrestamos este
+sesgo ligeramente. Para el caso de la sigmoide, los resultados están
+demasiado descompensados, por lo que tomaremos una normalización por
+Z-score (restar la media y dividir por la desviación típica de la
+columna). Es interesante remarcar que hemos tomado dos aproximaciones
+distintas porque en este caso, el usar una misma aproximación no es
+adecuado, ya que los cálculos no son comparables.
+
+Tras hacer las modificaciones pertinentes en los cálculos, los
+resultados obtenidos son los siguientes:
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 618           | 382            | 344            | 656           | 63.7 %   |
+| Sigmoide | 614           | 386            | 370            | 630           | 62.2 %   |
+
+Los resultados han mejorado notablemente. Esto nos indica que habíamos
+detectado correctamente el sesgo que había tenido lugar, y en cierta
+medida lo hemos subsanado. Ahora podemos apreciar cómo el número de
+aciertos de ambas clases es similar, por lo que al menos ese problema
+está más o menos eliminado. Aun así, los resultados siguen siendo peores
+que los obtenidos por MPQA, aunque notablemente mejores que los obtenidos
+en el apartado anterior.
+
+Pasamos a introducir el filtro de Stop Words.
+
+## Filtro de Stop Words
+
+En este apartado, se muestran los resultados obtenidos tras introducir
+el filtro de Stop Words. En primer lugar, mostramos los resultados
+obtenidos sin la adaptación de los puntos de corte ni normalización:
+
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 564           | 436            | 230            | 770           | 66.7 %   |
+| Sigmoide | 564           | 436            | 230            | 770           | 66.7 %   |
+
+Podemos observar que los resultados son significativamente mejores que
+los obtenidos en el apartado anterior, pero al igual que en el caso
+anterior, hay un sesgo importante a favor de la etiqueta positiva. No
+obstante, es mucho menor que anteriormente. Otro detalle curioso es
+que obtenemos exactamente los mismos resultados con las dos políticas
+de asignación de probabilidades.
+
+Aunque los resultados obtenidos son mejores que en todos los casos del
+apartado anterior, no son tan buenos como los conseguidos con MPQA
+aún.  Por esto, vamos a tratar de cambiar la política de asignación de
+probabilidades tal y como hicimos en el apartado anterior. Los resultados
+son los siguientes:
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 750           | 250            | 383            | 617           | 68.35 %  |
+| Sigmoide | 664           | 336            | 331            | 669           | 66.65 %  |
+
+Para el caso del cociente tenemos cierta mejoría de los resultados,
+llegando casi a una precisión del 70 %. No obstante, para el caso de
+la sigmoide tenemos un ligero empeoramiento (casi imperceptible). La
+mejora que obtenemos para el caso de la sigmoide es que ahora la
+predicción está mucho más compensada, y tenemos aproximadamente el
+mismo valor de ejemplos bien clasificados para cada clase, lo cual
+suele ser adecuado si quieren evitarse sesgos en las predicciones.
+Aún así, no llegamos a los resultados obtenidos por MPQA.
+
+Finalmente, pasamos al preprocesamiento en el que incluimos también
+el stemming.
+
+## Filtro de Stop Words y Stemming
+
+Mostramos los resultados obtenidos cuando tenemos el filtro de stop
+words y el stemming combinados:
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 444           | 556            | 157            | 843           | 64.35 %  |
+| Cociente | 444           | 556            | 157            | 843           | 64.35 %  |
+
+Como podemos observar, los resultados obtenidos son incluso peores que
+en el apartado anterior. Este resultado podía ser esperable, ya que
+normalmente el stemming elimina terminaciones de las palabras y
+conserva la raíz. Cuando estamos haciendo análisis de sentimientos,
+esto puede ser pernicioso, debido a que perdemos algunas partículas
+que indican grados comparativos o superlativos, los cuales suelen
+expresar normalmente grados subjetivos de los términos, y por tanto
+son relevantes para entender la intención de un mensaje. No obstante,
+hemos decidido aplicarlo porque en algunos casos hemos visto que podía
+producir mejoras, como ocurrió en el apartado anterior, cuando
+tratamos los tres lexicones de forma estándar.
+
+Mostramos los resultados obtenidos cuando ajustamos los cálculos de
+probabilidades:
+
+|          | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:---------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Cociente | 666           | 334            | 306            | 694           | 68 %     |
+| Sigmoide | 662           | 338            | 327            | 673           | 66.75 %  |
+
+En ambos casos tenemos una mejora importante, pero no llegamos a los
+resultados que teníamos en el apartado anterior. Esto nos indica que,
+en este caso, el Stemming es una mala aproximación, y produce un
+empeoramiento de los resultados. El filtro de Stop Words, por el
+contrario, sí que mejora la calidad de la solución obtenida.
+
+En cuanto a los resultados obtenidos en términos globales, parece que
+esta aproximación, a pesar de mejorar los resultados que obtuvimos con
+este lexicón sin aprovechar toda la información, no es capaz de
+superar los que conseguimos con el lexicón MPQA. Es posible que un
+preprocesamiento mayor consiguiese mejorar los resultados, pero no se
+va a proceder a este estudio porque no sería una comparación justa, ya
+que no va a profundizarse tampoco en los resultados obtenidos con MPQA.
+
+Pasamos a comentar los resultados obtenidos cuando se utiliza de forma
+inteligente la información contenida en SenticNet.
+
+# Uso inteligente de la información en SenticNet
+
+Para el uso de la información almacenada en SenticNet se ha
+implementado un nuevo Workflow de KNIME, similar al anterior. En este
+caso, SenticNet tiene una etiqueta que indica si el término es
+positivo o negativo, y junto a esta etiqueta un valor que oscila entre
+-1 y 1, indicando tanto la polaridad como la intensidad del término.
+
+El workflow que implementaremos será muy similar al anterior, ya que
+en esencia tenemos la misma información almacenada. No obstante, en
+lugar de tener que llevar dos columnas por separado, es suficiente con
+llevar sólo una columna, ya que en vez de dos valores por cada término
+tendremos sólo uno. Esto nos va a provocar, también, que al sumar
+todos los valores de los términos del documento tengamos ya el valor
+de polaridad del documento.
+
+El hecho de tener un solo valor también nos restringe las
+posibilidades de utilizar criterios a la hora de asignar una
+probabilidad. En este caso, al tener un sólo valor para el documento
+que viene dado, a priori, en la recta real, sólo podremos utilizar la
+aproximación con la sigmoide que explicamos anteriormente. Tras
+realizar una prueba en la que no se normalizaban previamente los
+valores utilizando el Z-score, se obtiene que el 95 % de los
+documentos se clasificaban como clase positiva. Esto indica un sesgo
+muy fuerte a favor de esa clase. Por este motivo, en este apartado no
+mostraremos los resultados que se obtienen si no se normaliza la
+columna de puntuación por el Z-score. Tras aplicar la normalización
+indicada, los resultados obtenidos son los siguientes:
+
+|                       | True Negative | False Positive | False Negative | True Positive | Accuracy |
+|:----------------------|:-------------:|:--------------:|:--------------:|:-------------:|:--------:|
+| Sin preprocesado      | 664           | 336            | 489            | 511           | 58.75 %  |
+| Filtro de Stop Words  | 681           | 319            | 465            | 535           | 60.8 %   |
+| Stop Words + Stemming | 696           | 304            | 500            | 500           | 59.8 %   |
+
+Se puede apreciar que no son, para nada, los deseables. Cuando no se
+introduce preprocesamiento el resultado es mejor que el que se obtuvo
+al principio con este lexicón, pero al introducir cualquier tipo de
+preprocesado en el texto la mejora no es suficientemente buena como
+para superar los resultados obtenidos cuando usamos la aproximación
+simple.
+
+Esto puede deberse a sesgos en los valores de intensidad
+proporcionados en este corpus, así como una aproximación demasiado
+simple a la hora de calcular la puntuación del documento y su
+traducción a una probabilidad que indique si el documento tiene una
+orientación positiva. No obstante, aproximaciones más complejas a la
+solución se salen de los contenidos de esta práctica, por lo que no
+las exploraremos. Además, estamos hablando de que con este lexicón
+estamos a casi 15 puntos porcentuales de la mejor solución que hemos
+obtenido en la práctica, por lo que no parece que su uso vaya a superar
+a la aproximación que hicimos con MPQA, por muy complejo que sea el
+modelo que utilicemos.
+
+# Conclusiones y trabajo futuro
+
+En esta práctica hemos visto cómo podemos afrontar el problema del
+análisis de sentimientos utilizando una herramienta como
+KNIME. Utilizando una base de datos de IMDb en la que hay 1000
+valoraciones negativas y otras 1000 valoraciones positivas, hemos
+propuesto distintas políticas de clasificación, que nos permiten
+diferenciar entre estas dos orientaciones subjetivas.
+
+Hemos dado dos enfoques distintos a este problema, desde el punto de
+vista supervisado, utilizando algoritmos de aprendizaje que aprenden
+sobre un conjunto de datos de entrenamiento y después contrastan la
+información retenida contra un subconjunto de datos de test, y desde
+el punto de vista no supervisado, en el que utilizamos lexicones de
+sentimientos con información etiquetada por concepto, que nos permite
+conocer la orientación del texto en función de las palabras que
+contiene.
+
+Analizando los resultados obtenidos con los algoritmos de aprendizaje
+supervisado, hemos desarrollado un workflow que nos permite
+preprocesar los documentos, que contienen información no estructurada,
+y convertirlos en vectores que representan la ocurrencia de cada
+concepto de nuestro vocabulario (aprendido a partir de los propios
+documentos) en cada uno de ellos. De esta forma, obtenemos una
+representación de cada documento que es comparable con el resto, y
+podemos utilizar esa información como entrada para un modelo de
+aprendizaje automático supervisado.
+
+Hemos utilizado tres modelos de aprendizaje distintos, a los que hemos
+introducido los vectores construidos en los pasos anteriores:
+
+- Modelo de regresión logística
+- Modelo de _Random Forest_
+- Modelo basado en SVM
+
+Para los tres casos, hemos obtenido unos resultados de precisión por
+encima del 85 %, lo cual se pueden considerar muy buenos. Teniendo en
+cuenta la eficiencia de los mismos y la alta dimensionalidad del
+vector de entrada, parece que el modelo más adecuado es el _Random
+Forest_, que obtiene los mejores resultados y funciona bien con
+vectores de muchas dimensiones.
+
+Por otro lado tenemos los resultados obtenidos con los corpus de
+sentimientos, que se entrenan con una política no supervisada. Hemos
+utilizado tres corpus de sentimientos distintos; SentiWordNet, MPQA y
+SenticNet. Para estos tres lexicones, en una primera etapa, hemos
+realizado un preprocesamiento en el que se ha asignado a cada término
+una etiqueta positiva o negativa. En este caso, los mejores resultados
+obtenidos han sido para el corpus MPQA, llegando a casi un 75 % de
+precisión. En una segunda etapa, debido a que tanto SentiWordNet como
+SenticNet tienen una información más rica, en forma de valores
+decimales de subjetividad para los términos, hemos tratado de
+aprovechar esta información de forma más inteligente. Con esta
+aproximación, hemos mejorado los resultados obtenidos con el enfoque
+simple para cada uno de los corpus, pero no hemos llegado a superar
+el resultado de MPQA.
+
+En cuanto a conclusiones generales, tenemos que los modelos de
+aprendizaje supervisado consiguen unos resultados de mayor calidad que
+los modelos no supervisados, pero tienen la particularidad de
+necesitar datos etiquetados a priori. En el campo del análisis de
+textos resulta difícil encontrar datos etiquetados, debido a que el
+proceso de etiquetado es tedioso y requiere de mucho tiempo. Por esto,
+la aproximación con corpus de sentimientos resulta muy interesante, ya
+que permite obtener unos resultados razonables (hemos conseguido un 75
+%) sin necesidad de etiquetas en el texto.
+
+En cuanto al preprocesamiento del texto, hemos podido apreciar cómo en
+algunos casos el hecho de introducir algunas etapas nos empeoraba los
+resultados obtenidos. Hemos podido apreciar esa problemática
+especialmente con el Stemming. Algunas formas de las palabras, en
+especial los superlativos, contienen información de la intención
+subjetiva de un texto, y por tanto su eliminación nos hace perder
+información valiosa en el contexto del problema que tratamos de
+resolver. Cuando queremos extraer información de significado y
+contenido, este tipo de partículas nos introducen ruido en el conjunto
+de datos, y por tanto su eliminación resulta beneficiosa para extraer
+información. Para la minería de sentimientos, por el contrario, esos
+matices nos pueden aportar información sobre la intencionalidad del
+mensaje.
+
+En cuanto a posibles trabajos futuros, se han detectado varios puntos a
+mejorar dentro de la práctica que pueden ser interesantes para un estudio
+más profundo:
+
+- Aprendizaje de un embebimiento más adecuado para la representación
+de vectores de documentos: Aunque hemos obtenido unos resultados muy
+favorables en el caso de la clasificación supervisada, no hemos
+aprovechado todo el potencial de los conceptos presentes en los
+documentos. Para nosotros, la distancia entre dos conceptos diferentes
+es constante, es decir, hemos tomado cada concepto como una coordenada
+independiente y sin relación con los demás términos. Probablemente,
+utilizando una representación más adecuada entre conceptos, podríamos
+haber calculado las distancias entre documentos de forma más
+apropiada, y esto habría llevado a unos resultados mejores.
+- Utilización más inteligente de las puntuaciones de subjetividad en
+SentiWordNet y SenticNet: La utilización básica de los valores de
+ponderación en estos dos corpus produjo una mejora en los resultados,
+especialmente en el caso de SentiWordNet. No obstante, la combinación
+llevada a cabo es bastante simple, ya que nos hemos limitado sumar los
+valores en cuestión. Probablemente, el utilizar esta información de
+una forma más rica permita establecer una clasificación más
+adecuada. Por ejemplo, estos valores se podrían haber utilizado como
+una serie temporal, en la que tenemos un instante por cada palabra en
+el texto, y podemos estudiar la evolución de la subjetividad del
+mensaje. Es posible que esta aproximación hubiese mejorado los
+resultados de clasificación obtenidos.
+- Combinación del corpus y la clasificación supervisada: En esta
+práctica hemos tomado dos aproximaciones independientes, con
+aprendizaje supervisado por bolsa de palabras y vectores de documentos
+por un lado, y con corpus de sentimientos y generación de puntuación
+por otro. Es posible que aprovechar la información subjetiva de los
+conceptos en la etapa de entrenamiento de los modelos mejore la
+clasificación final.

@@ -2,4 +2,4 @@
 *.knwf
 # Ignore sentiment corpus
 *.txt
-*.tiff
+*.tff
