@@ -1,0 +1,5 @@
+# Ignore KNIME Workflows
+*.knwf
+# Ignore sentiment corpus
+*.txt
+*.tiff
