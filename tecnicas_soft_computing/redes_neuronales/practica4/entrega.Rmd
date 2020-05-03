@@ -1,0 +1,355 @@
+---
+title: "Técnicas de soft computing para Aprendizaje y Optimización"
+subtitle: "Redes neuronales - práctica 4"
+author: "Francisco Luque Sánchez"
+date: "20/03/2020"
+titlepage: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: true
+---
+
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(0)
+
+library(caret)
+library(reticulate)
+library(knitr)
+library(kableExtra)
+use_virtualenv("master")
+```
+
+```{python, include=F}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import sklearn
+import scipy
+import keras
+
+import sklearn.preprocessing
+```
+
+# Introducción
+
+En esta práctica aprenderemos cómo podemos utilizar redes neuronales
+recurrentes para la predicción de valores de una serie
+temporal. Concretamente, trabajaremos con una serie de precios de
+acciones de Google, y utilizaremos el precio en instantes anteriores
+para predecir el precio en los instantes siguientes.
+
+Comenzamos prediciendo cada valor a partir del anterior, sin tener en
+cuenta más valores previos. Comenzamos leyendo el conjunto de datos de
+entrenamiento y transformándolo al intervalo [0,1]:
+
+```{python}
+training_set = pd.read_csv('Google_Stock_Price_Train.csv')
+training_set = training_set.iloc[:,1].values
+
+sc = sklearn.preprocessing.MinMaxScaler()
+training_set = sc.fit_transform(training_set.reshape(-1,1)).reshape(-1)
+```
+
+Debido a que queremos predecir cada valor a partir del anterior,
+nuestro conjunto de entrenamiento serán los primeros $n-1$ valores
+del vector, y las etiquetas a predecir los valores desde el segundo
+hasta el $n$:
+
+```{python}
+X_train = training_set[0:1257]
+y_train = training_set[1:1258]
+X_train = X_train.reshape(-1,1,1)
+```
+
+Instanciamos el modelo de red neuronal, y lo entrenamos con los
+vectores que hemos construido:
+
+```{python}
+regressor = keras.models.Sequential()
+
+regressor.add(
+    keras.layers.LSTM(4, activation = 'sigmoid', input_shape = (None, 1))
+)
+regressor.add(keras.layers.Dense(units=1))
+
+regressor.compile(optimizer='adam', loss = 'mean_squared_error')
+
+regressor.fit(X_train, y_train, batch_size=32, epochs=200, verbose=0)
+```
+
+Ahora, vamos a cargar el conjunto de datos de test y a predecir el
+precio de las acciones utilizando el modelo aprendido. Cargamos el
+conjunto de test, lo normalizamos, realizamos las predicciones y
+deshacemos la normalización, para obtener los valores predichos
+reales:
+
+```{python}
+test_set = pd.read_csv('Google_Stock_Price_Test.csv')
+
+real_stock_price = test_set.iloc[:,1].values
+
+inputs = real_stock_price
+inputs = sc.transform(inputs.reshape(-1,1))
+inputs = inputs.reshape(-1,1,1)
+predicted_stock_price = regressor.predict(inputs)
+predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+```
+
+Mostramos la predicción y los valores reales en un gráfico:
+
+```{python}
+plt.plot(real_stock_price[1:], color='red', label="Real Google Stock price")
+plt.plot(predicted_stock_price[:-1], color='blue',
+         label="Predicted Google Stock price")
+
+plt.title("Google Stock Price Prediction")
+plt.xlabel("Time")
+plt.ylabel("Google Time Price")
+plt.legend()
+plt.show()
+```
+
+Para que las gráficas sean comparables, tenemos que alinear
+correctamente los valores reales con la predicción que hemos hecho.
+Si hemos utilizado un sólo valor para predecir el siguiente,
+tendremos que descartar el primer punto del plot de los valores
+reales, ya que ese punto no ha podido ser predicho por falta de
+información anterior. Asimismo, el último punto predicho no tiene
+candidato para la comparación, ya que al predecir con la última
+medición real que hemos tomado, la predicción correspondería a un
+punto que no conocemos.
+
+Con la gráfica que obtenemos, podemos observar que la predicción que
+se realiza es, prácticamente, el valor en el punto anterior menos una
+cantidad fija. Es decir, nuestra red no está aprendiendo a estimar
+correctamente el valor siguiente a partir del anterior, más bien ha
+aprendido a restar un valor constante al valor de entrada previo. En
+los siguientes apartados intentaremos mejorar la capacidad de
+predicción de la red, por medio de modificaciones de la topología de
+la misma, así como permitiendo que se aprenda con información a más
+largo plazo, tomando varios instantes de tiempo, en lugar de sólo
+el último. Comenzamos por esta aproximación.
+
+# Ampliación de la entrada a más valores
+
+En primer lugar, cambiaremos el conjunto de datos de entrada, para
+aprender recurrencias a más largo plazo. Con el conjunto de datos
+anterior, sólo hemos utilizado la última medición para hacer la
+predicción del valor siguiente. Es posible que utilizando más
+información (más medidas anteriores) la predicción mejore. Para
+cambiar la entrada, se ha desarrollado una función que recibe como
+entrada la señal y el número de pasos con los que se quiere realizar
+la predicción, y devuelve dos elementos. Por un lado, la matriz de
+ejemplos de entrenamiento, con tamaño `n_ejemplos` $\times$
+`n_medidas` $\times$ 1, que es el tamaño de entrada que requiere la
+red neuronal, y por otro el vector de medidas a predecir. La función
+que realiza dicha conversión es la siguiente:
+
+```{python}
+def transform_input(signal, steps):
+    rolls = [np.roll(signal, -i) for i in range(steps)]
+    input_signal = np.array(rolls).transpose()[:-steps,:,np.newaxis]
+    output_signal = signal[steps:]
+    return (input_signal, output_signal)
+```
+
+Podemos observar que, si queremos utilizar 3 elementos para establecer
+la predicción, podemos pasar como argumento `steps=3`, y obtenemos:
+
+```{python}
+input_sig, output_sig = transform_input(training_set, 3)
+print(input_sig.shape, output_sig.shape)
+```
+
+Con los tamaños de entrada necesitados. Ahora, podemos crear un modelo
+de red neuronal como el anterior, entrenarlo con los nuevos datos
+
+```{python}
+regressor = keras.models.Sequential()
+regressor.add(
+    keras.layers.LSTM(4, activation = 'sigmoid', input_shape = (None, 1))
+)
+regressor.add(keras.layers.Dense(units=1))
+regressor.compile(optimizer='adam', loss = 'mean_squared_error')
+regressor.fit(input_sig, output_sig, batch_size=32, epochs=500, verbose=0)
+```
+
+Ahora, podemos repetir esta operación de procesado de los datos con el
+conjunto de test y realizar la misma predicción que al principio, pero
+utilizando ahora 3 medidas en lugar de 1 para predecir la siguiente:
+
+```{python}
+real_stock_price = test_set.iloc[:,1].values
+
+inputs = real_stock_price
+inputs = sc.transform(inputs.reshape(-1,1)).reshape(-1)
+test_input, _ = transform_input(inputs, 3)
+predicted_stock_price = regressor.predict(test_input)
+predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+```
+
+Una vez hemos realizado la predicción, podemos representarla gráficamente
+como hicimos al principio (se encapsula el código de representación en
+una función porque habrá que repetir esta operación a menudo):
+
+```{python}
+def plot_prediction(reals, preds):
+    plt.plot(reals, color='red', label="Real Google Stock price")
+    plt.plot(preds, color='blue', label="Predicted Google Stock price")
+    plt.title("Google Stock Price Prediction")
+    plt.xlabel("Time")
+    plt.ylabel("Google Time Price")
+    plt.legend()
+    plt.show()
+
+plot_prediction(real_stock_price[3:], predicted_stock_price)
+```
+
+Tenemos ahora que los resultados obtenidos son muy similares a los que
+obtuvimos anteriormente, por lo que parece que esta vía no es la más
+adecuada, al menos con la estructura de red que estamos utilizando.
+Trataremos ahora de modificar dicha estructura para tratar de mejorar
+los resultados. Comenzamos alterando el número de características
+extraídas por la parte recurrente de la red.
+
+# Modificación del tamaño de salida de la capa LSTM
+
+En este apartado vamos a modificar el número de neuronas de salida de
+la capa LSTM. Dado que vamos a extraer un número mayor de
+características, seguiremos utilizando una entrada de más de un
+valor. Construimos la estructura de red neuronal, extrayendo 10
+características en lugar de las 4 con las que trabajábamos hasta el
+momento. Construimos el conjunto de entrada (que será ahora de 5
+muestras temporales) y la red con la que vamos a trabajar:
+
+```{python}
+input_sig, output_sig = transform_input(training_set, 5)
+
+regressor = keras.models.Sequential()
+regressor.add(
+    keras.layers.LSTM(10, activation = 'sigmoid', input_shape = (None, 1))
+)
+regressor.add(keras.layers.Dense(units=1))
+regressor.compile(optimizer='adam', loss = 'mean_squared_error')
+regressor.fit(input_sig, output_sig, batch_size=32, epochs=200, verbose=0)
+```
+
+Una vez entrenada la red, tomamos los datos de test y realizamos la
+predicción:
+
+```{python}
+test_set = pd.read_csv('Google_Stock_Price_Test.csv')
+
+inputs = real_stock_price
+inputs = sc.transform(inputs.reshape(-1,1)).reshape(-1)
+test_input, _ = transform_input(inputs, 5)
+predicted_stock_price = regressor.predict(test_input)
+predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+```
+
+Una vez realizada la predicción, mostramos gráficamente el resultado:
+
+```{python}
+plot_prediction(real_stock_price[5:], predicted_stock_price)
+```
+
+El resultado sigue sin ser especialmente bueno. Vamos a tratar de
+cambiar la estructura de la red, añadiendo capas, para intentar
+mejorar el resultado:
+
+# Adición de nuevas capas
+
+Trabajaremos ahora con una estructura de red más compleja, para ver si
+así obtenemos mejores resultados. Añadiremos una nueva capa LSTM
+intermedia, para ver si una estructura más compleja es capaz de aprender
+la relación temporal que buscamos. Construimos la estructura de red
+en cuestión:
+
+```{python}
+input_sig, output_sig = transform_input(training_set, 5)
+
+regressor = keras.models.Sequential()
+regressor.add(
+    keras.layers.LSTM(10, activation = 'sigmoid', return_sequences = True,
+                      input_shape = (None, 1))
+)
+regressor.add(
+    keras.layers.LSTM(5, activation = 'sigmoid')
+)
+regressor.add(keras.layers.Dense(units=1))
+regressor.compile(optimizer='adam', loss = 'mean_squared_error')
+regressor.fit(input_sig, output_sig, batch_size=32, epochs=200, verbose=0)
+```
+
+Una vez tenemos la red entrenada, predecimos el conjunto de test:
+
+```{python}
+test_set = pd.read_csv('Google_Stock_Price_Test.csv')
+
+inputs = real_stock_price
+inputs = sc.transform(inputs.reshape(-1,1)).reshape(-1)
+test_input, _ = transform_input(inputs, 5)
+predicted_stock_price = regressor.predict(test_input)
+predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+
+plot_prediction(real_stock_price[5:], predicted_stock_price)
+```
+
+De nuevo, los resultados se alejan bastante de lo esperado. Es posible
+que el problema no sea tanto la estructura de red neuronal que estamos
+utilizando, si no el modelo que aprendizaje con el que estamos entrenando
+la red. Probaremos a variar a continuación esos parámetros.
+
+# Cambios en la política de entrenamiento de la red
+
+Debido a que con los cambios anteriores no hemos obtenido ninguna
+mejoría, vamos a tratar de cambiar la aproximación con la que
+trabajamos. En lugar de tratar de alterar la estructura de la red,
+vamos a cambiar la política de entrenamiento del modelo. Debido a que
+no tenemos muchos datos disponibles, una estructura de red demasiado
+compleja no es muy recomendable, porque tenderá al sobreaprendizaje.
+Trabajamos por tanto con una red simple, la cual entrenaremos durante
+más etapas, y utilizando RMSprop, en lugar de ADAM, como veníamos
+utilizando hasta el momento. Construimos la red sencilla, y especificamos
+los nuevos parámetros de entrenamiento:
+
+```{python}
+input_sig, output_sig = transform_input(training_set, 3)
+
+regressor = keras.models.Sequential()
+regressor.add(
+    keras.layers.LSTM(10, activation = 'sigmoid', input_shape = (None, 1))
+)
+regressor.add(keras.layers.Dense(units=1))
+regressor.compile(optimizer='rmsprop', loss = 'mean_squared_error')
+regressor.fit(input_sig, output_sig, batch_size=32, epochs=400, verbose=0)
+```
+
+Predecimos el conjunto de test y mostramos gráficamente los resultados:
+
+```{python}
+test_set = pd.read_csv('Google_Stock_Price_Test.csv')
+
+inputs = real_stock_price
+inputs = sc.transform(inputs.reshape(-1,1)).reshape(-1)
+test_input, _ = transform_input(inputs, 3)
+predicted_stock_price = regressor.predict(test_input)
+predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+
+plot_prediction(real_stock_price[3:], predicted_stock_price)
+```
+
+Ahora parece que sí hemos obtenido un resultados relativamente
+bueno. No estamos ante una predicción perfecta, pero sí que puede
+apreciarse una mejoría en la capacidad de predicción de la
+red. Teniendo en cuenta que la cantidad de datos de entrenamiento
+con los que contamos es relativamente escasa, consideramos que
+el resultado obtenido en este caso es satisfactorio.

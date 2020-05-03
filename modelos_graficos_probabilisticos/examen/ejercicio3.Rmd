@@ -1,0 +1,117 @@
+---
+title: "Examen - Ejercicio 3"
+subtitle: "Modelos gráficos probabilísticos"
+author: "Francisco Luque Sánchez"
+date: "30/04/2020"
+tables: true
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+# Ejercicio 3
+
+## Apartado A
+
+Dado un conjunto de datos completo, existen principalmente dos métodos
+distintos para la estimación de los parámetros de la red.
+
+Lo primero que hay que remarcar es el hecho de que, para estimar los
+parámetros de una red, sólo es necesario conocer las probabilidades de
+cada una de las variables condicionadas a los valores de sus padres.
+Si las variables no tienen padres, será suficiente con estimar las
+probabilidades de cada uno de los posibles valores de la variable, sin
+condicionar a ninguna otra variable del sistema.
+
+Una vez hecha esta aclaración, los métodos que podemos utilizar para
+estimar dichos parámetros son la estimación por máxima verosimilitud y
+la estimación bayesiana.
+
+Con la estimación de máxima verosimilitud, o estimación clásica, el
+cálculo que se realiza para cada una de las variables consiste en
+calcular la frecuencia relativa de cada uno de sus valores posibles a
+partir del conjunto de datos. Por ejemplo, dada una variable aleatoria
+$X$ con $k$ valores posibles $\{x_1, ..., x_k\}$ y sin padres, las
+probabilidades que asignaremos a cada uno de esos valores será
+
+\[ P(X = X_k) = \frac{N_k}{N} \]
+
+Donde $N_k$ es el número de veces que se observa el valor $x_k$ en la
+variable $X$, y $N$ es el número total de observaciones. Si la
+variable de interés está condicionada a sus padres, haremos el mismo
+cálculo, restringiendo en cada caso las observaciones a la combinación
+de valores que tomen los padres en los que estemos interesados.
+
+El problema de esta aproximación es que tiende a producir sobreajuste,
+e incluso puede no estar definida si no hay observaciones suficientes.
+Si tenemos pocas observaciones para una variable o para una
+combinación de padres, es posible que asignemos probabilidades en
+algunos casos con demasiada poca evidencia, lo cual puede producir
+errores en nuestras estimaciones.
+
+Para lidiar con esta problemática aparecen los estimadores basados en
+la inferencia bayesiana. En este caso, lo que se hace es suponer una
+distribución a priori de los parámetros, la cual se combina con las
+observaciones para obtener los valores de los parámetros a posteriori.
+De esta manera, se busca maximizar la probabilidad a posteriori del
+valor del parámetro a partir de las observaciones y los supuestos.  El
+problema que aparece con esta aproximación es que el cálculo de las
+probabilidades a posteriori puede ser complejo en función de las
+distribuciones a priori que seleccionemos de los parámetros, por lo que
+la elección de estos debe ser cuidadosa para facilitar el cálculo.
+En particular, suele utilizarse la familia de distribuciones Dirichlet,
+la cual permite el cálculo a posteriori de forma analítica. En particular,
+suele utilizarse el estimador de Laplace, cuyo resultado, para el mismo
+caso que teníamos anteriormente de la variable $X$, es el siguiente:
+
+\[ P(X = X_k) = \frac{N_k + 1}{N + k} \]
+
+## Apartado B
+
+Tenemos que utilizar los dos estimadores previos para las cuatro variables
+que tenemos. Dados los arcos de la red que se nos muestran, tenemos que
+las variables $X_1$ y $X_2$ no son dependientes de ningún padre, la variable
+$X_3$ es dependiente de $X_1$ y $X_2$, y $X_4$ es dependiente de $X_3$.
+Empezamos calculando las dos primeras con ambos estimadores.
+
+- $X_1$, estimador MLE: $P(X_1 = 0) = \frac{4}{10}\quad P(X_1 = 1) = \frac{6}{10}\;$
+- $X_1$, estimador de Laplace: $P(X_1 = 0) = \frac{5}{12}\quad P(X_1 = 1) = \frac{7}{12}\;$
+
+- $X_2$, estimador MLE: $P(X_2 = 0) = \frac{2}{10} \quad P(X_2 = 1) = \frac{5}{10} \quad P(X_2 = 2) = \frac{3}{10}$
+- $X_2$, estimador de Laplace: $P(X_2 = 0) = \frac{3}{13}\quad P(X_2 = 1) = \frac{6}{13}\quad P(X_2 = 2) = \frac{4}{13}$
+
+Para la variable $X_3$, tenemos que condicionarla a todas las parejas de los
+padres
+
+- $X_3$, estimador MLE:
+
+|           | $X_1 = 0, X_2 = 0$ | $X_1 = 0, X_2 = 1$ | $X_1 = 0, X_2 = 2$ | $X_1 = 1, X_2 = 0$ | $X_1 = 1, X_2 = 1$ | $X_1 = 1, X_2 = 2$ |
+|:---------:|:------------------:|:------------------:|:------------------:|:------------------:|:------------------:|:------------------:|
+| $X_3 = 0$ | 0                  | $\frac{1}{2}$      | 0                  | 1                  | $\frac{1}{3}$      | $\frac{1}{2}$      |
+| $X_3 = 1$ | 1                  | 0                  | 1                  | 0                  | 0                  | $\frac{1}{2}$      |
+| $X_3 = 2$ | 0                  | $\frac{1}{2}$      | 0                  | 0                  | $\frac{2}{3}$      | 0                  |
+
+- $X_3$, estimador de Laplace:
+
+|           | $X_1 = 0, X_2 = 0$ | $X_1 = 0, X_2 = 1$ | $X_1 = 0, X_2 = 2$ | $X_1 = 1, X_2 = 0$ | $X_1 = 1, X_2 = 1$ | $X_1 = 1, X_2 = 2$ |
+|:---------:|:------------------:|:------------------:|:------------------:|:------------------:|:------------------:|:------------------:|
+| $X_3 = 0$ | $\frac{1}{4}$      | $\frac{2}{5}$      | $\frac{1}{4}$      | $\frac{2}{4}$      | $\frac{2}{6}$      | $\frac{2}{5}$      |
+| $X_3 = 1$ | $\frac{2}{4}$      | $\frac{1}{5}$      | $\frac{2}{4}$      | $\frac{1}{4}$      | $\frac{1}{6}$      | $\frac{2}{5}$      |
+| $X_3 = 2$ | $\frac{1}{4}$      | $\frac{2}{5}$      | $\frac{1}{4}$      | $\frac{1}{4}$      | $\frac{3}{6}$      | $\frac{1}{5}$      |
+
+Y para la variable $X_4$, tenemos que condicionar sólo a la variable $X_3$
+
+- $X_4$, estimador MLE:
+
+|           | $X_3 = 0$     | $X_3 = 1$     | $X_3 = 2$ |
+|:---------:|:-------------:|:-------------:|:---------:|
+| $X_4 = 0$ | $\frac{3}{4}$ | $\frac{1}{3}$ | 1         |
+| $X_4 = 1$ | $\frac{1}{4}$ | $\frac{2}{3}$ | 0         |
+
+- $X_4$, estimador de Laplace:
+
+|           | $X_3 = 0$     | $X_3 = 1$     | $X_3 = 2$     |
+|:---------:|:-------------:|:-------------:|:-------------:|
+| $X_4 = 0$ | $\frac{4}{6}$ | $\frac{2}{5}$ | $\frac{4}{5}$ |
+| $X_4 = 1$ | $\frac{2}{6}$ | $\frac{3}{5}$ | $\frac{1}{5}$ |

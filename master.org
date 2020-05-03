@@ -1,23 +1,42 @@
 * Trabajo pendiente
+** Emprendimiento y transferencia de conocimiento
+*** TODO Trabajo final de la asignatura
+    DEADLINE: <2020-06-15 lun>
+** Visión por computador
+*** TODO Cuestiones de evaluación continua
+    DEADLINE: <2020-06-07 dom>
+*** TODO Introducción al procesamiento de imágenes digitales con MATLAB
+    DEADLINE: <2020-06-07 dom>
+*** TODO Modelos de color
+    DEADLINE: <2020-06-07 dom>
+*** TODO Sistema de Visión Artificial
+    DEADLINE: <2020-06-07 dom>
+*** TODO Lo que oculta una imagen
+    DEADLINE: <2020-06-07 dom>
 ** Big Data II
 *** DONE Diseño de un experimento ETL con Pig
     CLOSED: [2020-03-31 mar 12:29] DEADLINE: <2020-05-22 vie>
+*** TODO Ejercicio sobre Big Data Analytics
+    DEADLINE: <2020-05-22 vie>
+
 ** Minería de medios sociales
-*** IN PROGRESS Análisis de redes sociales con Gephi
-    SCHEDULED: <2020-03-09 lun> DEADLINE: <2020-05-11 lun>
+*** DONE Análisis de redes sociales con Gephi
+    CLOSED: [2020-04-29 mié 19:17] SCHEDULED: <2020-03-09 lun> DEADLINE: <2020-05-11 lun>
     Terminado pero no enviado
-*** TODO Minería de textos con Knime
-    SCHEDULED: <2020-04-09 jue> DEADLINE: <2020-05-11 lun>
-*** TODO Análisis de sentimientos con Knime
-    SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-11 lun>
+*** DONE Minería de textos con Knime
+    CLOSED: [2020-04-24 vie 13:20] SCHEDULED: <2020-04-09 jue> DEADLINE: <2020-05-11 lun>
+    Terminado pero no entregado
+*** DONE Análisis de sentimientos con Knime
+    CLOSED: [2020-04-24 vie 13:20] SCHEDULED: <2020-04-15 mié> DEADLINE: <2020-05-11 lun>
 ** Técnicas de soft computing para aprendizaje y optimización
-*** IN PROGRESS Trabajo de tercera sesión de algoritmos bioinspirados
-    DEADLINE: <2020-04-19 dom>
+*** DONE Trabajo de tercera sesión de algoritmos bioinspirados
+    CLOSED: [2020-04-20 lun 11:56] DEADLINE: <2020-04-19 dom>
     Terminado pero enviado como borrador
 *** DONE Redes neuronales - Primer guión
     CLOSED: [2020-03-26 jue 10:00] DEADLINE: <2020-04-20 lun>
 *** DONE Redes neuronales - Segundo guión
-    CLOSED: [2020-03-31 mar 12:24] DEADLINE: <2020-04-06 lun>
+*** TODO Trabajo final de la asignatura
+    DEADLINE: <2020-06-07 dom>
 ** Modelos gráficos probabilísticos
 *** DONE Construcción de redes bayesianas con Elvira
     CLOSED: [2020-02-28 vie 18:37] DEADLINE: <2020-03-20 vie>
