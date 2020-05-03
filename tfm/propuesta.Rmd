@@ -1,0 +1,35 @@
+---
+title: "Propuesta de TFM"
+author: "Francisco Luque Sánchez"
+output:
+    pdf_document:
+        template: eisvogel
+        number_sections: no
+---
+
+# Propuesta de TFM
+
+__Nombre del estudiante__: Francisco Luque Sánchez
+
+__Título del TFM__: Deep Learning para el análisis de comportamientos
+en videovigilancia
+
+__Tutores__: Francisco Herrera Triguero, Siham Tabik
+
+__Acordado con tutores__: Sí
+
+__Breve descripción del TFM__: En este TFM se pretende estudiar el uso
+de técnicas de Deep Learning para el análisis de comportamientos de
+individuos en secuencias de vídeo, para su posterior aplicación en
+sistemas de videovigilancia. El alumno estudiará el estado del arte en
+detección de comportamientos anómalos en multitudes, e implementará
+uno de estos sistemas, el cual utilizará un sistema de tracking de
+individuos y posterior detección de patrones de movimiento anómalos.
+
+__Objetivos orientativos del TFM__
+
+- Estudio del estado del arte en análisis de multitudes con Deep Learning.
+- Adaptación de un sistema de _Multiple Object Tracking_ basado en
+  Deep Learning
+- Implementación de un sistema de detección de anomalías basado en
+  trayectorias sobre el tracker anterior
