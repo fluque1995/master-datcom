@@ -34,7 +34,31 @@ rosa_copy(:,:,2) = 0;
 imtool(rosa_copy);
 
 sintetica = imread("sintetica.jpg");
+imtool(sintetica);
 
+% Tomamos una nueva imagen y probamos otro tipo de transformaciones. En
+% primer lugar, vamos a invertir sólo uno de los canales de color. Podemos
+% observar cómo los tonos marrones de la piel, que contienen bastante rojo,
+% ahora se tornan azulados, debido a la falta de este color. En cambio, el
+% pelo, que era negro, se torna rojo, ya que el valor de este canal en esta
+% zona aumenta
 sint_copy = sintetica;
 sint_copy(:,:,1) = 255 - sint_copy(:,:,1);
+imtool(sint_copy);
+
+% Ahora, desplazamos dos de los canales, uno en vertical y otro en
+% horizontal. Esto hace que la imagen se vea distorsionada, porque la
+% silueta del individuo se desalinea entre los tres canales, lo cual da
+% sensación de mareo
+sint_copy = sintetica;
+sint_copy(:,:,1) = circshift(sint_copy(:,:,1), 10, 2);
+sint_copy(:,:,2) = circshift(sint_copy(:,:,2), 10, 1);
+imtool(sint_copy);
+
+% Ahora, reordenamos los canales. El canal rojo pasa a ser el verde, el
+% verde toma el lugar del azul, y el azul toma el lugar del rojo. Podemos
+% observar cómo la imagen se torna verdosa, lo cual nos indica que en la
+% imagen original la mayor parte del color era rojo
+sint_copy = sintetica;
+sint_copy = circshift(sint_copy, 1, 3);
 imtool(sint_copy);

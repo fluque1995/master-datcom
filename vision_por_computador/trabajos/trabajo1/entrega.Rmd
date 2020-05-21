@@ -1,0 +1,323 @@
+---
+title: "Sistemas de visión artificial"
+subtitle: "Visión por computador"
+author: "Francisco Luque Sánchez"
+date: "04/05/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+# Introducción
+
+En este trabajo se van a tratar temas relacionados con los sistemas de
+visión artificial. En una primera sección se dará una perspectiva
+histórica de estos sistemas, así como una descripción general de las
+distintas componentes que los constituyen. A continuación, se darán
+ejemplos de aplicaciones reales que empleen sistemas de visión
+artificial que se utilizan actualmente, y finalmente, se seleccionará
+una aplicación real de las comentadas en el apartado previo y se
+describirá brevemente cómo aborda el problema concreto que la misma
+resuelve, describiendo las distintas etapas que se llevan a cabo.
+
+Comenzamos con un breve repaso histórico sobre estos sistemas.
+
+# Historia de los sistemas de visión artificial
+
+El ser humano ha tratado de reproducir y almacenar de la forma más
+precisa posible la percepción del mundo que obtenía a través de la
+vista. De esta manera, existen evidencias que datan de los siglos
+cuarto y quinto antes de Cristo, en las cuales aparecen descripciones
+más o menos rudimentarias de este sistema y sus posibles aplicaciones
+(nos referimos en particular a las escrituras de Mozi, un filósofo
+chino que la describió en torno al siglo V A.C, o a algunas
+referencias en tratados de Euclides y Teón, en el siglo IV A.C). No
+obstante, las primeras construcciones de este artilugio no aparecen
+hasta el siglo XI, y hasta el año 1826 o 1827 (no está datada con
+seguridad) no se consigue realizar la primera fotografía utilizando
+una cámara de fotos.
+
+Desde este momento, ha existido un creciente interés en dos vertientes
+principales. Por un lado, la captura de imágenes de la forma más
+eficiente posible, dando lugar a fotografías de mejor calidad, que
+representan más fielmente la escena registrada, y a aparatos cada vez
+más pequeños, que consiguen los mismos resultados en menor tiempo y
+ocupando menor espacio. Por otro lado, el procesamiento automático de
+dicha información, para interpretar de manera automática el contenido
+de las imágenes, sin necesidad de que un humano realice esa
+interpretación.
+
+La primera de las vertientes comentadas tiene un desarrollo
+ligeramente más temprano. Como hemos dicho previamente, la primera
+fotografía que se conserva data de principios del siglo XIX. Pocos
+años después, empiezan a hacerse experimentos para registrar
+fotografías en color, en torno al año 1840. La teoría de la
+descomposición del color en tres bandas base aparece publicada en el
+año 1855. Es en esta teoría en la que se sustentan los espacios de
+color RGB (espacio de color aditivo) y CMY (espacio de color
+substractivo).
+
+A partir de este momento, se intenta hacer llegar a un público amplio
+este tipo de dispositivos. Las primeras cámaras comerciales aparecen a
+finales de ese mismo siglo. En particular, la marca Kodak aparece en
+torno al año 1890, siendo una de las primeras empresas dedicadas a la
+fabricación de cámaras fotográficas. Aparece una explosión importante
+de la fotografía con las dos guerras mundiales, particularmente con la
+segunda. El tamaño de las cámaras se había reducido
+significativamente, debido especialmente a la invención del carrete
+fotográfico. Este carrete permitía almacenar las imágenes en un
+espacio reducido, y realizar varias fotografías consecutivas antes de
+cambiar el dispositivo en el que se proyectaban las imágenes, que
+hasta el momento eran placas sólidas de mayor tamaño (ya que se
+conservaba la fotografía final directamente, y no una representación
+intermedia).
+
+La llegada de la segunda guerra mundial provocó un auge importante en
+el área. Empezó a utilizarse la fotografía como una manera de retratar
+la vida diaria tal y como era observada, en lugar de preparar la
+escena previamente. Hasta este momento, la práctica totalidad de las
+fotos que se realizaban consistían en retratos.
+
+A media dos del siglo XX aparecen también las primeras cámaras de
+fotografía instantánea, impulsadas por la marca Polaroid. Estas
+cámaras, de tamaño ligeramente mayor a las cámaras de carrete,
+incorporaban un componente químico que permitía el revelado de las
+fotografías de manera instantánea, sin necesidad de un procesamiento
+posterior en laboratorio, como ocurría con los carretes. Estas cámaras
+popularizaron en gran medida la fotografía en la población, ya que la
+inmediatez con la que se obtenían las fotografías provocó una
+explosión de ventas en los años 60.
+
+En este momento empiezan a aparecer los equipos de fotografía
+profesional, los cuales otorgan mucho más control al fotógrafo a la
+hora de registrar una imagen. Comienzan a utilizarse cámaras que
+permiten el intercambio de lentes, lo cual permite realizar
+instantáneas de muy diversa índole sin necesidad de utilizar aparatos
+completos diferentes. También es notable la invención de los primeros
+dispositivos capaces de registrar y almacenar imágenes en formato
+digital. La gran ventaja de estos dispositivos es su capacidad de
+conservar imágenes en espacios reducidos, ya que no se necesita del
+soporte físico para conservar la imagen, si no que se almacena una
+representación digital de la misma.
+
+En los años venideros, empiezan a diseñarse cámaras que presentan un
+comportamiento inteligente. Las primeras cámaras capaces de enfocar
+automáticamente la escena y decidir el tiempo de exposición y apertura
+del diafragma datan de finales de los años 70. Esto supuso un gran
+avance en la fotografía, he hizo que esta disciplina llegase a una
+gran cantidad de personas, ya que no se necesitaban de conocimientos
+profundos en la técnica para realizar instantáneas de buena calidad.
+En paralelos con estos avances, aparecen los primeros dispositivos
+portátiles capaces de almacenar las imágenes en formato digital.
+
+La llegada del almacenamiento digital de imágenes supone un avance
+espectacular en la capacidad de generar contenido fotográfico, ya que
+simplifica en gran medida el problema de gestionar las imágenes de
+forma analógica. A partir de este momento, la fotografía vive una
+expansión que le hace llegar a todas las capas sociales alrededor del
+mundo, y empiezan a aparecer dispositivos que permiten la grabación de
+imágenes en prácticamente cualquier lugar. En el año 2000, aparece el
+primer teléfono móvil capaz de realizar fotografías. El uso de cámaras
+de videovigilancia se extiende por todo el mundo, y el tamaño de los
+dispositivos de captura de imágenes se reduce enormemente.
+
+Actualmente, existen cámaras capaces de registrar imágenes de alta
+resolución con un tamaño muy reducido, y los sistemas de
+almacenamiento de imágenes son capaces de guardar miles de
+instantáneas en unos pocos milímetros.
+
+La otra vertiente que comentamos tiene que ver con la capacidad de
+procesar automáticamente las imágenes para extraer información de las
+mismas. Este área se desarrolla en paralelo al almacenamiento digital
+de imágenes, ya que resulta imposible realizar este tipo de análisis
+sobre imágenes en soporte físico. Las primeras referencias a este tipo
+de sistemas aparecen en torno a los años 60, prácticamente de forma
+simultánea a la aparición de la fotografía en soporte
+digital. Concretamente, en el año 1963 presenta su tesis Larry
+Roberts, el cual propone un método para extraer información en tres
+dimensiones sobre objetos rígidos a partir de fotografías en dos
+dimensiones.
+
+Este avance, junto con otros que ocurrieron en los años anteriores y
+posteriores (tiene especial relevancia el _Summer Vision Project_ del
+año 1966 en el MIT, que buscaba la identificación de objetos en
+fotografías), produjeron una atención muy importante por parte de la
+comunidad científica, que empezó a tener expectativas poco realistas
+sobre la capacidad de los sistemas de visión artificial. Estas
+expectativas tan elevadas unidas a una desaceleración en los avances
+obtenidos durante los años siguientes, provocaron una lluvia de
+críticas y cierto abandono de este área de investigación durante los
+años 70.
+
+Durante este periodo cabe destacar el trabajo de David Marr, un
+neurocientífico que dedicó sus estudios a entender el funcionamiento
+de la visión humana, dando un esquema en tres etapas por el cual las
+imágenes captadas por la retina llegaban a representaciones en 3D
+complejas en la corteza cerebral.
+
+A finales de los 70 y principios de los 80, el área experimenta un
+resurgimiento, y se producen grandes avances en la temática. En el año
+1979 aparece el modelo _Neocognitron_, que es un precursor de las
+redes neuronales convolucionales que se utilizan actualmente, y que
+representan el estado del arte en el tratamiento automático de
+imágenes.
+
+Con el abaratamiento de los costes de producción y adquisición de
+ordenadores, así como el aumento de la cantidad de información
+disponible, comienzan a aplicarse herramientas matemáticas potentes
+para el tratamiento digital de las imágenes.  En el año 1987 aparece
+el modelo _eigenfaces_, que es una técnica de clasificación de caras
+humanas, la cual consiste en utilizar la descomposición PCA para
+representar rostros, y utilizar esa información para llevar a cabo la
+clasificación. Un año antes, en 1986, se propone el detector de bordes
+de Canny.
+
+En estos años comienza a aplicarse este tipo de tratamientos no sólo a
+imágenes estáticas, si no también a vídeos, los cuales son simplemente
+un conjunto de imágenes que contienen una relación temporal entre
+ellas. Aparecen los primeros intentos de identificar un objeto durante
+sucesivos fotogramas. Aparece en 1991 el tracker de Kanade, Lucas y
+Tomasi, que es uno de los primeros trackers que tuvieron cierta
+precisión.
+
+Comienzan a aparecer a finales del siglo XX y principios del siglo XXI
+los primeros descriptores de imágenes, los cuales son representaciones
+numéricas de una imagen, que permiten su comparación con otras. Por
+ejemplo, el descriptor SIFT aparece por primera vez descrito en el año
+1999, y se patenta en el año 2004 en Estados Unidos. Este descriptor
+sirve para identificar puntos relevantes de una imagen, y se utiliza
+ampliamente en la construcción de fotografías panorámicas. El
+descriptor LBP aparece en el año 1994, y se refina en los años
+posteriores. En el año 2005 se publica el artículo de Dalal y Triggs
+que utiliza el histograma de gradientes orientados para la detección
+de peatones en imágenes.
+
+Además, con la aparición de los chips de cálculo en paralelo,
+especialmente las GPUs, empieza a popularizarse en este momento el uso
+de las redes neuronales convolucionales para realizar tareas de visión
+artificial. Aunque aparecen por primera vez descritas en los años 80,
+no se dispone hasta este momento de la suficiente capacidad de cálculo
+y datos almacenados para utilizar estos modelos en su máximo
+potencial. Es en estos años cuando se descubre la capacidad que tienen
+los mismos, aplicándose con éxito en el problema del reconocimiento de
+dígitos manuscritos. Estos modelos suponen el inicio de la visión
+artificial moderna, y son los que han presentado un desarrollo más
+significativo en estas últimas dos décadas.
+
+# Aplicaciones
+
+Existen multitud de aplicaciones actuales que utilizan en mayor o
+menor medida un sistema de visión artificial dentro de su
+funcionamiento.
+
+Una de las áreas de aplicación de los sistemas de visión artificial
+más antiguas es el control de calidad de líneas industriales. Muchos
+procesos industriales automáticos incorporan cámaras (no
+necesariamente cámaras que visualizan el espectro visible) que
+monitorizan la producción para detectar si se produce algún
+fallo. Otra aplicación clásica en este contexto es la lectura de
+códigos de barras para el seguimiento y distribución automática de
+paquetería.
+
+Otro sistema de visión artificial muy extendido consiste en la
+detección de individuos en cámaras de videovigilancia. Estos sistemas
+suelen emplearse para monitorizar la presencia de personas no
+autorizadas en áreas restringidas.
+
+Actualmente se están desarrollando sistemas de aprendizaje capaces de
+realizar diagnósticos médicos automáticos a partir de imágenes de
+radiografías. Las aplicaciones de visión artificial en medicina están
+cogiendo fuerza en los últimos años.
+
+Dentro de sistemas más complejos, los cuales requieren de la
+utilización de modelos de aprendizaje más profundos, tenemos las
+aplicaciones al campo de la conducción automática o los robos
+interactivos. Este tipo de tecnologías incorporan sensores ópticos que
+les permiten interactuar con su entorno en función del estado del
+mismo. Por ejemplo, los coches autónomos incorporan cámaras para
+conocer el estado del tráfico, las señales presentes en la vía, o los
+límites de la carretera.
+
+Estos sistemas aparecen también en otros muchos lugares, de forma
+mucho más cercana a usuarios no especializados. Google Lens, por
+ejemplo, es un sistema de aprendizaje automático basado en imágenes,
+que permite a los usuarios realizar multitud de tareas a través de la
+cámara de su móvil. Este sistema es capaz de traducir de forma
+automática letreros en otros idiomas, identificar especies de animales
+y plantas, o buscar en tiendas online productos similares a objetos
+que han llamado la atención del usuario.
+
+# Descripción de un sistema real
+
+En este último apartado vamos a describir completamente un sistema
+real basado en visión artificial. En particular, se va a describir el
+funcionamiento de un sistema de detección facial en videovigilancia,
+similar al utilizado por la empresa Herta Security
+(https://www.hertasecurity.com/es), con la cual trabaja un equipo de
+investigación de la Universidad en varios proyectos. No puede darse
+una explicación exacta del sistema debido al secreto comercial, por lo
+que algunas partes se han adaptado y sustituido por modelos similares.
+El sistema trata de identificar individuos sospechosos a través de
+cámaras de videovigilancia. El funcionamiento del sistema es el
+siguiente:
+
+- Se dispone un sistema de cámaras conectadas en red que graban de
+forma continua la zona que se pretende monitorizar. Las grabaciones de
+estas cámaras se mandan a través de una red interna hasta un servidor
+principal, el cual se encarga de la parte de carga computacional del
+sistema.
+- Nada más llegar el flujo de vídeo, debido a que la carga
+computacional del sistema es importante, se descartan 2/3 de los
+fotogramas del vídeo, para trabajar con 10 fps por cada cámara. No es
+necesario trabajar con más información porque muy raramente una
+persona va a estar en escena durante menos de una décima de segundo,
+por lo que potencialmente con esta información es suficiente.
+- En una siguiente etapa, sobre los fotogramas restantes, se aplica el
+detector de rostros de Viola-Jones. Este detector de rostros es un
+modelo de aprendizaje que utiliza un clasificador AdaBoost sobre los
+mapas de activación que se producen al convolucionar una imagen con
+una serie de filtros Haar. Estos filtros representan ciertos patrones
+que suelen estar presentes en una cara, como el eje vertical que
+presenta la línea de la nariz, los distintos ejes horizontales de los
+labios, o los puntos de los ojos.
+- Una vez detectadas las caras en el fotograma correspondiente, se
+alinean los rasgos de cada cara utilizando puntos SIFT. Los puntos
+SIFT de una imagen son ciertos puntos de interés de la misma, los
+cuales aparecen donde el gradiente es máximo. En un rostro, estos
+puntos tienden a agruparse en los labios, la nariz y los ojos, por lo
+que la búsqueda de esta estructura permite, por medio de
+transformaciones afines (giros, escalados y traslaciones), alinear
+dos caras.
+- Una vez las caras han sido alineadas, se utiliza la descomposición
+PCA de la cara a partir de un conjunto de 200 eigenfaces. Estas
+eigenfaces se han calculado previamente a partir de una base de datos
+de entrenamiento, compuesta por las imágenes de los rostros de todas
+las personas sospechosas que han podido ser registradas. Estas
+imágenes también son alineadas previamente, utilizando el método
+anterior.
+- Tras este punto, se tiene una representación de cada cara en el
+fotograma como un vector de 200 valores decimales, correspondientes a
+los coeficientes que ponderan a las 200 eigenfaces que reconstruyen la
+imagen original. De la misma manera, se tienen las mismas
+representaciones de las caras del conjunto de datos de entrenamiento.
+- Finalmente, se utiliza la similaridad del coseno entre las caras del
+fotograma y las caras del conjunto de entrenamiento. Esta métrica mide
+la similaridad entre dos vectores como el coseno del ángulo que
+forman. Por tanto, tenemos para cada pareja (cara en el fotograma,
+cara en la base de datos), un valor entre 0 y 1 que mide la
+similaridad entre esos dos rostros.
+- Se busca la similaridad mayor entre cada cara en el fotograma y la
+base de datos de entrenamiento. Si dicha similaridad es mayor que 0.9,
+se considera que se ha encontrado una coincidencia positiva, y se
+genera una alarma que indica que se ha identificado un sospechoso. Si
+la similaridad es menor que 0.9, se ignora la coincidencia,
+considerando que esa persona no se encuentra en la base de datos y por
+tanto no estamos interesados en ella.

@@ -1,0 +1,72 @@
+---
+title: "Visión por computador"
+header-right: "Cuestiones 1"
+author: "Francisco Luque Sánchez"
+output:
+    pdf_document:
+        template: eisvogel
+        number_sections: no
+---
+
+# Cuestiones 1
+
+1) ¿Qué es una imagen?
+
+Una imagen es una representación visual en dos dimensiones de un
+objeto o escena, real o imaginario. En particular, para nosotros una
+imagen será una representación del mundo en tres dimensiones como una
+matriz.
+
+2) ¿En qué consiste el proceso de digitalización?
+
+El proceso de digitalización consiste en convertir una imagen
+analógica (la cual está representada por una función continua) de
+forma que pueda almacenarse en un soporte digital. De esta manera, en
+el proceso de digitalización se discretiza esta señal continua en
+valores discretos por medio de dos operaciones principales, la
+cuantificación y el muestreo.
+
+3) ¿Qué diferencias hay entre cuantificación y muestreo?
+
+La cuantificación es el proceso por el cual se sustituyen los valores
+de la señal continua a un conjunto discreto de niveles. En el caso de
+las imágenes, consiste en transformar la señal continua en los 256
+valores que definen el nivel en los tres canales de color (cuando se
+trabaja con RGB). El muestreo es el proceso por el cual se seleccionan
+los puntos del intervalo en los cuales se mide el valor de la señal
+continua. En el caso de las imágenes, consiste en seleccionar la
+cuadrícula de puntos en los que se miden las componentes de color.
+
+4) Para que la señal se pueda reconstruir sin pérdida de señal, hay
+que muestrear a una frecuencia 2 veces más alta que la de la propia
+señal. Por tanto, necesitaremos muestrear con un tamaño de al menos 5
+píxeles (el doble de frecuencia implica la mitad de amplitud).
+
+5) Con 20 niveles de gris necesitamos al menos 5 bits, lo que nos
+permite representar $2^5$ = 32 valores distintos. Si tomásemos 4 bits
+sólo podríamos representar 16 niveles.
+
+6) Comentar si son verdaderas o falsas las siguientes afirmaciones
+
+- En el modelo de cámara "pinhole" debemos tener una apertura grande:
+__FALSO__ - Teóricamente, en el modelo _pinhole_ el agujero es un
+único punto, y por tanto, debemos tener el agujero más pequeño
+posible. Un agujero más grande provocaría que cada punto real cubriese
+varios puntos en el plano de proyección, lo que produciría imágenes
+borrosas.
+- La distancia focal es la distancia que existe entre el agujero, en
+el modelo de cámara _pinhole_, y el plano de proyección: __VERDADERO__
+- Un punto P en el mundo real en un modelo de cámara ideal, se
+proyecta en un único punto en el plano de la imagen: __VERDADERO__
+- Un punto P en el plano de imagen se proyecta en un único punto en el
+mundo real: __FALSO__ - Es al revés, es el mundo real el que se
+proyecta en el plano de la imagen. Además, si el modelo no es ideal,
+se proyecta en una región, que se intenta que sea lo más pequeña
+posible.
+
+7) ¿Cuál es el sistema de representación de color que representa el
+color como lo hace el ojo humano?
+
+Los humanos representan el color mediante tres parámetros, el matiz de
+color (Hue), el brillo (Value) y la saturación (Saturation). Estas son
+las tres cantidades que se almacenan en el espacio de color HSV.

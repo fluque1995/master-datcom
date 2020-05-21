@@ -3,15 +3,23 @@
 *** TODO Trabajo final de la asignatura
     DEADLINE: <2020-06-15 lun>
 ** Visión por computador
-*** TODO Cuestiones de evaluación continua
+*** DONE Cuestiones de evaluación continua
+    CLOSED: [2020-05-03 dom 19:19] DEADLINE: <2020-06-07 dom>
+*** DONE Introducción al procesamiento de imágenes digitales con MATLAB
+    CLOSED: [2020-05-03 dom 19:19] DEADLINE: <2020-06-07 dom>
+*** DONE Modelos de color
+    CLOSED: [2020-05-03 dom 19:24] DEADLINE: <2020-06-07 dom>
+*** DONE Transformaciones del histograma
+    CLOSED: [2020-05-09 sáb 13:25] DEADLINE: <2020-06-07 dom>
+*** TODO Convolución y filtrado
     DEADLINE: <2020-06-07 dom>
-*** TODO Introducción al procesamiento de imágenes digitales con MATLAB
-    DEADLINE: <2020-06-07 dom>
-*** TODO Modelos de color
-    DEADLINE: <2020-06-07 dom>
-*** TODO Sistema de Visión Artificial
-    DEADLINE: <2020-06-07 dom>
-*** TODO Lo que oculta una imagen
+*** DONE Sistema de Visión Artificial
+    CLOSED: [2020-05-09 sáb 13:27] DEADLINE: <2020-06-07 dom>
+*** DONE Lo que oculta una imagen
+    CLOSED: [2020-05-09 sáb 13:27] DEADLINE: <2020-06-07 dom>
+*** DONE Algoritmo de Moravec
+    CLOSED: [2020-05-11 lun 19:31] DEADLINE: <2020-06-07 dom>
+*** TODO Transformada de Hotelling
     DEADLINE: <2020-06-07 dom>
 ** Big Data II
 *** DONE Diseño de un experimento ETL con Pig

@@ -1,0 +1,852 @@
+---
+title: "Big Data Analytics - Apache Spark"
+subtitle: "Big Data II"
+author: "Francisco Luque Sánchez"
+date: "13/05/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+toc: true
+toc-title: "Índice"
+toc-own-page: true
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+bibliography: "references.bib"
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+        keep_tex: yes
+---
+
+# Introducción
+
+En este trabajo se va a mostrar cómo puede utilizarse la plataforma
+Apache Spark para resolver un problema de clasificación Big Data. La
+particularidad de los problemas que se abordan desde la perspectiva
+del Big Data reside en la alta dimensionalidad y cantidad de datos de
+los que se dispone, lo cual hace que su procesamiento no pueda ser
+llevado a cabo utilizando métodos convencionales. Otros problemas que
+aparecen cuando se abordan este tipo de problemas residen en la
+velocidad de recepción de los datos, así como en la variedad de
+fuentes de las que se reciben los mismos. No obstante, estos dos
+últimos problemas no serán afrontados en esta práctica debido a que
+contamos con un conjunto de datos estático y correctamente
+estructurado de partida.
+
+Concretamente, el problema que vamos a afrontar consiste en un
+problema de clasificación binaria, el cual afrontaremos con diferentes
+clasificadores, y utilizando distintas técnicas de procesamiento, a
+fin de estudiar cómo mejora la calidad de los datos (medida como la
+mejora en la capacidad de clasificación de nuestros modelos) cuando
+estas medidas de preprocesamiento están presentes. Trabajaremos con un
+conjunto de datos fuertemente desbalanceado, lo cual nos obligará a
+realizar un preprocesado enfocado a paliar esta problemática.
+
+## Conjunto de datos utilizado
+
+El conjunto de datos que se nos proporciona es conocido como Higgs
+Dataset [@baldi2014searching]. En este conjunto de datos se trata
+de discernir si un conjunto de señales está producido por la vibración
+del bosón de Higgs o por un proceso de fondo. Cada señal está
+representada por un conjunto de 28 características, las cuales
+representan propiedades cinéticas de la partícula que ha producido la
+señal. De esas 28 características, las primeras 21 son propiedades
+medibles de la partícula directamente, y las 7 restantes son funciones
+complejas calculadas a partir de las 21 medidas previas, las cuales
+han demostrado ser de utilidad a la hora de distinguir el bosón de
+Higgs del resto de procesos de fondo.
+
+El conjunto de datos viene dividido previamente en conjunto de
+entrenamiento y test. Dichos conjuntos están formados por 1002434 y
+999404 ejemplos, respectivamente. Además, el conjunto presenta un
+fuerte desbalanceo en los datos de entrenamiento (este desbalanceo no
+está presente en el conjunto de test, no obstante). Concretamente,
+tenemos la siguiente proporción de ejemplos:
+
+|                     | Clase positiva | Clase negativa |
+|:--------------------|:--------------:|:--------------:|
+| Conj. entrenamiento | 100.259        | 902.175        |
+| Conj. test          | 528.808        | 470.596        |
+
+Table: Reparto de ejemplos por clases en los conjuntos de entrenamiento y test
+
+Como podemos observar, en el conjunto de datos de entrenamiento más
+del 90 % de los datos pertenecen a la clase negativa, y el 10 %
+restante a la positiva. Este fuerte desbalanceo hará que tengamos que
+poner especial empeño en el preprocesamiento, ya que los algoritmos de
+clasificación tenderán a tener un mal comportamiento, despreciando la
+clase minoritaria. Además, es precisamente en esta clase en la que
+estamos más interesados, ya que es la clase positiva la que contiene
+pocos ejemplos.
+
+Además de las técnicas de preprocesamiento, el desbalanceo nos
+obligará a utilizar métricas de evaluación que tengan en cuenta este
+hecho, ya que existen medidas, como el porcentaje total de aciertos,
+que discriminan a las clases minoritarias, consiguiendo valores muy
+altos cuando estas clases no se clasifican correctamente.
+
+## Aspectos de ejecución e implementación
+
+Todas las ejecuciones se realizarán sobre el servidor hadoop.ugr.es,
+el cual dispone de una instalación de Apache Spark 2.2.0 sobre la
+máquina virtual de Java, versión 8. El lenguaje en el que se
+implementa el código es Scala, versión 2.11.6. Todos los
+clasificadores utilizados están disponibles en la librería MLLib o en
+spark-packages.
+
+## Clasificadores utilizados
+
+En esta práctica vamos a utilizar distintos clasificadores para resolver
+el problema. Los clasificadores empleados son los siguientes:
+
+- Decision Tree: Este algoritmo de clasificación está implementado en
+  la librería MLLib. Es un modelo de árbol de decisión clásico, que se
+  ha incluido debido a los buenos resultados que ofrece en comparación
+  con el tiempo de cómputo que requiere.
+- Random Forest: Este algoritmo también está implementado dentro de
+  MLLib. Consiste en un algoritmo de _ensemble_, el cual se basa en la
+  combinación de las predicciones de distintos árboles de decisión,
+  entrenados sobre distintos subconjuntos del conjunto de datos de
+  entrenamiento original. De esta manera, tenemos un clasificador más
+  robusto que el árbol de decisión, aunque a cambio de cierto aumento
+  en el tiempo de cómputo.
+- PCARD: Este algoritmo es una mejora sobre el algoritmo de Random
+  Forest, que introduce diversidad en el conjunto de datos por medio
+  de discretizaciones aleatorias y PCA. De esta manera, los árboles de
+  decisión que se entrenan están construidos con datos más diversos
+  que en el algoritmo clásico, lo cual otorga robustez a los
+  resultados obtenidos. A cambio, es el algoritmo que más tiempo
+  consume de los basados en árboles que hemos utilizado.
+
+## Medidas de evaluación empleadas
+
+A continuación se describen las medidas de evaluación que se van a
+utilizar para evaluar la bondad de los clasificadores obtenidos.
+
+Debido a que el conjunto de datos de test no sufre el mismo
+desbalanceo que el conjunto de datos de entrenamiento, se podrían
+utilizar las mismas métricas que se utilizan para la clasificación
+balanceada clásica. No obstante, como estaremos especialmente
+interesados en el comportamiento del clasificador sobre la clase
+minoritaria, no utilizaremos exclusivamente la tasa de acierto global
+para medir la bondad de nuestros clasificadores. Además, estaremos
+interesados tanto en los resultados obtenidos sobre el conjunto de
+entrenamiento, lo cual nos permite medir si el proceso de aprendizaje
+está siendo adecuado, y en los resultados sobre el conjunto de test,
+lo cual nos muestra si el modelo está sobreaprendiendo, o si por el
+contrario su comportamiento en train se mantiene sobre el test.  Como
+el conjunto de entrenamiento sí que sufre desbalanceo, la tasa de
+acierto que obtendremos en él no aportará mucha
+información. Utilizaremos, por tanto, las siguientes métricas:
+
+- Tasa de acierto (_accuracy_): Esta medida se define como el número
+  de aciertos entre el total de ejemplos disponibles. Da una medida
+  de la capacidad de clasificación del modelo a nivel global.
+- TPR: Ratio de verdaderos positivos. Esta métrica se define como el
+  porcentaje de elementos de la clase positiva correctamente
+  clasificados. Es una medida de la capacidad del clasificador para
+  detectar ejemplos de la clase positiva. También se conoce como
+  sensibilidad.
+- TNR: Ratio de verdaderos negativos. Esta métrica se define como el
+  porcentaje de elementos de la clase negativa correctamente
+  clasificados. Es una medida de la capacidad del clasificador para
+  detectar ejemplos de la clase negativa. También se conoce como
+  especificidad.
+- TPR*TNR: El producto de las dos métricas anteriores resulta ser un
+  buen indicador de la capacidad de clasificación global del
+  algoritmo, cuando nos referimos al comportamiento de las clases por
+  separado. La ventaja de esta métrica es que devolverá valores bajos
+  si el clasificador tiende a ignorar alguna de las dos clases en la
+  clasificación. De esta forma, podremos identificar aquellos
+  clasificadores que tienen un comportamiento más o menos decente en
+  ambas clases.
+- _F-score_ por clase: Las métricas TPR y TNR mencionadas
+  anteriormente contemplan el porcentaje de ejemplos bien clasificados
+  del total de ejemplos reales de la clase. Similarmente, las métricas
+  PPV y NPV tienen en cuenta el porcentaje de aciertos en función del
+  total de ejemplos clasificados para cada una de las clases (es
+  decir, en lugar de contemplar el total de elementos reales de la
+  clase, se contempla el total de predicciones para la misma). La
+  _F-score_ de cada clase se define como la media armónica de estos
+  dos valores, de forma que se un valor alto en esta métrica representa
+  una capacidad de diferenciación alta para la clase, ya que no se
+  cometen muchos errores ni en forma de falsos positivos ni en forma
+  de falsos negativos.
+
+La métrica en la que estaremos más interesados será el producto del
+TPR y el TNR, ya que es una métrica que nos aporta una visión general
+de la capacidad de clasificación del modelo, obligando a que éste se
+comporte correctamente a la hora de identificar tanto la clase
+positiva como la clase negativa.
+
+# Ejecuciones básicas
+
+En un primer experimento, vamos a ejecutar los cuatro algoritmos con
+el conjunto de datos de base. Esto nos servirá para ver la capacidad
+de predicción de los algoritmos de partida, y será a partir de estas
+puntuaciones con lo que empezaremos a trabajar. Comenzamos mostrando
+los resultados obtenidos sobre el conjunto de entrenamiento:
+
+| Algoritmo     | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:--------------|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.903 | 0.064 | 0.997 | 0.064   | 0.948       | 0.118       |
+| Random Forest | 0.901 | 0.010 | 0.999 | 0.010   | 0.815       | 0.327       |
+| PCARD         | 0.899 | 0     | 1     | 0       | 0.947       | 0           |
+
+Table: Resultados sobre el conjunto de entrenamiento
+
+Como podemos observar, los resultados obtenidos son bastante
+mejorables. Por un lado, podemos observar cómo el desbalanceo en este
+conjunto de datos produce una tasa de acierto anormalmente alta, del
+90 % en todos los casos. Este es el fenómeno que comentamos al
+principio, que debido a que tenemos muchos más datos de una clase que
+de la otra, los resultados de tasa de acierto obtenidos no son
+relevantes, ya que por defecto se consigue cerca de un 90 % de acierto
+sólo prediciendo la clase negativa. Veremos que en el conjunto de
+test, al no existir este desbalanceo, el problema estará mucho más
+mitigado. En cuanto al resto de métricas, observamos que ocurre la
+problemática que veníamos anticipando en la introducción. Los
+clasificadores ignoran por completo la clase minoritaria, obteniendo
+buenos resultados para la clase negativa (el TNR es muy cercano a 1 en
+todos los casos), pero muy malos en la positiva. Esto provoca que el
+producto de ambas métricas sea muy bajo (TPR*TNR). Incluso en el
+extremo, PCARD si siquiera produce respuestas para la clase
+minoritaria, y clasifica todos los elementos dentro de la clase
+negativa.
+
+Veamos si estos resultados se mantienen en el conjunto de test:
+
+| Algoritmo     | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:--------------|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.499 | 0.057 | 0.995 | 0.056   | 0.651       | 0.107       |
+| Random Forest | 0.476 | 0.010 | 0.999 | 0.010   | 0.642       | 0.019       |
+| PCARD         | 0.471 | 0     | 1     | 0       | 0.640       | 0           |
+
+Table: Resultados sobre el conjunto de test
+
+Al igual que nos ocurría anteriormente, los clasificadores ignoran la
+clase minoritaria, centrando su capacidad de predicción en la
+mayoritaria. Como era esperable, al igual que ocurría en el caso
+anterior, PCARD no clasifica ningún ejemplo dentro de la clase
+positiva, y consigue por tanto una puntuación de 0. El balanceo que
+tenemos dentro de este conjunto y que no teníamos en el conjunto de
+entrenamiento ha provocado también que la métrica de tasa de acierto
+empeore notablemente, como se esperaba.
+
+En los próximos apartados vamos a tratar de lidiar con estos problemas
+de diversas maneras, para buscar una mejora en los resultados de los
+clasificadores. Comenzamos aplicando técnicas de tratamiento del
+desbalanceo.
+
+# Tratamiento del desbalanceo
+
+Ya hemos observado que los resultados con el conjunto de datos de
+origen son, por lo general, bastante mejorables. Esto se debe a que
+nos encontramos con un conjunto de datos con un fuerte desbalanceo,
+teniendo 9 veces más datos de la clase negativa que de la positiva. En
+este apartado veremos cómo podemos mejorar los resultados obtenidos
+alterando la distribución de datos del conjunto. En particular,
+utilizaremos dos técnicas de preprocesamiento orientadas al
+tratamiento del desbalanceo:
+
+- _Random Oversampling_ (ROS): Esta técnica consiste en replicar
+  aleatoriamente ejemplos de la clase minoritaria en el conjunto de
+  datos, de forma que el conjunto resultante tenga una mayor
+  proporción de elementos de dicha clase. De esta manera, los
+  clasificadores observarán un conjunto de datos más compensado, y
+  será más difícil que ignoren la clase minoritaria. El principal
+  inconveniente de esta técnica reside en la cantidad de datos que se
+  generan. Si queremos tener la misma cantidad de datos de ambas
+  clases en el conjunto resultante, en nuestro caso, tendríamos un
+  conjunto de datos final de cerca de 1.800.000, lo cual es cerca del
+  doble de datos de los que disponemos. Estamos hablando de un
+  conjunto de datos de gran tamaño, con el sobrecoste de cómputo que
+  conlleva el aumento de datos de una forma tan fuerte.
+- _Random Undersampling_ (RUS): Esta técnica se basa justo en la idea
+  contraria para tratar el desbalanceo. En lugar de replicar ejemplos
+  de la clase minoritaria, en este caso descartaremos aleatoriamente
+  ejemplos de la mayoritaria, consiguiendo así un conjunto de datos
+  más pequeño y compensado. El problema de este algoritmo radica en
+  que, si queremos obtener un conjunto de datos balanceado, es posible
+  que eliminemos demasiada información del conjunto de datos original,
+  empeorando la calidad de los clasificadores al deteriorar las
+  fronteras que separan los datos.
+
+## Random Oversampling
+
+En este apartado mostraremos los resultados obtenidos al aplicar la
+técnica de _Random Oversampling_ sobre nuestros datos con los
+distintos algoritmos de clasificación a distintos ratios de
+desbalanceo. La implementación de ROS de la que disponemos nos permite
+especificar un ratio como parámetro, de forma que se replican los
+datos de la clase minoritaria necesarios para que el conjunto
+resultante tenga esa proporción de elementos de la clase minoritaria
+respecto a los de la clase mayoritaria. De esta manera, si
+especificamos un valor de 1, tendremos la misma cantidad de elementos
+de una clase y de otra. Si especificamos valores menores, generaremos
+menos datos de dicha clase, y tendremos aún desbalanceo en el conjunto
+de datos, con el beneficio de tener conjuntos de datos más reducidos.
+
+Debido a que hay que establecer un compromiso entre el tamaño del
+conjunto de datos y la mejora que se produce por el _Random
+Oversampling_, probaremos con distintos ratios, para ver con qué
+porcentaje de _oversampling_ conseguimos mejores resultados. En
+particular, haremos pruebas para los valores 0.25, 0.5, 0.75 y 1.  Los
+resultados obtenidos se muestran a continuación. Comenzamos con los
+resultados sobre el conjunto de entrenamiento:
+
+| Algoritmo     | Tasa OS | Acc.  | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:-------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.25    | 0.891 | 0.291 | 0.958 | 0.279   | 0.940       | 0.348       |
+|               | 0.5     | 0.844 | 0.475 | 0.885 | 0.420   | 0.911       | 0.378       |
+|               | 0.75    | 0.770 | 0.632 | 0.785 | 0.496   | 0.860       | 0.354       |
+|               | 1       | 0.711 | 0.714 | 0.711 | 0.508   | 0.816       | 0.331       |
+| Random Forest | 0.25    | 0.906 | 0.127 | 0.993 | 0.126   | 0.950       | 0.213       |
+|               | 0.5     | 0.875 | 0.391 | 0.929 | 0.363   | 0.931       | 0.386       |
+|               | 0.75    | 0.805 | 0.591 | 0.829 | 0.490   | 0.885       | 0.378       |
+|               | 1       | 0.727 | 0.715 | 0.728 | 0.521   | 0.828       | 0.344       |
+| PCARD         | 0.25    | 0.900 | 0     | 1     | 0       | 0.947       | 0           |
+|               | 0.5     | 0.901 | 0.065 | 0.994 | 0.064   | 0.948       | 0.116       |
+|               | 0.75    | 0.842 | 0.402 | 0.891 | 0.358   | 0.910       | 0.337       |
+|               | 1       | 0.674 | 0.706 | 0.670 | 0.473   | 0.787       | 0.302       |
+
+Table: Resultados obtenidos tras ROS en el conjunto de datos de entrenamiento
+
+Podemos observar cómo los resultados han mejorado notablemente
+respecto de las ejecuciones iniciales. Para los tres algoritmos,
+podemos observar que cuanto más equilibrados están los conjuntos de
+datos, mejores resultados se obtienen. En particular, con las
+ejecuciones básicas los resultados estaban claramente sesgados a favor
+de la clase mayoritaria, y con el equilibrado de las clases se produce
+un equilibrado equivalente en la capacidad de predicción. Mostramos a
+continuación los resultados sobre el conjunto de test, para comprobar
+si las mejoras obtenidas se mantienen sobre dicho conjunto:
+
+| Algoritmo     | Tasa OS | Acc.  | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:-------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.25    | 0.592 | 0.266 | 0.959 | 0.255   | 0.689       | 0.408       |
+|               | 0.5     | 0.661 | 0.470 | 0.875 | 0.412   | 0.708       | 0.595       |
+|               | 0.75    | 0.685 | 0.576 | 0.808 | 0.466   | 0.707       | 0.660       |
+|               | 1       | 0.697 | 0.683 | 0.713 | 0.487   | 0.689       | 0.705       |
+| Random Forest | 0.25    | 0.534 | 0.127 | 0.991 | 0.126   | 0.667       | 0.224       |
+|               | 0.5     | 0.635 | 0.371 | 0.932 | 0.346   | 0.706       | 0.518       |
+|               | 0.75    | 0.691 | 0.567 | 0.830 | 0.471   | 0.717       | 0.660       |
+|               | 1       | 0.708 | 0.697 | 0.720 | 0.502   | 0.699       | 0.716       |
+| PCARD         | 0.25    | 0.471 | 0     | 1     | 0       | 0.640       | 0           |
+|               | 0.5     | 0.517 | 0.099 | 0.987 | 0.098   | 0.658       | 0.179       |
+|               | 0.75    | 0.618 | 0.355 | 0.915 | 0.324   | 0.693       | 0.496       |
+|               | 1       | 0.682 | 0.688 | 0.676 | 0.465   | 0.667       | 0.697       |
+
+Table: Resultados obtenidos tras ROS en el conjunto de datos de test
+
+Como podemos observar, los resultados siguen siendo buenos sobre el
+conjunto de test, aunque los modelos habían sufrido un ligero
+sobreaprendizaje. Especialmente el árbol de decisión y el _Random
+Forest_, sufren una penalización importante cuando son evaluados sobre
+el conjunto de test. PCARD también experimenta esta pérdida de
+rendimiento, pero de forma menos relevante. Al igual que observamos
+sobre el conjunto de entrenamiento, los resultados obtenidos sobre el
+conjunto de test mejoran paulatinamente, conforme se entrena el modelo
+con un conjunto de datos más balanceado. El principal inconveniente de
+esta técnica radica en que el conjunto de datos resultante es
+significativamente grande, llegando a casi el doble de su tamaño
+original.
+
+## Random Undersampling
+
+En este apartado se muestran los resultados obtenidos mediante la
+técnica de _Random Undersampling_. Como hemos dicho anteriormente, con
+esta técnica afrontaremos el desbalanceo reduciendo el tamaño de la
+clase mayoritaria por medio de un descarte aleatorio de ejemplos de la
+misma. En este caso, la implementación que disponemos del algoritmo
+ROS no nos permite especificar el ratio de desbalanceo que deseamos,
+si no que iguala el número de ejemplos entre las dos clases.
+
+Esta técnica tiene la ventaja de que los conjuntos de datos que se
+generan son mucho más reducidos que en el caso de ROS, pero tiene la
+problemática de que puede producir un empeoramiento en la calidad de
+las soluciones si elimina demasiada información, ya que las fronteras
+de separación de las clases se pierden.
+
+Los resultados obtenidos con este preprocesamiento para nuestro
+conjunto de datos se muestran a continuación. Comenzamos mostrando los
+resultados sobre el conjunto de entrenamiento:
+
+| Algoritmo     | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:--------------|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.709 | 0.707 | 0.710 | 0.501   | 0.815       | 0.327       |
+| Random Forest | 0.726 | 0.707 | 0.729 | 0.515   | 0.827       | 0.341       |
+| PCARD         | 0.693 | 0.675 | 0.695 | 0.469   | 0.803       | 0.306       |
+
+Table: Resultados tras RUS sobre el conjunto de entrenamiento
+
+Observamos que los resultados aquí son bastante buenos, pero no llegan
+a los niveles que obtenía el preprocesamiento basado en oversampling
+del apartado anterior. Los resultados son, en los tres casos,
+ligeramente inferiores a los obtenidos con ROS cuando se obtenía el
+conjunto de datos balanceado. Si observamos los resultados sobre el
+conjunto de test:
+
+| Algoritmo     | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:--------------|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.694 | 0.682 | 0.707 | 0.482   | 0.685       | 0.702       |
+| Random Forest | 0.707 | 0.699 | 0.716 | 0.501   | 0.697       | 0.717       |
+| PCARD         | 0.686 | 0.673 | 0.702 | 0.473   | 0.678       | 0.694       |
+
+Table: Resultados sobre el conjunto de test
+
+Sobre el conjunto de test, los resultados están ligeramente más
+compensados. El sobreajuste que se producía en el apartado anterior,
+aquí está ligeramente más mitigado, y la puntuación que consiguen los
+tres modelos sobre el conjunto de test es muy similar al que obtenían
+con ROS. Además, en este caso, el tamaño del conjunto de datos final
+es mucho más reducido que en el caso de ROS, lo cual puede ser
+beneficioso cuando se trabaja con conjuntos de datos masivos. No
+obstante, la pérdida de información puede ser demasiada, ya que
+estamos hablando de que se descartan cerca del 90 % de los ejemplos de
+la clase negativa. En el siguiente apartado veremos cómo combinar
+ambos enfoques para tener un mejor rendimiento, a la par que conjuntos
+de datos de un tamaño razonable.
+
+# Combinación de ROS y RUS
+
+En el apartado anterior hemos visto los resultados que se obtenían al
+utilizar los algoritmos de _Random Oversampling_ y _Random
+Undersampling_ por separado. El problema que teníamos era, en el
+primer caso, la generación de conjuntos demasiado grandes, y en el
+segundo, la pérdida de demasiada información, ya que el algoritmo
+descartaba cerca del 90 % de los ejemplos de la clase negativa. En
+este apartado vamos a estudiar si la utilización de estos dos
+algoritmos conjuntamente ofrece alguna mejora. Para ello, lo que
+haremos será utilizar ROS sobre el conjunto de datos con un ratio
+estrictamente inferior a 1, y al conjunto resultante le aplicaremos
+RUS para igualar las clases. De esta forma, aprovechamos la potencia
+de los dos preprocesamientos por separado, obteniendo un conjunto
+de datos de tamaño mediano y con las clases compensadas.
+
+En este caso, los ratios de _Oversampling_ con los que
+experimentaremos se moverán entre 0.3 y 0.7, en intervalos de 0.1.
+Los resultados obtenidos son los siguientes. Comenzamos con los
+resultados sobre train:
+
+| Algoritmo     | Tasa OS | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:-------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.3     | 0.711 | 0.707 | 0.711 | 0.503   | 0.816       | 0.328       |
+|               | 0.4     | 0.710 | 0.709 | 0.710 | 0.503   | 0.815       | 0.328       |
+|               | 0.5     | 0.712 | 0.710 | 0.712 | 0.505   | 0.816       | 0.330       |
+|               | 0.6     | 0.709 | 0.712 | 0.708 | 0.505   | 0.814       | 0.329       |
+|               | 0.7     | 0.703 | 0.719 | 0.701 | 0.504   | 0.810       | 0.326       |
+| Random Forest | 0.3     | 0.724 | 0.712 | 0.726 | 0.517   | 0.826       | 0.341       |
+|               | 0.4     | 0.719 | 0.723 | 0.718 | 0.520   | 0.821       | 0.340       |
+|               | 0.5     | 0.729 | 0.710 | 0.731 | 0.520   | 0.829       | 0.344       |
+|               | 0.6     | 0.725 | 0.718 | 0.726 | 0.521   | 0.826       | 0.343       |
+|               | 0.7     | 0.726 | 0.715 | 0.728 | 0.520   | 0.827       | 0.343       |
+| PCARD         | 0.3     | 0.707 | 0.669 | 0.712 | 0.476   | 0.814       | 0.314       |
+|               | 0.4     | 0.699 | 0.670 | 0.703 | 0.471   | 0.808       | 0.308       |
+|               | 0.5     | 0.689 | 0.689 | 0.689 | 0.475   | 0.799       | 0.307       |
+|               | 0.6     | 0.700 | 0.667 | 0.704 | 0.470   | 0.809       | 0.308       |
+|               | 0.7     | 0.705 | 0.668 | 0.709 | 0.473   | 0.812       | 0.312       |
+
+Table: Resultados obtenidos con la combinación de ROS y RUS sobre el
+conjunto de entrenamiento
+
+Podemos observar que los resultados obtenidos son muy deseables. Con
+el árbol de decisión no llegamos a obtener los mismos resultados que
+obtuvimos con el uso de ROS únicamente, pero para el _Random Forest_
+y PCARD conseguimos mejorar los resultados ligeramente, además de
+contar con conjuntos de menor tamaño. En particular, el conjunto de
+datos que se obtiene con con ROS al 0.5 y RUS, tiene un tamaño más o
+menos similar al conjunto de datos de partida, y los clasificadores
+obtienen ahora una puntuación TPR*TNR cercana a 0.5 en ambos casos,
+lo que supone una mejora muy significativa, sin que exista un aumento
+en los tiempos de cómputo, que son similares al tener un conjunto
+de datos del mismo tamaño aproximadamente. Veamos si esta mejora en
+los resultados se mantiene cuando evaluamos los clasificadores sobre
+el conjunto de datos de test:
+
+| Algoritmo     | Tasa OS | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:-------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | 0.3     | 0.691 | 0.691 | 0.697 | 0.482   | 0.682       | 0.705       |
+|               | 0.4     | 0.694 | 0.685 | 0.705 | 0.483   | 0.685       | 0.703       |
+|               | 0.5     | 0.695 | 0.690 | 0.701 | 0.484   | 0.684       | 0.706       |
+|               | 0.6     | 0.695 | 0.688 | 0.704 | 0.484   | 0.685       | 0.705       |
+|               | 0.7     | 0.697 | 0.701 | 0.692 | 0.485   | 0.682       | 0.710       |
+| Random Forest | 0.3     | 0.708 | 0.694 | 0.723 | 0.502   | 0.700       | 0.715       |
+|               | 0.4     | 0.708 | 0.692 | 0.727 | 0.503   | 0.701       | 0.715       |
+|               | 0.5     | 0.708 | 0.693 | 0.726 | 0.503   | 0.701       | 0.715       |
+|               | 0.6     | 0.708 | 0.690 | 0.728 | 0.502   | 0.701       | 0.714       |
+|               | 0.7     | 0.708 | 0.693 | 0.724 | 0.502   | 0.700       | 0.715       |
+| PCARD         | 0.3     | 0.683 | 0.660 | 0.708 | 0.468   | 0.678       | 0.688       |
+|               | 0.4     | 0.686 | 0.667 | 0.708 | 0.472   | 0.680       | 0.692       |
+|               | 0.5     | 0.685 | 0.663 | 0.710 | 0.471   | 0.680       | 0.690       |
+|               | 0.6     | 0.684 | 0.658 | 0.714 | 0.470   | 0.680       | 0.688       |
+|               | 0.7     | 0.689 | 0.673 | 0.707 | 0.476   | 0.682       | 0.696       |
+
+Table: Resultados obtenidos con la combinación de ROS y RUS sobre el
+conjunto de test
+
+De nuevo, se puede concluir que los resultados tras aplicar esta
+combinación de técnicas son, en general, mejores que los obtenidos al
+aplicar las técnicas de forma individual. Para el árbol de decisión no
+hemos conseguido superar los resultados obtenidos por un pequeño
+margen (con ROS se conseguía un TPR*TNR de 0.487 cuando el conjunto de
+datos estaba compensado, y aquí el mejor resultado obtenido es de
+0.485 con un ratio de ROS de 0.7). Aun así, es destacable que el
+resultado es muy cercano al anterior, con un conjunto de datos mucho
+más pequeño. Para _Random Forest_, mejoramos el resultado ligeramente,
+de 0.502 cuando aplicamos ROS con ratio 1, a 0.503 cuando aplicamos
+ROS con ratio 0.4 y después RUS. De nuevo, estamos trabajando con un
+conjunto de datos más pequeño con el que obtenemos resultados de mayor
+calidad. Finalmente, el algoritmo que sufre una mejora más
+significativa es PCARD, que aumenta de 0.473 cuando se aplicaba RUS a
+0.476 cuando se aplica ROS al 0.7 y RUS a continuación. No obstante,
+aquí debemos puntualizar justo lo contrario que anteriormente, ahora
+esta mejora se produce a costa de trabajar con un conjunto de datos
+significativamente más grande.
+
+Otra puntualización que merece la pena realizar llegados a este punto,
+es que el F-score es ligeramente más alto para la clase positiva que
+para la clase negativa. Esto significa que, en general, cuando
+conseguimos compensar el conjunto de datos, los clasificadores tienden
+a clasificar mejor esta clase que la clase negativa. Esto se debe,
+probablemente, al hecho de que la clase positiva está bien definida,
+situada en pequeñas regiones del espacio, pero es una clase difícil de
+reconocer debido a que no se tienen muchos ejemplos de la misma. En
+el momento en que se nivelan las dos clases, los algoritmos comienzan
+a reconocer esta clase con relativa facilidad.
+
+# Filtros de ruido
+
+Normalmente, las fronteras de los conjuntos de datos con un
+desbalanceo tan fuerte como el actual tienden a tener cierto
+ruido. Esto significa que en la zona del espacio en la que se
+encuentran los puntos de una clase, suelen encontrarse ejemplos de la
+otra. Esto produce que en estas zonas del espacio el clasificador
+tenga una pérdida importante de rendimiento. En el contexto del
+desbalanceo, el ruido en los datos se suele traducir en que las zonas
+en las que se encuentran los ejemplos de la clase minoritaria, podemos
+encontrar también una cantidad importante de ejemplos de la clase
+mayoritaria. Las limpiezas de ruido, por tanto, suelen producir una
+mejora significativa en la capacidad de los clasificadores de detectar
+la clase minoritaria, que es uno de los principales problemas que
+queremos abordar.
+
+Para la experimentación con filtros de ruido en Spark, haremos uso de
+la librería `NoiseFramework`. Esta librería implementa 3 filtros
+de ruido distintos.
+
+- HME-BD: Este filtro de ruido está basado en el particionamiento del
+  conjunto de datos en $P$ particiones y el aprendizaje de $P$ _Random
+  Forest_ distintos, cada uno dejando fuera una de las particiones
+  anteriores. Una vez construidos los $P$ clasificadores, se clasifica
+  la partición restante y se eliminan del conjunto de datos los ejemplos
+  mal clasificados, ya que se consideran ruidosos.
+- HTE-BD: Este filtro de ruido tiene un esquema similar al anterior,
+  pero en lugar de entrenar un único clasificador, entrena 3
+  clasificadores distintos, uno basado en RF, otro basado en kNN, y
+  otro basado en regresión logística. La etiqueta que se da a cada
+  ejemplo es una estrategia de voto entre los tres clasificadores. Al
+  igual que en el caso anterior, se eliminan del conjunto de datos
+  aquellos ejemplos que han sido mal clasificados.
+- ENN-BD: Es un filtro de ruido simple, basado en distancias. Para
+  cada ejemplo, se compara su etiqueta con la del ejemplo más
+  cercano. Si dichas etiquetas difieren, se considera que el ejemplo
+  es ruidoso y se elimina.
+
+En el contexto de nuestras ejecuciones, se han aplicado los filtros de
+ruido tras la ejecución de la etapa de balanceo anterior combinando
+ROS y RUS, tomando el valor de _oversampling_ de 0.5. Se decide
+aplicar el filtro de ruido tras el balanceo del conjunto de datos
+debido a que su aplicación sobre el conjunto de datos original
+producía una eliminación casi completa de la clase minoritaria. Debido
+al desbalanceo tan fuerte que hay presente en el conjunto, y el sesgo
+que presentaban los clasificadores a favor de la clase minoritaria en
+las ejecuciones básicas, la clase minoritaria era descartada casi por
+completo si no se aplicaba una técnica de balanceo previa a los
+filtros de ruido. No se incluyen dichas ejecuciones en el guión para
+no alargarlo de manera innecesaria.
+
+A continuación se muestran los resultados obtenidos sobre el conjunto
+de datos de entrenamiento:
+
+| Algoritmo     | Filtro | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | HME    | 0.717 | 0.704 | 0.719 | 0.506   | 0.821       | 0.333       |
+|               | HTE    | 0.725 | 0.690 | 0.729 | 0.503   | 0.827       | 0.334       |
+|               | ENN    | 0.791 | 0.583 | 0.814 | 0.475   | 0.875       | 0.358       |
+| Random Forest | HME    | 0.709 | 0.707 | 0.709 | 0.501   | 0.814       | 0.327       |
+|               | HTE    | 0.718 | 0.696 | 0.721 | 0.502   | 0.822       | 0.331       |
+|               | ENN    | 0.839 | 0.514 | 0.875 | 0.450   | 0.907       | 0.390       |
+| PCARD         | HME    | 0.685 | 0.689 | 0.685 | 0.471   | 0.796       | 0.304       |
+|               | HTE    | 0.693 | 0.672 | 0.696 | 0.467   | 0.803       | 0.305       |
+|               | ENN    | 0.841 | 0.414 | 0.889 | 0.368   | 0.910       | 0.343       |
+
+Table: Resultados obtenidos tras aplicar el filtro de ruido sobre el
+conjunto de entrenamiento
+
+Podemos observar varias cosas en los resultados obtenidos. En primer
+lugar, podemos ver cómo ENN es el filtro que consigue peores
+resultados en todos los casos. Además, es el algoritmo que elimina
+menos elementos de la clase mayoritaria, y es por esto por lo que
+consigue una tasa de acierto alta. No obstante, no consigue limpiar
+correctamente las fronteras de la clase positiva, y los algoritmos de
+clasificación acaban cometiendo demasiados errores para dicha clase.
+Como se puede observar, los resultados de TPR cuando se usa ENN son
+peores que cuando se usan los otros dos filtros en los tres
+algoritmos. Por otra parte, podemos observar que los resultados de
+estas ejecuciones son ligeramente peores que los obtenidos en
+ejecuciones anteriores del la práctica totalidad de los algoritmos, a
+excepción de el árbol de decisión, que obtiene una puntuación
+ligeramente mejor al usar HME que la que conseguía con ROS 0.5 + RUS
+básica, sin filtrar el ruido. No obstante, si medimos los resultados
+utilizando las métricas $F$-score por clase, los resultados han
+mejorado ligeramente. Esto pone de manifiesto que, en función de la
+métrica que utilicemos, podemos llegar a unas conclusiones o a otras.
+Se pone aquí de manifiesto la importancia de seleccionar en cada caso
+una métrica que simbolice realmente lo que queremos medir sobre
+nuestros modelos. En este caso, ya que estamos interesados en la
+métrica TPR*TNR, parece que la aproximación por filtrado de ruido no
+es muy satisfactoria.
+
+Pasamos a comprobar sobre el conjunto de test si se mantienen los
+resultados obtenidos.
+
+
+| Algoritmo     | Filtro | Acc   | TPR   | TNR   | TPR*TNR | $F_0$-score | $F_1$-score |
+|:-------------:|:------:|:-----:|:-----:|:-----:|:-------:|:-----------:|:-----------:|
+| Decision Tree | HME    | 0.700 | 0.685 | 0.717 | 0.491   | 0.692       | 0.707       |
+|               | HTE    | 0.698 | 0.673 | 0.726 | 0.488   | 0.694       | 0.702       |
+|               | ENN    | 0.679 | 0.560 | 0.813 | 0.455   | 0.704       | 0.648       |
+| Random Forest | HME    | 0.699 | 0.688 | 0.713 | 0.490   | 0.691       | 0.708       |
+|               | HTE    | 0.699 | 0.682 | 0.717 | 0.490   | 0.692       | 0.706       |
+|               | ENN    | 0.674 | 0.798 | 0.872 | 0.434   | 0.716       | 0.618       |
+| PCARD         | HME    | 0.685 | 0.693 | 0677  | 0.469   | 0.670       | 0.700       |
+|               | HTE    | 0.681 | 0.678 | 0.685 | 0.464   | 0.669       | 0.692       |
+|               | ENN    | 0.638 | 0.406 | 0.897 | 0.365   | 0.700       | 0.543       |
+
+Table: Resultados obtenidos tras aplicar el filtro de ruido sobre el
+conjunto de test
+
+Aquí podemos observar ciertos resultados interesantes. Por un lado,
+seguimos manteniendo el orden de calidad de los filtros de ruido entre
+sí, con HME y HTE similares, y significativamente mejores que ENN (lo
+cual era esperable debido a que es el más simple de todos). Por otra
+parte, podemos observar que la aplicación de filtros de ruido ha
+supuesto una mejora significativa en cuanto al problema del
+sobreaprendizaje. Mientras que en ejecuciones anteriores la pérdida de
+rendimiento entre entrenamiento y test era notoria, aquí el problema
+está muy mitigado. Tanto es así que para el árbol de decisión, los
+resultados en test son significativamente mejores cuando se aplican
+filtros de ruido que en cualquiera de los preprocesamientos
+anteriores. Para el _random forest_ y PCARD, aunque también se produce
+un sobreaprendizaje menor, lo que produce que los resultados en train
+y test sean prácticamente igual, la pérdida de rendimiento que han
+sufrido ambos algoritmos no compensa la otra mejora, y conseguimos
+peores resultados en test que en ejecuciones anteriores. Esto puede
+indicar también que en el conjunto de datos no haya excesivo ruido
+presente, y que esta etapa de limpieza de ruido pueda no ser necesaria
+para este conjunto de datos. A pesar de esto, se comprueba que son
+métodos de preprocesado útiles, como puede observarse para el caso del
+árbol de decisión
+
+# Reducción de dimensionalidad con PCA
+
+Los conjuntos de datos que se afrontan en problemas de Big Data suelen
+ser conjuntos de datos de alta dimensionalidad. Por esto, conviene
+realizar una etapa de preprocesamiento previa, la cual reduzca el
+número de características que representan el conjunto de datos. Es por
+esto por lo que se han intentado mejorar los resultados obtenidos por
+medio de una técnica de reducción de dimensionalidad, concretamente
+con un análisis de componentes principales (PCA). El algoritmo de PCA
+considera los datos de entrada como vectores pertenecientes a
+$\mathbb{R}^n$, y calcula una base de vectores ortogonales de dicho
+espacio tales que la varianza del conjunto de datos en cada una de
+dichas direcciones es máxima. Este cálculo se realiza a partir de la
+diagonalización de la matriz de covarianzas del conjunto de datos (no
+entraremos en los detalles matemáticos del algoritmo). Una vez
+extraídos los autovectores de la matriz de covarianzas, podemos
+representar cada uno de los ejemplos de nuestro conjunto como una
+combinación lineal de dichos vectores. Los coeficientes de dicha
+combinación lineal serán las nuevas características que definan a
+nuestros ejemplos. Así, tomando los coeficientes de los $k$
+autovectores que tienen los mayores autovalores asociados ($k < n$),
+tenemos una representación reducida de nuestros datos, conservando la
+máxima varianza posible entre ellos.
+
+En nuestra experimentación, hemos tratado de utilizar este método para
+reducir el tamaño de nuestro conjunto de datos. Concretamente, hemos
+reducido a 10 el número de características de nuestro conjunto. De
+esta forma, el tamaño final del dataset es de aproximadamente 1/3 del
+tamaño original (pasamos de 28 a 10 características por cada ejemplo).
+Una vez hecha la reducción, hemos ejecutado los cuatro algoritmos con
+tres conjuntos de entrada distintos; el conjunto de datos completo, el
+conjunto de datos aplicando ROS con ratio 1, y el conjunto de datos
+aplicando RUS. Los resultados obtenidos se muestran a
+continuación. Comenzamos por los resultados sobre el conjunto de
+entrenamiento:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados sobre el conjunto de entrenamiento}\tabularnewline
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+& Orig. & 0.900 & 0.003 & 0.999 & 0.003 & 0.947 & 0.006\tabularnewline
+Decision Tree & ROS & 0.489 & 0.707 & 0.465 & 0.329 & 0.621 &
+0.217\tabularnewline
+& RUS & 0.457 & 0.753 & 0.424 & 0.319 & 0.584 & 0.217\tabularnewline
+\midrule
+& Orig. & 0.899 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+Random Forest & ROS & 0.462 & 0.778 & 0.427 & 0.332 & 0.588 &
+0.224\tabularnewline
+& RUS & 0.473 & 0.766 & 0.440 & 0.337 & 0.600 & 0.225\tabularnewline
+\midrule
+& Orig. & 0.899 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+PCARD & ROS & 0.321 & 0.829 & 0.265 & 0.219 & 0.412 &
+0.196\tabularnewline
+& RUS & 0.381 & 0.802 & 0.334 & 0.268 & 0.492 & 0.206\tabularnewline
+\bottomrule
+\end{longtable}
+
+Como podemos observar, los resultados son bastante mejorables en todos
+los casos. Esta técnica ha supuesto un empeoramiento importante en el
+rendimiento de los algoritmo. Esto nos indica que la información
+contenida en el conjunto de datos no es redundante, y el número de
+características que aportan información es, al menos, mayor que el
+número de características que hemos seleccionado. Vemos a continuación
+si este empeoramiento de resultados sobre el conjunto de entrenamiento
+se refleja también sobre el conjunto de test.
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados sobre el conjunto de test}\tabularnewline
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+& Orig. & 0.471 & 0.001 & 0.999 & 0.001 & 0.640 & 0.001\tabularnewline
+Decision Tree & ROS & 0.590 & 0.751 & 0.409 & 0.307 & 0.484 &
+0.659\tabularnewline
+& RUS & 0.588 & 0.735 & 0.422 & 0.310 & 0.491 & 0.654\tabularnewline
+\midrule
+& Orig. & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+Random Forest & ROS & 0.606 & 0.752 & 0.441 & 0.332 & 0.516 &
+0.669\tabularnewline
+& RUS & 0.606 & 0.755 & 0.439 & 0.332 & 0.512 & 0.670\tabularnewline
+\midrule
+& Orig. & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+PCARD & ROS & 0.568 & 0.881 & 0.215 & 0.190 & 0.319 &
+0.683\tabularnewline
+& RUS & 0.577 & 0.772 & 0.358 & 0.277 & 0.444 & 0.659\tabularnewline
+\bottomrule
+\end{longtable}
+
+En efecto, los resultados en test son también de mala calidad, por lo
+que podemos confirmar que esta reducción de dimensionalidad no ha
+obtenido resultados satisfactorios. Podemos confirmar, por tanto, que
+las componentes principales que hemos escogido no representan
+fielmente el conjunto de datos de partida. Debido a que el
+empeoramiento sufrido es muy significativo, no continuaremos
+explorando esta vía.
+
+# Conclusiones y trabajo futuro
+
+En esta práctica se ha estudiado cómo puede resolverse un problema de
+clasificación binaria utilizando técnicas basadas en el enfoque Big
+Data. Se ha estudiado la capacidad de clasificación de tres
+clasificadores binarios trabajando con un conjunto de datos de gran
+tamaño, con más de un millón de instancias. Además, el conjunto de
+datos estaba fuertemente desbalanceado, con cerca del 90 % de las
+instancias en la clase negativa. Por este motivo, se han aplicado
+técnicas de preprocesamiento enfocadas al tratamiento del desbalanceo,
+obteniéndose buenos resultados tras el uso de las mismas. Además, se
+han aplicado técnicas de reducción de dimensionalidad para intentar
+reducir el tamaño del conjunto de datos.
+
+Se han obtenido las siguientes conclusiones tras la ejecución de los
+experimentos:
+
+- El uso de los algoritmos sobre conjuntos de datos con alto
+desbalanceo provocan normalmente la obtención de malos resultados,
+debido a que se tiende a ignorar la clase minoritaria. Además, al ser
+esta clase la que más nos interesa detectar correctamente, resulta
+poco adecuado utilizar los clasificadores sin un preprocesado previo
+del conjunto de datos.
+- Tras la aplicación de _Random Oversampling_, los resultados mejoran
+notablemente, siendo mejores cuanto más compensado está el conjunto.
+No obstante, este enfoque puede suponer que el conjunto de datos final
+tenga un tamaño demasiado grande.
+- Tras la aplicación de _Random Undersampling_, los resultados obtenidos
+son bastante buenos, pero se está descartando demasiada información al
+eliminar tantos ejemplos de la clase mayoritaria.
+- La aplicación de las dos técnicas anteriores combinadas aprovecha
+las ventajas de ambos procesamientos conjuntamente. Por un lado,
+conseguimos aumentar el número de ejemplos de la clase minoritaria de
+forma no excesiva, y por otro reducimos el tamaño del conjunto final
+descartando algunos ejemplos de la clase mayoritaria, pero sin descartar
+tanta información como aplicando RUS únicamente, ya que ahora el número
+de ejemplos de la clase minoritaria no es tan pequeño. Este enfoque es el
+que mejores resultados arroja, consiguiendo las mejores puntuaciones,
+y haciendo que los algoritmos trabajen con conjuntos de datos de un tamaño
+similar al original.
+- La aplicación de filtros de ruido puede mejorar los resultados de los
+algoritmos que tienden al sobreajuste, como hemos comprobado con los
+árboles de decisión. No obstante, producen un empeoramiento ligero de
+los resultados en aquellos algoritmos que evitan el sobreajuste con otros
+métodos, como pueden ser los modelos basados en _ensembles_, como PCARD
+o _Random Forest_.
+- En cuanto a los algoritmos empleados, _Random Forest_ ha demostrado
+ser el mejor clasificador sobre este conjunto de datos, superando
+claramente a los árboles de decisión simples y a PCARD. PCARD es el
+algoritmo que peores resultados arroja, probablemente debido a que la
+configuración de parámetros empleada no sea óptima. Además, PCARD
+utiliza el algoritmo de reducción de dimensionalidad PCA, que se ha
+comprobado que produce una pérdida de calidad importante para este
+conjunto de datos. Esta problemática puede ser también el motivo por
+el que los resultados no son tan buenos como los obtenidos por _Random
+Forest_.
+- Todas las columnas del conjunto de datos tienen información relevante,
+ya que la reducción de dimensionalidad llevada a cabo ha producido un
+empeoramiento significativo de los resultados.
+
+Las conclusiones extraídas del análisis anterior señalan posibles vías
+de actuación futuras, que se exponen a continuación:
+
+- La aplicación de distintos clasificadores puede mejorar los
+resultados obtenidos. Los tres clasificadores empleados en la práctica
+están basados en árboles. La utilización de clasificadores basados en
+otras técnicas, como kNN, podrían llevar a mejores resultados. Se han
+realizado varias pruebas con este algoritmo, pero debido a que los
+tiempos de cómputo se disparan se ha abandonado esa vía.
+- La aplicación de técnicas de balanceo de datos ha demostrado ser
+eficaz, pero las dos técnicas empleadas son relativamente simples. La
+utilización de técnicas más sofisticadas, como SMOTE, que genera
+ejemplos sintéticos por medio de combinaciones de ejemplos reales de
+la clase minoritaria, podría mejorar los resultados obtenidos.
+- La utilización de métodos de ensemble que combinen las salidas de
+los clasificadores anteriores podría producir otra mejora. No
+obstante, se ha descartado estudiar esta vía ya que los clasificadores
+empleados se basan en técnicas muy similares, por lo que los ejemplos
+bien clasificados por los tres algoritmos serán más o menos los mismos.
+Para utilizar métodos de ensemble es recomendable utilizar modelos que
+se basen en estrategias de clasificación distintas, para aprovechar todo
+su potencial, y que sus salidas estén poco correladas.
+
+
+
+
+# Referencias

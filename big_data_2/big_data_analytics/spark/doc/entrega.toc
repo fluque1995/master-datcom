@@ -1,0 +1,15 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}{section.1}% 
+\contentsline {subsection}{\numberline {1.1}Conjunto de datos utilizado}{3}{subsection.1.1}% 
+\contentsline {subsection}{\numberline {1.2}Aspectos de ejecuci\IeC {\'o}n e implementaci\IeC {\'o}n}{4}{subsection.1.2}% 
+\contentsline {subsection}{\numberline {1.3}Clasificadores utilizados}{4}{subsection.1.3}% 
+\contentsline {subsection}{\numberline {1.4}Medidas de evaluaci\IeC {\'o}n empleadas}{5}{subsection.1.4}% 
+\contentsline {section}{\numberline {2}Ejecuciones b\IeC {\'a}sicas}{6}{section.2}% 
+\contentsline {section}{\numberline {3}Tratamiento del desbalanceo}{7}{section.3}% 
+\contentsline {subsection}{\numberline {3.1}Random Oversampling}{8}{subsection.3.1}% 
+\contentsline {subsection}{\numberline {3.2}Random Undersampling}{10}{subsection.3.2}% 
+\contentsline {section}{\numberline {4}Combinaci\IeC {\'o}n de ROS y RUS}{11}{section.4}% 
+\contentsline {section}{\numberline {5}Filtros de ruido}{14}{section.5}% 
+\contentsline {section}{\numberline {6}Reducci\IeC {\'o}n de dimensionalidad con PCA}{17}{section.6}% 
+\contentsline {section}{\numberline {7}Conclusiones y trabajo futuro}{19}{section.7}% 
+\contentsline {section}{Referencias}{20}{section*.2}% 

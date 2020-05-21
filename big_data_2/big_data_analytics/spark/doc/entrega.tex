@@ -1,0 +1,1381 @@
+%%
+% Copyright (c) 2017 - 2019, Pascal Wagler;
+% Copyright (c) 2014 - 2019, John MacFarlane
+%
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions
+% are met:
+%
+% - Redistributions of source code must retain the above copyright
+% notice, this list of conditions and the following disclaimer.
+%
+% - Redistributions in binary form must reproduce the above copyright
+% notice, this list of conditions and the following disclaimer in the
+% documentation and/or other materials provided with the distribution.
+%
+% - Neither the name of John MacFarlane nor the names of other
+% contributors may be used to endorse or promote products derived
+% from this software without specific prior written permission.
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+% "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+% LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+% FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+% COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+% INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+% BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
+%%
+
+%%
+% This is the Eisvogel pandoc LaTeX template.
+%
+% For usage information and examples visit the official GitHub page:
+% https://github.com/Wandmalfarbe/pandoc-latex-template
+%%
+
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*,table}{xcolor}
+%
+\documentclass[
+  a4paper,
+,tablecaptionabove
+]{scrartcl}
+\usepackage{lmodern}
+\usepackage{setspace}
+\setstretch{1.2}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\renewcommand{\verbatim@font}{\ttfamily\scriptsize}
+\makeatother
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Big Data Analytics - Apache Spark},
+  pdfauthor={Francisco Luque Sánchez},
+  colorlinks=true,
+  linkcolor=default-linkcolor,
+  filecolor=default-filecolor,
+  citecolor=default-citecolor,
+  urlcolor=blue,
+  breaklinks=true,
+  pdfcreator={LaTeX via pandoc with the Eisvogel template}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,]{geometry}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{3}
+
+% Make use of float-package and set default placement for figures to H.
+% The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
+\usepackage{float}
+\floatplacement{figure}{H}
+
+
+\title{Big Data Analytics - Apache Spark}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Big Data II}
+\author{Francisco Luque Sánchez}
+\date{20/05/2020}
+
+
+
+%%
+%% added
+%%
+
+%
+% language specification
+%
+% If no language is specified, use English as the default main document language.
+%
+
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[shorthands=off,main=english]{babel}
+\else
+    % Workaround for bug in Polyglossia that breaks `\familydefault` when `\setmainlanguage` is used.
+  % See https://github.com/Wandmalfarbe/pandoc-latex-template/issues/8
+  % See https://github.com/reutenauer/polyglossia/issues/186
+  % See https://github.com/reutenauer/polyglossia/issues/127
+  \renewcommand*\familydefault{\sfdefault}
+    % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+  \usepackage{polyglossia}
+  \setmainlanguage[]{english}
+\fi
+
+
+
+%
+% for the background color of the title page
+%
+\usepackage{pagecolor}
+\usepackage{afterpage}
+\usepackage{tikz}
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering]{geometry}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% When using babel or polyglossia with biblatex, loading csquotes is recommended
+% to ensure that quoted texts are typeset according to the rules of your main language.
+%
+\usepackage{csquotes}
+
+%
+% captions
+%
+\definecolor{caption-color}{HTML}{777777}
+\usepackage[font={stretch=1.2}, textfont={color=caption-color}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+%
+% blockquote
+%
+\definecolor{blockquote-border}{RGB}{221,221,221}
+\definecolor{blockquote-text}{RGB}{119,119,119}
+\usepackage{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% Source Sans Pro as the de­fault font fam­ily
+% Source Code Pro for monospace text
+%
+% 'default' option sets the default
+% font family to Source Sans Pro, not \sfdefault.
+%
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+  \else % if not pdftex
+    \usepackage[default]{sourcesanspro}
+  \usepackage{sourcecodepro}
+
+  % XeLaTeX specific adjustments for straight quotes: https://tex.stackexchange.com/a/354887
+  % This issue is already fixed (see https://github.com/silkeh/latex-sourcecodepro/pull/5) but the
+  % fix is still unreleased.
+  % TODO: Remove this workaround when the new version of sourcecodepro is released on CTAN.
+  \ifxetex
+    \makeatletter
+    \defaultfontfeatures[\ttfamily]
+      { Numbers   = \sourcecodepro@figurestyle,
+        Scale     = \SourceCodePro@scale,
+        Extension = .otf }
+    \setmonofont
+      [ UprightFont    = *-\sourcecodepro@regstyle,
+        ItalicFont     = *-\sourcecodepro@regstyle It,
+        BoldFont       = *-\sourcecodepro@boldstyle,
+        BoldItalicFont = *-\sourcecodepro@boldstyle It ]
+      {SourceCodePro}
+    \makeatother
+  \fi
+  \fi
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{40,40,40}
+\addtokomafont{section}{\color{heading-color}}
+% When using the classes report, scrreprt, book,
+% scrbook or memoir, uncomment the following line.
+%\addtokomafont{chapter}{\color{heading-color}}
+
+%
+% variables for title and author
+%
+\usepackage{titling}
+\title{Big Data Analytics - Apache Spark}
+\author{Francisco Luque Sánchez}
+
+%
+% tables
+%
+
+\definecolor{table-row-color}{HTML}{F5F5F5}
+\definecolor{table-rule-color}{HTML}{999999}
+
+%\arrayrulecolor{black!40}
+\arrayrulecolor{table-rule-color}     % color of \toprule, \midrule, \bottomrule
+\setlength\heavyrulewidth{0.3ex}      % thickness of \toprule, \bottomrule
+\renewcommand{\arraystretch}{1.3}     % spacing (padding)
+
+
+%
+% remove paragraph indention
+%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+%
+%
+% Listings
+%
+%
+
+
+%
+% header and footer
+%
+\usepackage{fancyhdr}
+
+\fancypagestyle{eisvogel-header-footer}{
+  \fancyhead{}
+  \fancyfoot{}
+  \lhead[20/05/2020]{Big Data Analytics - Apache Spark}
+  \chead[]{}
+  \rhead[Big Data Analytics - Apache Spark]{20/05/2020}
+  \lfoot[\thepage]{Francisco Luque Sánchez}
+  \cfoot[]{}
+  \rfoot[Francisco Luque Sánchez]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{eisvogel-header-footer}
+
+%%
+%% end added
+%%
+
+\begin{document}
+
+%%
+%% begin titlepage
+%%
+\begin{titlepage}
+\newgeometry{top=2cm, right=4cm, bottom=3cm, left=4cm}
+\tikz[remember picture,overlay] \node[inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{background.pdf}};
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{5F5F5F}
+\makebox[0pt][l]{\colorRule[435488]{1.3\textwidth}{4pt}}
+\par
+\noindent
+
+% The titlepage with a background image has other text spacing and text size
+{
+  \setstretch{2}
+  \vfill
+  \vskip -8em
+  \noindent {\huge \textbf{\textsf{Big Data Analytics - Apache Spark}}}
+    \vskip 1em
+  {\Large \textsf{Big Data II}}
+    \vskip 2em
+  \noindent {\Large \textsf{Francisco Luque Sánchez} \vskip 0.6em \textsf{20/05/2020}}
+  \vfill
+}
+
+
+\end{flushleft}
+\end{titlepage}
+\restoregeometry
+
+%%
+%% end titlepage
+%%
+
+
+
+\renewcommand*\contentsname{Índice}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+\newpage
+}
+\hypertarget{introducciuxf3n}{%
+\section{Introducción}\label{introducciuxf3n}}
+
+En este trabajo se va a mostrar cómo puede utilizarse la plataforma
+Apache Spark para resolver un problema de clasificación Big Data. La
+particularidad de los problemas que se abordan desde la perspectiva del
+Big Data reside en la alta dimensionalidad y cantidad de datos de los
+que se dispone, lo cual hace que su procesamiento no pueda ser llevado a
+cabo utilizando métodos convencionales. Otros problemas que aparecen
+cuando se abordan este tipo de problemas residen en la velocidad de
+recepción de los datos, así como en la variedad de fuentes de las que se
+reciben los mismos. No obstante, estos dos últimos problemas no serán
+afrontados en esta práctica debido a que contamos con un conjunto de
+datos estático y correctamente estructurado de partida.
+
+Concretamente, el problema que vamos a afrontar consiste en un problema
+de clasificación binaria, el cual afrontaremos con diferentes
+clasificadores, y utilizando distintas técnicas de procesamiento, a fin
+de estudiar cómo mejora la calidad de los datos (medida como la mejora
+en la capacidad de clasificación de nuestros modelos) cuando estas
+medidas de preprocesamiento están presentes. Trabajaremos con un
+conjunto de datos fuertemente desbalanceado, lo cual nos obligará a
+realizar un preprocesado enfocado a paliar esta problemática.
+
+\hypertarget{conjunto-de-datos-utilizado}{%
+\subsection{Conjunto de datos
+utilizado}\label{conjunto-de-datos-utilizado}}
+
+El conjunto de datos que se nos proporciona es conocido como Higgs
+Dataset (Baldi, Sadowski, and Whiteson 2014). En este conjunto de datos
+se trata de discernir si un conjunto de señales está producido por la
+vibración del bosón de Higgs o por un proceso de fondo. Cada señal está
+representada por un conjunto de 28 características, las cuales
+representan propiedades cinéticas de la partícula que ha producido la
+señal. De esas 28 características, las primeras 21 son propiedades
+medibles de la partícula directamente, y las 7 restantes son funciones
+complejas calculadas a partir de las 21 medidas previas, las cuales han
+demostrado ser de utilidad a la hora de distinguir el bosón de Higgs del
+resto de procesos de fondo.
+
+El conjunto de datos viene dividido previamente en conjunto de
+entrenamiento y test. Dichos conjuntos están formados por 1002434 y
+999404 ejemplos, respectivamente. Además, el conjunto presenta un fuerte
+desbalanceo en los datos de entrenamiento (este desbalanceo no está
+presente en el conjunto de test, no obstante). Concretamente, tenemos la
+siguiente proporción de ejemplos:
+
+\begin{longtable}[]{@{}lcc@{}}
+\caption{Reparto de ejemplos por clases en los conjuntos de
+entrenamiento y test}\tabularnewline
+\toprule
+& Clase positiva & Clase negativa\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& Clase positiva & Clase negativa\tabularnewline
+\midrule
+\endhead
+Conj. entrenamiento & 100.259 & 902.175\tabularnewline
+Conj. test & 528.808 & 470.596\tabularnewline
+\bottomrule
+\end{longtable}
+
+Como podemos observar, en el conjunto de datos de entrenamiento más del
+90 \% de los datos pertenecen a la clase negativa, y el 10 \% restante a
+la positiva. Este fuerte desbalanceo hará que tengamos que poner
+especial empeño en el preprocesamiento, ya que los algoritmos de
+clasificación tenderán a tener un mal comportamiento, despreciando la
+clase minoritaria. Además, es precisamente en esta clase en la que
+estamos más interesados, ya que es la clase positiva la que contiene
+pocos ejemplos.
+
+Además de las técnicas de preprocesamiento, el desbalanceo nos obligará
+a utilizar métricas de evaluación que tengan en cuenta este hecho, ya
+que existen medidas, como el porcentaje total de aciertos, que
+discriminan a las clases minoritarias, consiguiendo valores muy altos
+cuando estas clases no se clasifican correctamente.
+
+\hypertarget{aspectos-de-ejecuciuxf3n-e-implementaciuxf3n}{%
+\subsection{Aspectos de ejecución e
+implementación}\label{aspectos-de-ejecuciuxf3n-e-implementaciuxf3n}}
+
+Todas las ejecuciones se realizarán sobre el servidor hadoop.ugr.es, el
+cual dispone de una instalación de Apache Spark 2.2.0 sobre la máquina
+virtual de Java, versión 8. El lenguaje en el que se implementa el
+código es Scala, versión 2.11.6. Todos los clasificadores utilizados
+están disponibles en la librería MLLib o en spark-packages.
+
+\hypertarget{clasificadores-utilizados}{%
+\subsection{Clasificadores utilizados}\label{clasificadores-utilizados}}
+
+En esta práctica vamos a utilizar distintos clasificadores para resolver
+el problema. Los clasificadores empleados son los siguientes:
+
+\begin{itemize}
+\tightlist
+\item
+  Decision Tree: Este algoritmo de clasificación está implementado en la
+  librería MLLib. Es un modelo de árbol de decisión clásico, que se ha
+  incluido debido a los buenos resultados que ofrece en comparación con
+  el tiempo de cómputo que requiere.
+\item
+  Random Forest: Este algoritmo también está implementado dentro de
+  MLLib. Consiste en un algoritmo de \emph{ensemble}, el cual se basa en
+  la combinación de las predicciones de distintos árboles de decisión,
+  entrenados sobre distintos subconjuntos del conjunto de datos de
+  entrenamiento original. De esta manera, tenemos un clasificador más
+  robusto que el árbol de decisión, aunque a cambio de cierto aumento en
+  el tiempo de cómputo.
+\item
+  PCARD: Este algoritmo es una mejora sobre el algoritmo de Random
+  Forest, que introduce diversidad en el conjunto de datos por medio de
+  discretizaciones aleatorias y PCA. De esta manera, los árboles de
+  decisión que se entrenan están construidos con datos más diversos que
+  en el algoritmo clásico, lo cual otorga robustez a los resultados
+  obtenidos. A cambio, es el algoritmo que más tiempo consume de los
+  basados en árboles que hemos utilizado.
+\end{itemize}
+
+\hypertarget{medidas-de-evaluaciuxf3n-empleadas}{%
+\subsection{Medidas de evaluación
+empleadas}\label{medidas-de-evaluaciuxf3n-empleadas}}
+
+A continuación se describen las medidas de evaluación que se van a
+utilizar para evaluar la bondad de los clasificadores obtenidos.
+
+Debido a que el conjunto de datos de test no sufre el mismo desbalanceo
+que el conjunto de datos de entrenamiento, se podrían utilizar las
+mismas métricas que se utilizan para la clasificación balanceada
+clásica. No obstante, como estaremos especialmente interesados en el
+comportamiento del clasificador sobre la clase minoritaria, no
+utilizaremos exclusivamente la tasa de acierto global para medir la
+bondad de nuestros clasificadores. Además, estaremos interesados tanto
+en los resultados obtenidos sobre el conjunto de entrenamiento, lo cual
+nos permite medir si el proceso de aprendizaje está siendo adecuado, y
+en los resultados sobre el conjunto de test, lo cual nos muestra si el
+modelo está sobreaprendiendo, o si por el contrario su comportamiento en
+train se mantiene sobre el test. Como el conjunto de entrenamiento sí
+que sufre desbalanceo, la tasa de acierto que obtendremos en él no
+aportará mucha información. Utilizaremos, por tanto, las siguientes
+métricas:
+
+\begin{itemize}
+\tightlist
+\item
+  Tasa de acierto (\emph{accuracy}): Esta medida se define como el
+  número de aciertos entre el total de ejemplos disponibles. Da una
+  medida de la capacidad de clasificación del modelo a nivel global.
+\item
+  TPR: Ratio de verdaderos positivos. Esta métrica se define como el
+  porcentaje de elementos de la clase positiva correctamente
+  clasificados. Es una medida de la capacidad del clasificador para
+  detectar ejemplos de la clase positiva. También se conoce como
+  sensibilidad.
+\item
+  TNR: Ratio de verdaderos negativos. Esta métrica se define como el
+  porcentaje de elementos de la clase negativa correctamente
+  clasificados. Es una medida de la capacidad del clasificador para
+  detectar ejemplos de la clase negativa. También se conoce como
+  especificidad.
+\item
+  TPR*TNR: El producto de las dos métricas anteriores resulta ser un
+  buen indicador de la capacidad de clasificación global del algoritmo,
+  cuando nos referimos al comportamiento de las clases por separado. La
+  ventaja de esta métrica es que devolverá valores bajos si el
+  clasificador tiende a ignorar alguna de las dos clases en la
+  clasificación. De esta forma, podremos identificar aquellos
+  clasificadores que tienen un comportamiento más o menos decente en
+  ambas clases.
+\item
+  \emph{F-score} por clase: Las métricas TPR y TNR mencionadas
+  anteriormente contemplan el porcentaje de ejemplos bien clasificados
+  del total de ejemplos reales de la clase. Similarmente, las métricas
+  PPV y NPV tienen en cuenta el porcentaje de aciertos en función del
+  total de ejemplos clasificados para cada una de las clases (es decir,
+  en lugar de contemplar el total de elementos reales de la clase, se
+  contempla el total de predicciones para la misma). La \emph{F-score}
+  de cada clase se define como la media armónica de estos dos valores,
+  de forma que se un valor alto en esta métrica representa una capacidad
+  de diferenciación alta para la clase, ya que no se cometen muchos
+  errores ni en forma de falsos positivos ni en forma de falsos
+  negativos.
+\end{itemize}
+
+La métrica en la que estaremos más interesados será el producto del TPR
+y el TNR, ya que es una métrica que nos aporta una visión general de la
+capacidad de clasificación del modelo, obligando a que éste se comporte
+correctamente a la hora de identificar tanto la clase positiva como la
+clase negativa.
+
+\hypertarget{ejecuciones-buxe1sicas}{%
+\section{Ejecuciones básicas}\label{ejecuciones-buxe1sicas}}
+
+En un primer experimento, vamos a ejecutar los cuatro algoritmos con el
+conjunto de datos de base. Esto nos servirá para ver la capacidad de
+predicción de los algoritmos de partida, y será a partir de estas
+puntuaciones con lo que empezaremos a trabajar. Comenzamos mostrando los
+resultados obtenidos sobre el conjunto de entrenamiento:
+
+\begin{longtable}[]{@{}lcccccc@{}}
+\caption{Resultados sobre el conjunto de entrenamiento}\tabularnewline
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.903 & 0.064 & 0.997 & 0.064 & 0.948 &
+0.118\tabularnewline
+Random Forest & 0.901 & 0.010 & 0.999 & 0.010 & 0.815 &
+0.327\tabularnewline
+PCARD & 0.899 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+\bottomrule
+\end{longtable}
+
+Como podemos observar, los resultados obtenidos son bastante mejorables.
+Por un lado, podemos observar cómo el desbalanceo en este conjunto de
+datos produce una tasa de acierto anormalmente alta, del 90 \% en todos
+los casos. Este es el fenómeno que comentamos al principio, que debido a
+que tenemos muchos más datos de una clase que de la otra, los resultados
+de tasa de acierto obtenidos no son relevantes, ya que por defecto se
+consigue cerca de un 90 \% de acierto sólo prediciendo la clase
+negativa. Veremos que en el conjunto de test, al no existir este
+desbalanceo, el problema estará mucho más mitigado. En cuanto al resto
+de métricas, observamos que ocurre la problemática que veníamos
+anticipando en la introducción. Los clasificadores ignoran por completo
+la clase minoritaria, obteniendo buenos resultados para la clase
+negativa (el TNR es muy cercano a 1 en todos los casos), pero muy malos
+en la positiva. Esto provoca que el producto de ambas métricas sea muy
+bajo (TPR*TNR). Incluso en el extremo, PCARD si siquiera produce
+respuestas para la clase minoritaria, y clasifica todos los elementos
+dentro de la clase negativa.
+
+Veamos si estos resultados se mantienen en el conjunto de test:
+
+\begin{longtable}[]{@{}lcccccc@{}}
+\caption{Resultados sobre el conjunto de test}\tabularnewline
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.499 & 0.057 & 0.995 & 0.056 & 0.651 &
+0.107\tabularnewline
+Random Forest & 0.476 & 0.010 & 0.999 & 0.010 & 0.642 &
+0.019\tabularnewline
+PCARD & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+\bottomrule
+\end{longtable}
+
+Al igual que nos ocurría anteriormente, los clasificadores ignoran la
+clase minoritaria, centrando su capacidad de predicción en la
+mayoritaria. Como era esperable, al igual que ocurría en el caso
+anterior, PCARD no clasifica ningún ejemplo dentro de la clase positiva,
+y consigue por tanto una puntuación de 0. El balanceo que tenemos dentro
+de este conjunto y que no teníamos en el conjunto de entrenamiento ha
+provocado también que la métrica de tasa de acierto empeore
+notablemente, como se esperaba.
+
+En los próximos apartados vamos a tratar de lidiar con estos problemas
+de diversas maneras, para buscar una mejora en los resultados de los
+clasificadores. Comenzamos aplicando técnicas de tratamiento del
+desbalanceo.
+
+\hypertarget{tratamiento-del-desbalanceo}{%
+\section{Tratamiento del
+desbalanceo}\label{tratamiento-del-desbalanceo}}
+
+Ya hemos observado que los resultados con el conjunto de datos de origen
+son, por lo general, bastante mejorables. Esto se debe a que nos
+encontramos con un conjunto de datos con un fuerte desbalanceo, teniendo
+9 veces más datos de la clase negativa que de la positiva. En este
+apartado veremos cómo podemos mejorar los resultados obtenidos alterando
+la distribución de datos del conjunto. En particular, utilizaremos dos
+técnicas de preprocesamiento orientadas al tratamiento del desbalanceo:
+
+\begin{itemize}
+\tightlist
+\item
+  \emph{Random Oversampling} (ROS): Esta técnica consiste en replicar
+  aleatoriamente ejemplos de la clase minoritaria en el conjunto de
+  datos, de forma que el conjunto resultante tenga una mayor proporción
+  de elementos de dicha clase. De esta manera, los clasificadores
+  observarán un conjunto de datos más compensado, y será más difícil que
+  ignoren la clase minoritaria. El principal inconveniente de esta
+  técnica reside en la cantidad de datos que se generan. Si queremos
+  tener la misma cantidad de datos de ambas clases en el conjunto
+  resultante, en nuestro caso, tendríamos un conjunto de datos final de
+  cerca de 1.800.000, lo cual es cerca del doble de datos de los que
+  disponemos. Estamos hablando de un conjunto de datos de gran tamaño,
+  con el sobrecoste de cómputo que conlleva el aumento de datos de una
+  forma tan fuerte.
+\item
+  \emph{Random Undersampling} (RUS): Esta técnica se basa justo en la
+  idea contraria para tratar el desbalanceo. En lugar de replicar
+  ejemplos de la clase minoritaria, en este caso descartaremos
+  aleatoriamente ejemplos de la mayoritaria, consiguiendo así un
+  conjunto de datos más pequeño y compensado. El problema de este
+  algoritmo radica en que, si queremos obtener un conjunto de datos
+  balanceado, es posible que eliminemos demasiada información del
+  conjunto de datos original, empeorando la calidad de los
+  clasificadores al deteriorar las fronteras que separan los datos.
+\end{itemize}
+
+\hypertarget{random-oversampling}{%
+\subsection{Random Oversampling}\label{random-oversampling}}
+
+En este apartado mostraremos los resultados obtenidos al aplicar la
+técnica de \emph{Random Oversampling} sobre nuestros datos con los
+distintos algoritmos de clasificación a distintos ratios de desbalanceo.
+La implementación de ROS de la que disponemos nos permite especificar un
+ratio como parámetro, de forma que se replican los datos de la clase
+minoritaria necesarios para que el conjunto resultante tenga esa
+proporción de elementos de la clase minoritaria respecto a los de la
+clase mayoritaria. De esta manera, si especificamos un valor de 1,
+tendremos la misma cantidad de elementos de una clase y de otra. Si
+especificamos valores menores, generaremos menos datos de dicha clase, y
+tendremos aún desbalanceo en el conjunto de datos, con el beneficio de
+tener conjuntos de datos más reducidos.
+
+Debido a que hay que establecer un compromiso entre el tamaño del
+conjunto de datos y la mejora que se produce por el \emph{Random
+Oversampling}, probaremos con distintos ratios, para ver con qué
+porcentaje de \emph{oversampling} conseguimos mejores resultados. En
+particular, haremos pruebas para los valores 0.25, 0.5, 0.75 y 1. Los
+resultados obtenidos se muestran a continuación. Comenzamos con los
+resultados sobre el conjunto de entrenamiento:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos tras ROS en el conjunto de datos de
+entrenamiento}\tabularnewline
+\toprule
+Algoritmo & Tasa OS & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Tasa OS & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.25 & 0.891 & 0.291 & 0.958 & 0.279 & 0.940 &
+0.348\tabularnewline
+& 0.5 & 0.844 & 0.475 & 0.885 & 0.420 & 0.911 & 0.378\tabularnewline
+& 0.75 & 0.770 & 0.632 & 0.785 & 0.496 & 0.860 & 0.354\tabularnewline
+& 1 & 0.711 & 0.714 & 0.711 & 0.508 & 0.816 & 0.331\tabularnewline
+\midrule
+Random Forest & 0.25 & 0.906 & 0.127 & 0.993 & 0.126 & 0.950 &
+0.213\tabularnewline
+& 0.5 & 0.875 & 0.391 & 0.929 & 0.363 & 0.931 & 0.386\tabularnewline
+& 0.75 & 0.805 & 0.591 & 0.829 & 0.490 & 0.885 & 0.378\tabularnewline
+& 1 & 0.727 & 0.715 & 0.728 & 0.521 & 0.828 & 0.344\tabularnewline
+\midrule
+PCARD & 0.25 & 0.900 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+& 0.5 & 0.901 & 0.065 & 0.994 & 0.064 & 0.948 & 0.116\tabularnewline
+& 0.75 & 0.842 & 0.402 & 0.891 & 0.358 & 0.910 & 0.337\tabularnewline
+& 1 & 0.674 & 0.706 & 0.670 & 0.473 & 0.787 & 0.302\tabularnewline
+\bottomrule
+\end{longtable}
+
+Podemos observar cómo los resultados han mejorado notablemente respecto
+de las ejecuciones iniciales. Para los tres algoritmos, podemos observar
+que cuanto más equilibrados están los conjuntos de datos, mejores
+resultados se obtienen. En particular, con las ejecuciones básicas los
+resultados estaban claramente sesgados a favor de la clase mayoritaria,
+y con el equilibrado de las clases se produce un equilibrado equivalente
+en la capacidad de predicción. Mostramos a continuación los resultados
+sobre el conjunto de test, para comprobar si las mejoras obtenidas se
+mantienen sobre dicho conjunto:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos tras ROS en el conjunto de datos de
+test}\tabularnewline
+\toprule
+Algoritmo & Tasa OS & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Tasa OS & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.25 & 0.592 & 0.266 & 0.959 & 0.255 & 0.689 &
+0.408\tabularnewline
+& 0.5 & 0.661 & 0.470 & 0.875 & 0.412 & 0.708 & 0.595\tabularnewline
+& 0.75 & 0.685 & 0.576 & 0.808 & 0.466 & 0.707 & 0.660\tabularnewline
+& 1 & 0.697 & 0.683 & 0.713 & 0.487 & 0.689 & 0.705\tabularnewline
+\midrule
+Random Forest & 0.25 & 0.534 & 0.127 & 0.991 & 0.126 & 0.667 &
+0.224\tabularnewline
+& 0.5 & 0.635 & 0.371 & 0.932 & 0.346 & 0.706 & 0.518\tabularnewline
+& 0.75 & 0.691 & 0.567 & 0.830 & 0.471 & 0.717 & 0.660\tabularnewline
+& 1 & 0.708 & 0.697 & 0.720 & 0.502 & 0.699 & 0.716\tabularnewline
+\midrule
+PCARD & 0.25 & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+& 0.5 & 0.517 & 0.099 & 0.987 & 0.098 & 0.658 & 0.179\tabularnewline
+& 0.75 & 0.618 & 0.355 & 0.915 & 0.324 & 0.693 & 0.496\tabularnewline
+& 1 & 0.682 & 0.688 & 0.676 & 0.465 & 0.667 & 0.697\tabularnewline
+\bottomrule
+\end{longtable}
+
+Como podemos observar, los resultados siguen siendo buenos sobre el
+conjunto de test, aunque los modelos habían sufrido un ligero
+sobreaprendizaje. Especialmente el árbol de decisión y el \emph{Random
+Forest}, sufren una penalización importante cuando son evaluados sobre
+el conjunto de test. PCARD también experimenta esta pérdida de
+rendimiento, pero de forma menos relevante. Al igual que observamos
+sobre el conjunto de entrenamiento, los resultados obtenidos sobre el
+conjunto de test mejoran paulatinamente, conforme se entrena el modelo
+con un conjunto de datos más balanceado. El principal inconveniente de
+esta técnica radica en que el conjunto de datos resultante es
+significativamente grande, llegando a casi el doble de su tamaño
+original.
+
+\hypertarget{random-undersampling}{%
+\subsection{Random Undersampling}\label{random-undersampling}}
+
+En este apartado se muestran los resultados obtenidos mediante la
+técnica de \emph{Random Undersampling}. Como hemos dicho anteriormente,
+con esta técnica afrontaremos el desbalanceo reduciendo el tamaño de la
+clase mayoritaria por medio de un descarte aleatorio de ejemplos de la
+misma. En este caso, la implementación que disponemos del algoritmo ROS
+no nos permite especificar el ratio de desbalanceo que deseamos, si no
+que iguala el número de ejemplos entre las dos clases.
+
+Esta técnica tiene la ventaja de que los conjuntos de datos que se
+generan son mucho más reducidos que en el caso de ROS, pero tiene la
+problemática de que puede producir un empeoramiento en la calidad de las
+soluciones si elimina demasiada información, ya que las fronteras de
+separación de las clases se pierden.
+
+Los resultados obtenidos con este preprocesamiento para nuestro conjunto
+de datos se muestran a continuación. Comenzamos mostrando los resultados
+sobre el conjunto de entrenamiento:
+
+\begin{longtable}[]{@{}lcccccc@{}}
+\caption{Resultados tras RUS sobre el conjunto de
+entrenamiento}\tabularnewline
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.709 & 0.707 & 0.710 & 0.501 & 0.815 &
+0.327\tabularnewline
+Random Forest & 0.726 & 0.707 & 0.729 & 0.515 & 0.827 &
+0.341\tabularnewline
+PCARD & 0.693 & 0.675 & 0.695 & 0.469 & 0.803 & 0.306\tabularnewline
+\bottomrule
+\end{longtable}
+
+Observamos que los resultados aquí son bastante buenos, pero no llegan a
+los niveles que obtenía el preprocesamiento basado en oversampling del
+apartado anterior. Los resultados son, en los tres casos, ligeramente
+inferiores a los obtenidos con ROS cuando se obtenía el conjunto de
+datos balanceado. Si observamos los resultados sobre el conjunto de
+test:
+
+\begin{longtable}[]{@{}lcccccc@{}}
+\caption{Resultados sobre el conjunto de test}\tabularnewline
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.694 & 0.682 & 0.707 & 0.482 & 0.685 &
+0.702\tabularnewline
+Random Forest & 0.707 & 0.699 & 0.716 & 0.501 & 0.697 &
+0.717\tabularnewline
+PCARD & 0.686 & 0.673 & 0.702 & 0.473 & 0.678 & 0.694\tabularnewline
+\bottomrule
+\end{longtable}
+
+Sobre el conjunto de test, los resultados están ligeramente más
+compensados. El sobreajuste que se producía en el apartado anterior,
+aquí está ligeramente más mitigado, y la puntuación que consiguen los
+tres modelos sobre el conjunto de test es muy similar al que obtenían
+con ROS. Además, en este caso, el tamaño del conjunto de datos final es
+mucho más reducido que en el caso de ROS, lo cual puede ser beneficioso
+cuando se trabaja con conjuntos de datos masivos. No obstante, la
+pérdida de información puede ser demasiada, ya que estamos hablando de
+que se descartan cerca del 90 \% de los ejemplos de la clase negativa.
+En el siguiente apartado veremos cómo combinar ambos enfoques para tener
+un mejor rendimiento, a la par que conjuntos de datos de un tamaño
+razonable.
+
+\hypertarget{combinaciuxf3n-de-ros-y-rus}{%
+\section{Combinación de ROS y RUS}\label{combinaciuxf3n-de-ros-y-rus}}
+
+En el apartado anterior hemos visto los resultados que se obtenían al
+utilizar los algoritmos de \emph{Random Oversampling} y \emph{Random
+Undersampling} por separado. El problema que teníamos era, en el primer
+caso, la generación de conjuntos demasiado grandes, y en el segundo, la
+pérdida de demasiada información, ya que el algoritmo descartaba cerca
+del 90 \% de los ejemplos de la clase negativa. En este apartado vamos a
+estudiar si la utilización de estos dos algoritmos conjuntamente ofrece
+alguna mejora. Para ello, lo que haremos será utilizar ROS sobre el
+conjunto de datos con un ratio estrictamente inferior a 1, y al conjunto
+resultante le aplicaremos RUS para igualar las clases. De esta forma,
+aprovechamos la potencia de los dos preprocesamientos por separado,
+obteniendo un conjunto de datos de tamaño mediano y con las clases
+compensadas.
+
+En este caso, los ratios de \emph{Oversampling} con los que
+experimentaremos se moverán entre 0.3 y 0.7, en intervalos de 0.1. Los
+resultados obtenidos son los siguientes. Comenzamos con los resultados
+sobre train:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos con la combinación de ROS y RUS sobre el
+conjunto de entrenamiento}\tabularnewline
+\toprule
+Algoritmo & Tasa OS & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Tasa OS & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.3 & 0.711 & 0.707 & 0.711 & 0.503 & 0.816 &
+0.328\tabularnewline
+& 0.4 & 0.710 & 0.709 & 0.710 & 0.503 & 0.815 & 0.328\tabularnewline
+& 0.5 & 0.712 & 0.710 & 0.712 & 0.505 & 0.816 & 0.330\tabularnewline
+& 0.6 & 0.709 & 0.712 & 0.708 & 0.505 & 0.814 & 0.329\tabularnewline
+& 0.7 & 0.703 & 0.719 & 0.701 & 0.504 & 0.810 & 0.326\tabularnewline
+\midrule
+Random Forest & 0.3 & 0.724 & 0.712 & 0.726 & 0.517 & 0.826 &
+0.341\tabularnewline
+& 0.4 & 0.719 & 0.723 & 0.718 & 0.520 & 0.821 & 0.340\tabularnewline
+& 0.5 & 0.729 & 0.710 & 0.731 & 0.520 & 0.829 & 0.344\tabularnewline
+& 0.6 & 0.725 & 0.718 & 0.726 & 0.521 & 0.826 & 0.343\tabularnewline
+& 0.7 & 0.726 & 0.715 & 0.728 & 0.520 & 0.827 & 0.343\tabularnewline
+\midrule
+PCARD & 0.3 & 0.707 & 0.669 & 0.712 & 0.476 & 0.814 &
+0.314\tabularnewline
+& 0.4 & 0.699 & 0.670 & 0.703 & 0.471 & 0.808 & 0.308\tabularnewline
+& 0.5 & 0.689 & 0.689 & 0.689 & 0.475 & 0.799 & 0.307\tabularnewline
+& 0.6 & 0.700 & 0.667 & 0.704 & 0.470 & 0.809 & 0.308\tabularnewline
+& 0.7 & 0.705 & 0.668 & 0.709 & 0.473 & 0.812 & 0.312\tabularnewline
+\bottomrule
+\end{longtable}
+
+Podemos observar que los resultados obtenidos son muy deseables. Con el
+árbol de decisión no llegamos a obtener los mismos resultados que
+obtuvimos con el uso de ROS únicamente, pero para el \emph{Random
+Forest} y PCARD conseguimos mejorar los resultados ligeramente, además
+de contar con conjuntos de menor tamaño. En particular, el conjunto de
+datos que se obtiene con con ROS al 0.5 y RUS, tiene un tamaño más o
+menos similar al conjunto de datos de partida, y los clasificadores
+obtienen ahora una puntuación TPR*TNR cercana a 0.5 en ambos casos, lo
+que supone una mejora muy significativa, sin que exista un aumento en
+los tiempos de cómputo, que son similares al tener un conjunto de datos
+del mismo tamaño aproximadamente. Veamos si esta mejora en los
+resultados se mantiene cuando evaluamos los clasificadores sobre el
+conjunto de datos de test:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos con la combinación de ROS y RUS sobre el
+conjunto de test}\tabularnewline
+\toprule
+Algoritmo & Tasa OS & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Tasa OS & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & 0.3 & 0.691 & 0.691 & 0.697 & 0.482 & 0.682 &
+0.705\tabularnewline
+& 0.4 & 0.694 & 0.685 & 0.705 & 0.483 & 0.685 & 0.703\tabularnewline
+& 0.5 & 0.695 & 0.690 & 0.701 & 0.484 & 0.684 & 0.706\tabularnewline
+& 0.6 & 0.695 & 0.688 & 0.704 & 0.484 & 0.685 & 0.705\tabularnewline
+& 0.7 & 0.697 & 0.701 & 0.692 & 0.485 & 0.682 & 0.710\tabularnewline
+\midrule
+Random Forest & 0.3 & 0.708 & 0.694 & 0.723 & 0.502 & 0.700 &
+0.715\tabularnewline
+& 0.4 & 0.708 & 0.692 & 0.727 & 0.503 & 0.701 & 0.715\tabularnewline
+& 0.5 & 0.708 & 0.693 & 0.726 & 0.503 & 0.701 & 0.715\tabularnewline
+& 0.6 & 0.708 & 0.690 & 0.728 & 0.502 & 0.701 & 0.714\tabularnewline
+& 0.7 & 0.708 & 0.693 & 0.724 & 0.502 & 0.700 & 0.715\tabularnewline
+\midrule
+PCARD & 0.3 & 0.683 & 0.660 & 0.708 & 0.468 & 0.678 &
+0.688\tabularnewline
+& 0.4 & 0.686 & 0.667 & 0.708 & 0.472 & 0.680 & 0.692\tabularnewline
+& 0.5 & 0.685 & 0.663 & 0.710 & 0.471 & 0.680 & 0.690\tabularnewline
+& 0.6 & 0.684 & 0.658 & 0.714 & 0.470 & 0.680 & 0.688\tabularnewline
+& 0.7 & 0.689 & 0.673 & 0.707 & 0.476 & 0.682 & 0.696\tabularnewline
+\bottomrule
+\end{longtable}
+
+De nuevo, se puede concluir que los resultados tras aplicar esta
+combinación de técnicas son, en general, mejores que los obtenidos al
+aplicar las técnicas de forma individual. Para el árbol de decisión no
+hemos conseguido superar los resultados obtenidos por un pequeño margen
+(con ROS se conseguía un TPR*TNR de 0.487 cuando el conjunto de datos
+estaba compensado, y aquí el mejor resultado obtenido es de 0.485 con un
+ratio de ROS de 0.7). Aun así, es destacable que el resultado es muy
+cercano al anterior, con un conjunto de datos mucho más pequeño. Para
+\emph{Random Forest}, mejoramos el resultado ligeramente, de 0.502
+cuando aplicamos ROS con ratio 1, a 0.503 cuando aplicamos ROS con ratio
+0.4 y después RUS. De nuevo, estamos trabajando con un conjunto de datos
+más pequeño con el que obtenemos resultados de mayor calidad.
+Finalmente, el algoritmo que sufre una mejora más significativa es
+PCARD, que aumenta de 0.473 cuando se aplicaba RUS a 0.476 cuando se
+aplica ROS al 0.7 y RUS a continuación. No obstante, aquí debemos
+puntualizar justo lo contrario que anteriormente, ahora esta mejora se
+produce a costa de trabajar con un conjunto de datos significativamente
+más grande.
+
+Otra puntualización que merece la pena realizar llegados a este punto,
+es que el F-score es ligeramente más alto para la clase positiva que
+para la clase negativa. Esto significa que, en general, cuando
+conseguimos compensar el conjunto de datos, los clasificadores tienden a
+clasificar mejor esta clase que la clase negativa. Esto se debe,
+probablemente, al hecho de que la clase positiva está bien definida,
+situada en pequeñas regiones del espacio, pero es una clase difícil de
+reconocer debido a que no se tienen muchos ejemplos de la misma. En el
+momento en que se nivelan las dos clases, los algoritmos comienzan a
+reconocer esta clase con relativa facilidad.
+
+\hypertarget{filtros-de-ruido}{%
+\section{Filtros de ruido}\label{filtros-de-ruido}}
+
+Normalmente, las fronteras de los conjuntos de datos con un desbalanceo
+tan fuerte como el actual tienden a tener cierto ruido. Esto significa
+que en la zona del espacio en la que se encuentran los puntos de una
+clase, suelen encontrarse ejemplos de la otra. Esto produce que en estas
+zonas del espacio el clasificador tenga una pérdida importante de
+rendimiento. En el contexto del desbalanceo, el ruido en los datos se
+suele traducir en que las zonas en las que se encuentran los ejemplos de
+la clase minoritaria, podemos encontrar también una cantidad importante
+de ejemplos de la clase mayoritaria. Las limpiezas de ruido, por tanto,
+suelen producir una mejora significativa en la capacidad de los
+clasificadores de detectar la clase minoritaria, que es uno de los
+principales problemas que queremos abordar.
+
+Para la experimentación con filtros de ruido en Spark, haremos uso de la
+librería \texttt{NoiseFramework}. Esta librería implementa 3 filtros de
+ruido distintos.
+
+\begin{itemize}
+\tightlist
+\item
+  HME-BD: Este filtro de ruido está basado en el particionamiento del
+  conjunto de datos en \(P\) particiones y el aprendizaje de \(P\)
+  \emph{Random Forest} distintos, cada uno dejando fuera una de las
+  particiones anteriores. Una vez construidos los \(P\) clasificadores,
+  se clasifica la partición restante y se eliminan del conjunto de datos
+  los ejemplos mal clasificados, ya que se consideran ruidosos.
+\item
+  HTE-BD: Este filtro de ruido tiene un esquema similar al anterior,
+  pero en lugar de entrenar un único clasificador, entrena 3
+  clasificadores distintos, uno basado en RF, otro basado en kNN, y otro
+  basado en regresión logística. La etiqueta que se da a cada ejemplo es
+  una estrategia de voto entre los tres clasificadores. Al igual que en
+  el caso anterior, se eliminan del conjunto de datos aquellos ejemplos
+  que han sido mal clasificados.
+\item
+  ENN-BD: Es un filtro de ruido simple, basado en distancias. Para cada
+  ejemplo, se compara su etiqueta con la del ejemplo más cercano. Si
+  dichas etiquetas difieren, se considera que el ejemplo es ruidoso y se
+  elimina.
+\end{itemize}
+
+En el contexto de nuestras ejecuciones, se han aplicado los filtros de
+ruido tras la ejecución de la etapa de balanceo anterior combinando ROS
+y RUS, tomando el valor de \emph{oversampling} de 0.5. Se decide aplicar
+el filtro de ruido tras el balanceo del conjunto de datos debido a que
+su aplicación sobre el conjunto de datos original producía una
+eliminación casi completa de la clase minoritaria. Debido al desbalanceo
+tan fuerte que hay presente en el conjunto, y el sesgo que presentaban
+los clasificadores a favor de la clase minoritaria en las ejecuciones
+básicas, la clase minoritaria era descartada casi por completo si no se
+aplicaba una técnica de balanceo previa a los filtros de ruido. No se
+incluyen dichas ejecuciones en el guión para no alargarlo de manera
+innecesaria.
+
+A continuación se muestran los resultados obtenidos sobre el conjunto de
+datos de entrenamiento:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos tras aplicar el filtro de ruido sobre el
+conjunto de entrenamiento}\tabularnewline
+\toprule
+Algoritmo & Filtro & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Filtro & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & HME & 0.717 & 0.704 & 0.719 & 0.506 & 0.821 &
+0.333\tabularnewline
+& HTE & 0.725 & 0.690 & 0.729 & 0.503 & 0.827 & 0.334\tabularnewline
+& ENN & 0.791 & 0.583 & 0.814 & 0.475 & 0.875 & 0.358\tabularnewline
+\midrule
+Random Forest & HME & 0.709 & 0.707 & 0.709 & 0.501 & 0.814 &
+0.327\tabularnewline
+& HTE & 0.718 & 0.696 & 0.721 & 0.502 & 0.822 & 0.331\tabularnewline
+& ENN & 0.839 & 0.514 & 0.875 & 0.450 & 0.907 & 0.390\tabularnewline
+\midrule
+PCARD & HME & 0.685 & 0.689 & 0.685 & 0.471 & 0.796 &
+0.304\tabularnewline
+& HTE & 0.693 & 0.672 & 0.696 & 0.467 & 0.803 & 0.305\tabularnewline
+& ENN & 0.841 & 0.414 & 0.889 & 0.368 & 0.910 & 0.343\tabularnewline
+\bottomrule
+\end{longtable}
+
+Podemos observar varias cosas en los resultados obtenidos. En primer
+lugar, podemos ver cómo ENN es el filtro que consigue peores resultados
+en todos los casos. Además, es el algoritmo que elimina menos elementos
+de la clase mayoritaria, y es por esto por lo que consigue una tasa de
+acierto alta. No obstante, no consigue limpiar correctamente las
+fronteras de la clase positiva, y los algoritmos de clasificación acaban
+cometiendo demasiados errores para dicha clase. Como se puede observar,
+los resultados de TPR cuando se usa ENN son peores que cuando se usan
+los otros dos filtros en los tres algoritmos. Por otra parte, podemos
+observar que los resultados de estas ejecuciones son ligeramente peores
+que los obtenidos en ejecuciones anteriores del la práctica totalidad de
+los algoritmos, a excepción de el árbol de decisión, que obtiene una
+puntuación ligeramente mejor al usar HME que la que conseguía con ROS
+0.5 + RUS básica, sin filtrar el ruido. No obstante, si medimos los
+resultados utilizando las métricas \(F\)-score por clase, los resultados
+han mejorado ligeramente. Esto pone de manifiesto que, en función de la
+métrica que utilicemos, podemos llegar a unas conclusiones o a otras. Se
+pone aquí de manifiesto la importancia de seleccionar en cada caso una
+métrica que simbolice realmente lo que queremos medir sobre nuestros
+modelos. En este caso, ya que estamos interesados en la métrica TPR*TNR,
+parece que la aproximación por filtrado de ruido no es muy
+satisfactoria.
+
+Pasamos a comprobar sobre el conjunto de test si se mantienen los
+resultados obtenidos.
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados obtenidos tras aplicar el filtro de ruido sobre el
+conjunto de test}\tabularnewline
+\toprule
+Algoritmo & Filtro & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Algoritmo & Filtro & Acc & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & HME & 0.700 & 0.685 & 0.717 & 0.491 & 0.692 &
+0.707\tabularnewline
+& HTE & 0.698 & 0.673 & 0.726 & 0.488 & 0.694 & 0.702\tabularnewline
+& ENN & 0.679 & 0.560 & 0.813 & 0.455 & 0.704 & 0.648\tabularnewline
+\midrule
+Random Forest & HME & 0.699 & 0.688 & 0.713 & 0.490 & 0.691 &
+0.708\tabularnewline
+& HTE & 0.699 & 0.682 & 0.717 & 0.490 & 0.692 & 0.706\tabularnewline
+& ENN & 0.674 & 0.798 & 0.872 & 0.434 & 0.716 & 0.618\tabularnewline
+\midrule
+PCARD & HME & 0.685 & 0.693 & 0677 & 0.469 & 0.670 &
+0.700\tabularnewline
+& HTE & 0.681 & 0.678 & 0.685 & 0.464 & 0.669 & 0.692\tabularnewline
+& ENN & 0.638 & 0.406 & 0.897 & 0.365 & 0.700 & 0.543\tabularnewline
+\bottomrule
+\end{longtable}
+
+Aquí podemos observar ciertos resultados interesantes. Por un lado,
+seguimos manteniendo el orden de calidad de los filtros de ruido entre
+sí, con HME y HTE similares, y significativamente mejores que ENN (lo
+cual era esperable debido a que es el más simple de todos). Por otra
+parte, podemos observar que la aplicación de filtros de ruido ha
+supuesto una mejora significativa en cuanto al problema del
+sobreaprendizaje. Mientras que en ejecuciones anteriores la pérdida de
+rendimiento entre entrenamiento y test era notoria, aquí el problema
+está muy mitigado. Tanto es así que para el árbol de decisión, los
+resultados en test son significativamente mejores cuando se aplican
+filtros de ruido que en cualquiera de los preprocesamientos anteriores.
+Para el \emph{random forest} y PCARD, aunque también se produce un
+sobreaprendizaje menor, lo que produce que los resultados en train y
+test sean prácticamente igual, la pérdida de rendimiento que han sufrido
+ambos algoritmos no compensa la otra mejora, y conseguimos peores
+resultados en test que en ejecuciones anteriores. Esto puede indicar
+también que en el conjunto de datos no haya excesivo ruido presente, y
+que esta etapa de limpieza de ruido pueda no ser necesaria para este
+conjunto de datos. A pesar de esto, se comprueba que son métodos de
+preprocesado útiles, como puede observarse para el caso del árbol de
+decisión
+
+\hypertarget{reducciuxf3n-de-dimensionalidad-con-pca}{%
+\section{Reducción de dimensionalidad con
+PCA}\label{reducciuxf3n-de-dimensionalidad-con-pca}}
+
+Los conjuntos de datos que se afrontan en problemas de Big Data suelen
+ser conjuntos de datos de alta dimensionalidad. Por esto, conviene
+realizar una etapa de preprocesamiento previa, la cual reduzca el número
+de características que representan el conjunto de datos. Es por esto por
+lo que se han intentado mejorar los resultados obtenidos por medio de
+una técnica de reducción de dimensionalidad, concretamente con un
+análisis de componentes principales (PCA). El algoritmo de PCA considera
+los datos de entrada como vectores pertenecientes a \(\mathbb{R}^n\), y
+calcula una base de vectores ortogonales de dicho espacio tales que la
+varianza del conjunto de datos en cada una de dichas direcciones es
+máxima. Este cálculo se realiza a partir de la diagonalización de la
+matriz de covarianzas del conjunto de datos (no entraremos en los
+detalles matemáticos del algoritmo). Una vez extraídos los autovectores
+de la matriz de covarianzas, podemos representar cada uno de los
+ejemplos de nuestro conjunto como una combinación lineal de dichos
+vectores. Los coeficientes de dicha combinación lineal serán las nuevas
+características que definan a nuestros ejemplos. Así, tomando los
+coeficientes de los \(k\) autovectores que tienen los mayores
+autovalores asociados (\(k < n\)), tenemos una representación reducida
+de nuestros datos, conservando la máxima varianza posible entre ellos.
+
+En nuestra experimentación, hemos tratado de utilizar este método para
+reducir el tamaño de nuestro conjunto de datos. Concretamente, hemos
+reducido a 10 el número de características de nuestro conjunto. De esta
+forma, el tamaño final del dataset es de aproximadamente 1/3 del tamaño
+original (pasamos de 28 a 10 características por cada ejemplo). Una vez
+hecha la reducción, hemos ejecutado los cuatro algoritmos con tres
+conjuntos de entrada distintos; el conjunto de datos completo, el
+conjunto de datos aplicando ROS con ratio 1, y el conjunto de datos
+aplicando RUS. Los resultados obtenidos se muestran a continuación.
+Comenzamos por los resultados sobre el conjunto de entrenamiento:
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados sobre el conjunto de entrenamiento}\tabularnewline
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & Orig. & 0.900 & 0.003 & 0.999 & 0.003 & 0.947 & 0.006\tabularnewline
+ & ROS & 0.489 & 0.707 & 0.465 & 0.329 & 0.621 &
+0.217\tabularnewline
+& RUS & 0.457 & 0.753 & 0.424 & 0.319 & 0.584 & 0.217\tabularnewline
+\midrule
+Random Forest & Orig. & 0.899 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+& ROS & 0.462 & 0.778 & 0.427 & 0.332 & 0.588 &
+0.224\tabularnewline
+& RUS & 0.473 & 0.766 & 0.440 & 0.337 & 0.600 & 0.225\tabularnewline
+\midrule
+PCARD & Orig. & 0.899 & 0 & 1 & 0 & 0.947 & 0\tabularnewline
+& ROS & 0.321 & 0.829 & 0.265 & 0.219 & 0.412 &
+0.196\tabularnewline
+& RUS & 0.381 & 0.802 & 0.334 & 0.268 & 0.492 & 0.206\tabularnewline
+\bottomrule
+\end{longtable}
+
+Como podemos observar, los resultados son bastante mejorables en todos
+los casos. Esta técnica ha supuesto un empeoramiento importante en el
+rendimiento de los algoritmo. Esto nos indica que la información
+contenida en el conjunto de datos no es redundante, y el número de
+características que aportan información es, al menos, mayor que el
+número de características que hemos seleccionado. Vemos a continuación
+si este empeoramiento de resultados sobre el conjunto de entrenamiento
+se refleja también sobre el conjunto de test.
+
+\begin{longtable}[]{@{}cccccccc@{}}
+\caption{Resultados sobre el conjunto de test}\tabularnewline
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+& & Acc. & TPR & TNR & TPR*TNR & \(F_0\)-score &
+\(F_1\)-score\tabularnewline
+\midrule
+\endhead
+Decision Tree & Orig. & 0.471 & 0.001 & 0.999 & 0.001 & 0.640 & 0.001\tabularnewline
+& ROS & 0.590 & 0.751 & 0.409 & 0.307 & 0.484 &
+0.659\tabularnewline
+& RUS & 0.588 & 0.735 & 0.422 & 0.310 & 0.491 & 0.654\tabularnewline
+\midrule
+Random Forest & Orig. & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+& ROS & 0.606 & 0.752 & 0.441 & 0.332 & 0.516 &
+0.669\tabularnewline
+& RUS & 0.606 & 0.755 & 0.439 & 0.332 & 0.512 & 0.670\tabularnewline
+\midrule
+PCARD & Orig. & 0.471 & 0 & 1 & 0 & 0.640 & 0\tabularnewline
+& ROS & 0.568 & 0.881 & 0.215 & 0.190 & 0.319 &
+0.683\tabularnewline
+& RUS & 0.577 & 0.772 & 0.358 & 0.277 & 0.444 & 0.659\tabularnewline
+\bottomrule
+\end{longtable}
+
+En efecto, los resultados en test son también de mala calidad, por lo
+que podemos confirmar que esta reducción de dimensionalidad no ha
+obtenido resultados satisfactorios. Podemos confirmar, por tanto, que
+las componentes principales que hemos escogido no representan fielmente
+el conjunto de datos de partida. Debido a que el empeoramiento sufrido
+es muy significativo, no continuaremos explorando esta vía.
+
+\hypertarget{conclusiones-y-trabajo-futuro}{%
+\section{Conclusiones y trabajo
+futuro}\label{conclusiones-y-trabajo-futuro}}
+
+En esta práctica se ha estudiado cómo puede resolverse un problema de
+clasificación binaria utilizando técnicas basadas en el enfoque Big
+Data. Se ha estudiado la capacidad de clasificación de tres
+clasificadores binarios trabajando con un conjunto de datos de gran
+tamaño, con más de un millón de instancias. Además, el conjunto de datos
+estaba fuertemente desbalanceado, con cerca del 90 \% de las instancias
+en la clase negativa. Por este motivo, se han aplicado técnicas de
+preprocesamiento enfocadas al tratamiento del desbalanceo, obteniéndose
+buenos resultados tras el uso de las mismas. Además, se han aplicado
+técnicas de reducción de dimensionalidad para intentar reducir el tamaño
+del conjunto de datos.
+
+Se han obtenido las siguientes conclusiones tras la ejecución de los
+experimentos:
+
+\begin{itemize}
+\tightlist
+\item
+  El uso de los algoritmos sobre conjuntos de datos con alto desbalanceo
+  provocan normalmente la obtención de malos resultados, debido a que se
+  tiende a ignorar la clase minoritaria. Además, al ser esta clase la
+  que más nos interesa detectar correctamente, resulta poco adecuado
+  utilizar los clasificadores sin un preprocesado previo del conjunto de
+  datos.
+\item
+  Tras la aplicación de \emph{Random Oversampling}, los resultados
+  mejoran notablemente, siendo mejores cuanto más compensado está el
+  conjunto. No obstante, este enfoque puede suponer que el conjunto de
+  datos final tenga un tamaño demasiado grande.
+\item
+  Tras la aplicación de \emph{Random Undersampling}, los resultados
+  obtenidos son bastante buenos, pero se está descartando demasiada
+  información al eliminar tantos ejemplos de la clase mayoritaria.
+\item
+  La aplicación de las dos técnicas anteriores combinadas aprovecha las
+  ventajas de ambos procesamientos conjuntamente. Por un lado,
+  conseguimos aumentar el número de ejemplos de la clase minoritaria de
+  forma no excesiva, y por otro reducimos el tamaño del conjunto final
+  descartando algunos ejemplos de la clase mayoritaria, pero sin
+  descartar tanta información como aplicando RUS únicamente, ya que
+  ahora el número de ejemplos de la clase minoritaria no es tan pequeño.
+  Este enfoque es el que mejores resultados arroja, consiguiendo las
+  mejores puntuaciones, y haciendo que los algoritmos trabajen con
+  conjuntos de datos de un tamaño similar al original.
+\item
+  La aplicación de filtros de ruido puede mejorar los resultados de los
+  algoritmos que tienden al sobreajuste, como hemos comprobado con los
+  árboles de decisión. No obstante, producen un empeoramiento ligero de
+  los resultados en aquellos algoritmos que evitan el sobreajuste con
+  otros métodos, como pueden ser los modelos basados en
+  \emph{ensembles}, como PCARD o \emph{Random Forest}.
+\item
+  En cuanto a los algoritmos empleados, \emph{Random Forest} ha
+  demostrado ser el mejor clasificador sobre este conjunto de datos,
+  superando claramente a los árboles de decisión simples y a PCARD.
+  PCARD es el algoritmo que peores resultados arroja, probablemente
+  debido a que la configuración de parámetros empleada no sea óptima.
+  Además, PCARD utiliza el algoritmo de reducción de dimensionalidad
+  PCA, que se ha comprobado que produce una pérdida de calidad
+  importante para este conjunto de datos. Esta problemática puede ser
+  también el motivo por el que los resultados no son tan buenos como los
+  obtenidos por \emph{Random Forest}.
+\item
+  Todas las columnas del conjunto de datos tienen información relevante,
+  ya que la reducción de dimensionalidad llevada a cabo ha producido un
+  empeoramiento significativo de los resultados.
+\end{itemize}
+
+Las conclusiones extraídas del análisis anterior señalan posibles vías
+de actuación futuras, que se exponen a continuación:
+
+\begin{itemize}
+\tightlist
+\item
+  La aplicación de distintos clasificadores puede mejorar los resultados
+  obtenidos. Los tres clasificadores empleados en la práctica están
+  basados en árboles. La utilización de clasificadores basados en otras
+  técnicas, como kNN, podrían llevar a mejores resultados. Se han
+  realizado varias pruebas con este algoritmo, pero debido a que los
+  tiempos de cómputo se disparan se ha abandonado esa vía.
+\item
+  La aplicación de técnicas de balanceo de datos ha demostrado ser
+  eficaz, pero las dos técnicas empleadas son relativamente simples. La
+  utilización de técnicas más sofisticadas, como SMOTE, que genera
+  ejemplos sintéticos por medio de combinaciones de ejemplos reales de
+  la clase minoritaria, podría mejorar los resultados obtenidos.
+\item
+  La utilización de métodos de ensemble que combinen las salidas de los
+  clasificadores anteriores podría producir otra mejora. No obstante, se
+  ha descartado estudiar esta vía ya que los clasificadores empleados se
+  basan en técnicas muy similares, por lo que los ejemplos bien
+  clasificados por los tres algoritmos serán más o menos los mismos.
+  Para utilizar métodos de ensemble es recomendable utilizar modelos que
+  se basen en estrategias de clasificación distintas, para aprovechar
+  todo su potencial, y que sus salidas estén poco correladas.
+\end{itemize}
+
+\hypertarget{referencias}{%
+\section*{Referencias}\label{referencias}}
+\addcontentsline{toc}{section}{Referencias}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-baldi2014searching}{}%
+Baldi, Pierre, Peter Sadowski, and Daniel Whiteson. 2014. ``Searching
+for Exotic Particles in High-Energy Physics with Deep Learning.''
+\emph{Nature Communications} 5: 4308.
+
+\end{document}
