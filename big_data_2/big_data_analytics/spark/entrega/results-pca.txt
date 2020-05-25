@@ -1,0 +1,81 @@
+Experiment: DT - Simple
+    Accuracy: 0.7446
+    TPR: 0.642602495543672
+    TNR: 0.7963521254145312
+    TPR*TNR: 0.5117378631228849
+    Confusion Matrix:
+    [5283.0,1351.0]
+    [1203.0,2163.0]
+
+Experiment: DT - ROS
+    Accuracy: 0.7449
+    TPR: 0.6298276886512181
+    TNR: 0.8032861018993066
+    TPR*TNR: 0.5059318288848871
+    Confusion Matrix:
+    [5329.0,1305.0]
+    [1246.0,2120.0]
+
+Experiment: DT - RUS
+    Accuracy: 0.7428
+    TPR: 0.6589423648247178
+    TNR: 0.7853482062104311
+    TPR*TNR: 0.5174992042111516
+    Confusion Matrix:
+    [5210.0,1424.0]
+    [1148.0,2218.0]
+
+Experiment: RF - Simple
+    Accuracy: 0.7643
+    TPR: 0.5947712418300654
+    TNR: 0.850316551100392
+    TPR*TNR: 0.5057438310466383
+    Confusion Matrix:
+    [5641.0,993.0]
+    [1364.0,2002.0]
+
+Experiment: RF - ROS
+    Accuracy: 0.7591
+    TPR: 0.6134878193701723
+    TNR: 0.8329816098884534
+    TPR*TNR: 0.5110240714259228
+    Confusion Matrix:
+    [5526.0,1108.0]
+    [1301.0,2065.0]
+
+Experiment: RF - RUS
+    Accuracy: 0.7664
+    TPR: 0.5926916221033868
+    TNR: 0.8545372324389509
+    TPR*TNR: 0.5064770584419807
+    Confusion Matrix:
+    [5669.0,965.0]
+    [1371.0,1995.0]
+
+Experiment: KNN - Simple
+    Accuracy: 0.661
+    TPR: 0.6390374331550802
+    TNR: 0.672143503165511
+    TPR*TNR: 0.4295248589747517
+    Confusion Matrix:
+    [4459.0,2175.0]
+    [1215.0,2151.0]
+
+Experiment: KNN - ROS
+    Accuracy: 0.692
+    TPR: 0.5724896019013667
+    TNR: 0.7526379258365994
+    TPR*TNR: 0.4308773865380651
+    Confusion Matrix:
+    [4993.0,1641.0]
+    [1439.0,1927.0]
+
+Experiment: KNN - RUS
+    Accuracy: 0.6585
+    TPR: 0.6458704693998811
+    TNR: 0.6649080494422671
+    TPR*TNR: 0.4294444740010364
+    Confusion Matrix:
+    [4411.0,2223.0]
+    [1192.0,2174.0]
+

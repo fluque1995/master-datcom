@@ -24,8 +24,8 @@
 ** Big Data II
 *** DONE Diseño de un experimento ETL con Pig
     CLOSED: [2020-03-31 mar 12:29] DEADLINE: <2020-05-22 vie>
-*** TODO Ejercicio sobre Big Data Analytics
-    DEADLINE: <2020-05-22 vie>
+*** DONE Ejercicio sobre Big Data Analytics
+    CLOSED: [2020-05-21 jue 10:12] DEADLINE: <2020-05-22 vie>
 
 ** Minería de medios sociales
 *** DONE Análisis de redes sociales con Gephi
