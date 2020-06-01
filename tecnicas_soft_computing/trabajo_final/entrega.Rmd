@@ -230,11 +230,13 @@ fuertes, y nosotros relajaremos un poco las condiciones previas,
 debido a que no queremos simular la competición completamente, si no
 hacer un estudio comparativo entre tres algoritmos. Concretamente,
 sólo ejecutaremos los problemas de tamaño 10, 30 y 50, y realizaremos
-25 ejecuciones para cada caso. De esta manera, tendremos 25 resultados
-obtenidos por cada algoritmo para cada función en cada tamaño del
-problema, lo que nos permitirá sacar ciertas estadísticas de la
-calidad de las soluciones, y que los resultados obtenidos sean más
-fiables que al realizar una única ejecución.
+25 ejecuciones para cada caso (15 para el problema de tamaño 50 debido
+a que el número de evaluaciones y el tamaño del problema ralentizan
+enormemente los cálculos). De esta manera, tendremos 25 (o 15)
+resultados obtenidos por cada algoritmo para cada función en cada
+tamaño del problema, lo que nos permitirá sacar ciertas estadísticas
+de la calidad de las soluciones, y que los resultados obtenidos sean
+más fiables que al realizar una única ejecución.
 
 A continuación, pasamos a describir las tres metaheurísticas a
 estudiar de forma teórica.
@@ -374,7 +376,7 @@ un enjambre de polillas.
 
 ## Moth-Flame Optimization Algorithm
 
-Motf-Flame Optimization Algorithm (MFO) [@mirjalili2015moth] fue
+Moth-Flame Optimization Algorithm (MFO) [@mirjalili2015moth] fue
 propuesta en el año 2015, y el proceso de optimización se basa ahora
 en el comportamiento de las polillas cuando se acercan a una fuente de
 luz. La fuente de inspiración aparece a partir del movimiento en
@@ -662,23 +664,35 @@ iteraciones del algoritmo como el número máximo de evaluaciones
 dividido entre el tamaño de la población.
 
 Para cada algoritmo, se han realizado 25 ejecuciones por cada función
-del _benchmark_ para cada dimensión del problema (10, 30 y 50). Aunque
-en la propuesta original se exigían 51 ejecuciones, y se contemplaba
-también el problema de tamaño 100, hemos considerado excesiva dicha
+del _benchmark_ para las dimensiones del problema 10 y 30, y 15
+ejecuciones para el problema de tamaño 50. Aunque en la propuesta
+original se exigían 51 ejecuciones, y se contemplaba también el
+problema de tamaño 100, hemos considerado excesiva dicha
 experimentación, y hemos preferido reducir ligeramente las condiciones
 del problema, para acelerar los cálculos. No obstante, consideramos
 que 25 ejecuciones son suficientes para evaluar la robustez de los
 algoritmos.
 
 Para cada algoritmo y cada función, se mostrarán el mínimo alcanzado
-en las 25 ejecuciones, el máximo, la media y la desviación típica. Se
-considera que estos estadísticos son suficientes para extraer
-conclusiones sobre la calidad de los algoritmos con los que se ha
-trabajado.
+en las 25 ejecuciones, el máximo, la mediana, la media y la desviación
+típica. Se considera que estos estadísticos son suficientes para
+extraer conclusiones sobre la calidad de los algoritmos con los que se
+ha trabajado. El mínimo y el máximo nos darán una idea de la mejor y
+la peor de las ejecuciones del algoritmo, lo que nos permitirá, por un
+lado, ver si el algoritmo es capaz de llegar al mínimo de la función,
+y por otro, si este resultado es robusto, es decir, si no existen
+ejecuciones en las que el resultado se dispara y es muy malo. La media
+y la mediana son medidas de centralidad, que nos darán una idea de
+cómo se comporta el algoritmo en términos generales. La desviación
+típica es de nuevo una medida de la robustez del optimizador. Si la
+desviación es baja, significa que los resultados obtenidos por la
+metaheurística son más o menos similares en todos los casos. Si es
+alta, por el contrario, podremos concluir que los resultados son poco
+estables, y que dependen fuertemente de la ejecución.
 
 Adicionalmente, se estudiará la velocidad de convergencia de los
 algoritmos tomando la función C30, que es supuestamente la más
-compleja de optimizar, para el tamaño del problema 50. Se realizarán 5
+compleja de optimizar, para el tamaño del problema 50. Se realizarán 3
 ejecuciones para cada una, y se tomarán 500 muestras del mejor valor
 de la función objetivo en distintas etapas del algoritmo. Dicha
 información se mostrará gráficamente para realizar un estudio
@@ -816,7 +830,7 @@ C16 & GWO & 1600.000 & 1600.823 & 1600.747 & 1600.824 &   0.188 \\
 
 Para este grupo de funciones, los resultados parecen ser bastante
 adecuados. Los tres algoritmos son capaces de acercarse
-significativamente al mínimo en prácticamente todas las funciones. El
+significativamente al mínimo en prácticamente todas las funciones. Los
 únicos valores que pueden resultar anormalmente altos son los que
 obtiene MFO sobre la función 11, que se queda a 100 unidades del
 mínimo, y en la función 10, que se queda a 75 puntos. El resto de
@@ -953,5 +967,628 @@ función.  Es por esto por lo que, cuando se utilizan estos
 optimizadores en la resolución de problemas reales, se recomiende
 ejecutar los mismos varias veces, para eliminar en parte la componente
 aleatoria que los gobierna.
+
+Una vez hemos terminado de estudiar los resultados sobre el problema
+en tamaño 10, pasamos a estudiar los resultados obtenidos sobre el
+problema de tamaño 30.
+
+## Resultados sobre el problema de tamaño 30
+
+Ahora, tenemos disponible un mayor número de ejecuciones, a cambio de
+trabajar con vectores de mayor tamaño. Esto hace que el tamaño del
+espacio de búsqueda sea significativamente más grande, a cambio de
+permitir que los algoritmos tengan más tiempo para converger a buenas
+soluciones. Aun así, no estamos hablando de un aumento de tamaño
+excesivo, por lo que se espera que los algoritmos conserven una buena
+capacidad para obtener soluciones adecuadas.
+
+Comenzamos estudiando los resultados sobre las funciones simples:
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el primer grupo de funciones. D = 30}\\
+\toprule
+   &     &        min &         50\% &         mean &           max &          std \\
+\midrule
+C1 & GWO &  24496.601 &   27556.616 &    33739.274 &     55876.159 &     8540.628 \\
+   & MFO &    157.658 &   12483.003 &   358432.466 &   7318174.513 &  1454948.435 \\
+   & WOA &    460.295 &     871.206 &      841.747 &      1225.291 &      248.417 \\
+\midrule
+C2 & GWO &    201.501 &     202.625 &   400202.217 &   2000201.469 &   577350.152 \\
+   & MFO & 101793.925 & 3333525.893 & 15647334.681 & 113943958.548 & 25885235.998 \\
+   & WOA &    321.192 &     487.925 &      488.582 &       698.717 &       95.120 \\
+\midrule
+C3 & GWO &    325.807 &     327.070 &      327.198 &       328.598 &        0.841 \\
+   & MFO &    300.074 &     342.456 &      646.628 &      6966.255 &     1321.098 \\
+   & WOA &    309.127 &     319.665 &      318.943 &       327.729 &        5.696 \\
+\bottomrule
+\end{longtable}
+
+Lo primero que podemos observar es que los resultados obtenidos
+empiezan a perder calidad rápidamente. Sólo estamos contemplando un
+problema de tamaño 30, y ya empezamos a ver con cierta regularidad que
+algunos algoritmos no son capaces de encontrar el óptimo para algunas
+de las funciones simples. Aquí podemos observar como ninguno de los
+algoritmos ha llegado al óptimo de ninguna de las funciones en ningún
+caso. Cuando ejecutamos para el problema de tamaño 10, sí que se
+consiguió dicho óptimo en alguna ocasión, pero ahora todos los
+algoritmos quedan relativamente alejados. Se pueden destacar las
+mejores ejecuciones de GWO para C2 y MFO Para C3, pero en ningún caso
+se consigue un error de menos de una unidad, como teníamos
+anteriormente.
+
+Además, podemos ver cómo los resultados empiezan a ser cada vez menos
+robustos. El resultado obtenido es cada vez más dependiente de la
+ejecución, lo que ha venido provocado también por el aumento de la
+dimensionalidad. Por ejemplo. podemos observar que MFO, que es el
+algoritmo que se queda más cerca del mínimo de C1 en su mejor
+ejecución, también es el algoritmo que se queda más alejado en la peor
+de sus ejecuciones, con una diferencia de varios órdenes de magnitud.
+Es destacable ahora el papel de WOA, lo cual justifica que sea el
+modelo más maduro de los 3. Aunque su comportamiento no es el mejor en
+términos de mínimos en ningún caso, sí que es el algoritmo que
+devuelve resultados más estables, y consigue la mejor de las
+soluciones para las tres funciones cuando nos referimos a su peor
+ejecución. Esta propiedad la hace deseable para su uso en aplicaciones
+reales, donde prima el buen comportamiento en términos generales por
+encima de resultados brillantes muy específicos.
+
+Pasamos a estudiar el resultados para el siguiente grupo de funciones:
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el segundo grupo de funciones. D = 30}\\
+\toprule
+    &     &      min &      50\% &     mean &      max &      std \\
+\midrule
+C4 & GWO &  401.801 &  403.162 &  403.608 &  405.751 &    1.292 \\
+    & MFO &  400.850 &  428.735 &  429.779 &  477.574 &   13.645 \\
+    & WOA &  400.000 &  400.000 &  400.000 &  400.000 &    0.000 \\
+\midrule
+C5 & GWO &  502.984 &  503.266 &  503.253 &  503.391 &    0.091 \\
+    & MFO &  520.001 &  520.031 &  520.078 &  520.494 &    0.113 \\
+    & WOA &  500.000 &  500.012 &  500.038 &  500.638 &    0.125 \\
+\midrule
+C6 & GWO &  600.000 &  600.000 &  600.001 &  600.005 &    0.002 \\
+    & MFO &  600.002 &  604.212 &  606.825 &  626.147 &    7.510 \\
+    & WOA &  600.000 &  600.000 &  600.000 &  600.000 &    0.000 \\
+\midrule
+C7 & GWO &  700.007 &  700.650 &  700.538 &  701.026 &    0.366 \\
+    & MFO &  700.127 &  700.579 &  701.014 &  708.275 &    1.604 \\
+    & WOA &  700.004 &  700.030 &  700.032 &  700.084 &    0.025 \\
+\midrule
+C8 & GWO &  800.000 &  800.516 &  800.557 &  801.547 &    0.514 \\
+    & MFO &  825.905 &  849.775 &  850.556 &  888.328 &   16.402 \\
+    & WOA &  800.000 &  800.000 &  800.240 &  804.985 &    1.009 \\
+\midrule
+C9 & GWO &  900.000 &  900.516 &  900.722 &  902.063 &    0.557 \\
+    & MFO &  926.255 &  947.796 &  949.508 &  986.610 &   17.546 \\
+    & WOA &  900.000 &  900.000 &  900.040 &  901.001 &    0.200 \\
+\midrule
+C10 & GWO & 1000.000 & 1025.013 & 1020.510 & 1050.025 &   16.097 \\
+    & MFO & 2693.950 & 4611.274 & 4617.299 & 5830.286 &  790.365 \\
+    & WOA & 1000.003 & 1000.007 & 1000.243 & 1002.265 &    0.616 \\
+\midrule
+C11 & GWO & 1100.000 & 1112.507 & 1115.508 & 1137.519 &   12.651 \\
+    & MFO & 2605.927 & 4646.246 & 4846.523 & 6777.401 & 1066.587 \\
+    & WOA & 1100.001 & 1100.007 & 1100.134 & 1101.526 &    0.410 \\
+\midrule
+C12 & GWO & 1200.131 & 1200.458 & 1200.438 & 1200.745 &    0.186 \\
+    & MFO & 1200.000 & 1200.000 & 1200.000 & 1200.000 &    0.000 \\
+    & WOA & 1200.000 & 1200.078 & 1200.699 & 1207.662 &    1.651 \\
+\midrule
+C13 & GWO & 1300.507 & 1300.654 & 1300.663 & 1300.750 &    0.061 \\
+    & MFO & 1300.262 & 1300.445 & 1300.442 & 1300.736 &    0.106 \\
+    & WOA & 1300.178 & 1300.382 & 1300.373 & 1300.566 &    0.115 \\
+\midrule
+C14 & GWO & 1400.402 & 1400.474 & 1400.463 & 1400.490 &    0.027 \\
+    & MFO & 1400.215 & 1400.293 & 1400.364 & 1401.256 &    0.245 \\
+    & WOA & 1400.109 & 1400.199 & 1400.198 & 1400.392 &    0.063 \\
+\midrule
+C15 & GWO & 1502.874 & 1503.570 & 1503.688 & 1504.808 &    0.508 \\
+    & MFO & 1502.331 & 1509.614 & 1510.513 & 1526.674 &    5.382 \\
+    & WOA & 1500.000 & 1500.023 & 1500.503 & 1504.318 &    1.092 \\
+\midrule
+C16 & GWO & 1602.469 & 1605.649 & 1605.188 & 1606.431 &    1.003 \\
+    & MFO & 1603.625 & 1605.683 & 1605.818 & 1610.894 &    1.661 \\
+    & WOA & 1600.000 & 1603.266 & 1602.905 & 1606.757 &    2.405 \\
+\bottomrule
+\end{longtable}
+
+Aquí seguimos manteniendo un comportamiento similar al que tuvimos
+para el problema de tamaño 10. Las tres metaheurísticas consiguen
+resultados de gran calidad para casi todas estas funciones. Podemos
+observar que los problemas que empezó a presentar MFO para algunas
+funciones en menor dimensión ahora se han visto acrecentados. Por
+ejemplo, para la función C10 en dimensión menor se obtenían resultados
+del orden de 70 unidades más altos que el mínimo. Aquí, se aumenta
+hasta más de 1000 unidades. De la misma forma ocurre con la función
+C11. GWO y WOA, por el contrario, consiguen resultados muy buenos en
+todos los casos, como ocurría previamente.
+
+Pasamos a analizar el tercer grupo de funciones:
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el tercer grupo de funciones. D = 30}\\
+\toprule
+    &     &      min &      50\% &      mean &         max &        std \\
+\midrule
+C17 & GWO & 2441.738 & 3068.786 &  3117.640 &    5939.527 &    652.160 \\
+    & MFO & 1755.910 & 2121.688 &  2289.919 &    3910.438 &    509.051 \\
+    & WOA & 1750.686 & 1904.462 &  1889.218 &    2009.130 &     72.224 \\
+\midrule
+C18 & GWO & 1813.005 & 1813.019 &  1813.022 &    1813.045 &      0.012 \\
+    & MFO & 1861.831 & 2638.261 & 48798.155 & 1096938.722 & 218530.961 \\
+    & WOA & 1850.696 & 2305.881 &  2805.853 &    7237.825 &   1409.967 \\
+\midrule
+C19 & GWO & 1907.980 & 1910.005 &  1910.764 &    1915.954 &      1.922 \\
+    & MFO & 1909.464 & 2006.658 &  2772.686 &   12857.886 &   2231.172 \\
+    & WOA & 1905.823 & 1911.765 &  1949.578 &    2735.948 &    166.200 \\
+\midrule
+C20 & GWO & 2099.265 & 2180.707 &  2175.045 &    2233.223 &     37.523 \\
+    & MFO & 2049.179 & 2347.206 &  6845.320 &   64298.066 &  12992.546 \\
+    & WOA & 2033.953 & 2096.358 &  2141.975 &    2691.244 &    143.288 \\
+\midrule
+C21 & GWO & 3008.286 & 3632.363 &  3708.598 &    5930.056 &    563.990 \\
+    & MFO & 2109.960 & 2769.499 &  3857.342 &   12094.950 &   2423.205 \\
+    & WOA & 2140.514 & 2182.072 &  2186.443 &    2309.400 &     37.628 \\
+\midrule
+C22 & GWO & 2204.409 & 2204.418 &  2204.427 &    2204.529 &      0.026 \\
+    & MFO & 2222.666 & 2233.541 &  2342.141 &    2795.791 &    172.399 \\
+    & WOA & 2206.417 & 2208.890 &  2211.238 &    2249.365 &      8.340 \\
+\bottomrule
+\end{longtable}
+
+Al igual que nos ocurrió con el grupo anterior de funciones, empezamos
+a observar un empeoramiento notorio debido al aumento de la
+dimensionalidad. Volvemos a quedarnos relativamente lejos de los
+mínimos en todos los casos, y los máximos errores cometidos se
+disparan, especialmente para el algoritmo MFO. De nuevo, WOA parece
+ser el algoritmo más estable de los tres, y que mejores resultados
+obtiene en general. No obstante, para la función C18 tiene un
+comportamiento bastante mejorable, como ya le ocurría en dimensiones
+menores. No obstante, para la función C20 ha habido una mejora
+sensible.
+
+Resulta curioso observar cómo GWO tiene un comportamiento tan dispar
+entre unas funciones y otras. Para algunas de las funciones consigue
+unos resultados de gran calidad, como C18 o C22, en las que consigue
+una desviación típica inferior a 0.1, y con resultados que no se
+alejan más que unas pocas unidades de la media, mientras que en otras,
+como C17, se queda muy alejado del valor mínimo, y la variabilidad
+entre ejecuciones es notable (aquí tenemos una desviación típica de
+652).
+
+Pasamos a comentar el último grupo de funciones.
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el cuarto grupo de funciones. D = 30}\\
+\toprule
+    &     &       min &       50\% &       mean &        max &        std \\
+\midrule
+C23 & GWO &  2301.777 &  2301.839 &   2327.709 &   2367.121 &     27.752 \\
+    & MFO &  2383.551 &  2520.687 &   2496.941 &   2582.320 &     56.086 \\
+    & WOA &  2302.623 &  2303.053 &   2303.060 &   2303.437 &      0.213 \\
+\midrule
+C24 & GWO &  2400.035 &  2454.038 &   2445.208 &   2497.505 &     30.652 \\
+    & MFO &  3228.908 &  3686.178 &   3710.915 &   4105.497 &    214.001 \\
+    & WOA &  2400.462 &  2400.707 &   2401.012 &   2402.822 &      0.691 \\
+\midrule
+C25 & GWO &  2500.031 &  2540.133 &   2535.025 &   2552.388 &     15.303 \\
+    & MFO &  2700.125 &  2700.166 &   2700.196 &   2700.482 &      0.089 \\
+    & WOA &  2500.449 &  2500.850 &   2500.915 &   2502.146 &      0.371 \\
+\midrule
+C26 & GWO &  2600.070 &  2653.105 &   2631.449 &   2668.591 &     31.236 \\
+    & MFO &  2887.289 &  2993.004 &   3018.630 &   3203.861 &     85.122 \\
+    & WOA &  2600.809 &  2601.263 &   2601.304 &   2601.834 &      0.267 \\
+\midrule
+C27 & GWO &  3201.889 &  3209.888 &   3209.794 &   3214.690 &      2.727 \\
+    & MFO &  3048.847 &  3069.582 &   3071.771 &   3109.177 &     19.155 \\
+    & WOA &  2706.953 &  2707.714 &   2707.754 &   2709.065 &      0.569 \\
+\midrule
+C28 & GWO &  3643.995 &  4143.780 &   4161.412 &   4392.069 &    164.347 \\
+    & MFO &  3194.011 &  3197.432 &   3198.190 &   3207.836 &      2.884 \\
+    & WOA &  2802.960 &  2804.141 &   3056.641 &   4492.613 &    558.605 \\
+\midrule
+C29 & GWO & 22195.888 & 49082.981 &  47042.146 &  65197.766 &  13671.405 \\
+    & MFO &  3109.523 &  4110.292 &  28243.572 & 493063.685 &  97310.020 \\
+    & WOA &  3135.011 &  4721.988 &  14992.348 & 114664.655 &  26468.756 \\
+\midrule
+C30 & GWO &  3950.462 &  4476.289 &   4414.194 &   4554.287 &    177.136 \\
+    & MFO &  3226.147 &  3363.749 &   5939.578 &  66622.747 &  12643.451 \\
+    & WOA &  3119.362 &  3332.257 & 167928.398 & 754950.919 & 249074.119 \\
+\bottomrule
+\end{longtable}
+
+Para este grupo de funciones podemos observar lo que veníamos
+apreciando en grupos de funciones anteriores. Se reproducen los malos
+comportamientos que teníamos para algunas funciones con determinados
+algoritmos, acrecentados ahora por el aumento de la dimensionalidad
+del problema. Por ejemplo, WOA, que ya tenía un mal comportamiento en
+cuanto a la estabilidad para la función 30, vuelve a tener aquí un mal
+comportamiento, quedándose bastante alejado del mínimo para alguna de
+las ejecuciones. Ahora, el hecho de que el espacio de búsqueda tenga 3
+veces más elementos, ha provocado que el error cometido sea 10 veces
+más grande, lo que supone una pérdida de rendimiento notable.
+
+Aún así, si nos fijamos en las funciones de la 13 a la 28, podemos
+observar que esta técnica de optimización vuelve a ser la que mejores
+resultados obtiene, quedándose cerca del mínimo en todos los casos.
+MFO parece ser el algoritmo menos consistente, y queda lejos de los
+mínimos en prácticamente todos los casos (el mejor resultado en todo
+el grupo de funciones es para C23, y aún así está a 83 unidades del
+mínimo). GWO tiene un comportamiento más deseable, aunque no tan bueno
+como WOA. No obstante, para la función 30, es la única metaheurística
+con resultados más o menos estables. Entre su mejor y su peor
+ejecución sólo hay unas 600 unidades de diferencia, y no del orden de
+decenas o cientos de miles, como ocurre en los otros dos casos. En
+contraposición, queda más alejada del mínimo que las otras dos en
+términos de la mejor ejecución.
+
+Finalmente, vamos a estudiar los resultados obtenidos por los
+algoritmos para el problema de tamaño 50.
+
+## Resultados sobre el problema de tamaño 50
+
+Tenemos ahora un problema de una dimensionalidad importante, en el
+cual se permite un número de evaluaciones de la función objetivo
+bastante más alto que en los dos casos anteriores. No obstante, como
+ya observamos en el caso del problema de tamaño 30, es esperable que
+se produzca un empeoramiento importante de los resultados, debido a
+que el aumento en las iteraciones no es suficiente para compensar el
+aumento de tamaño del problema.
+
+Comenzamos viendo el resultado obtenido sobre el primer grupo de
+funciones:
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el primer grupo de funciones. D = 50}\\
+\toprule
+   &     &         min &          50\% &          mean &           max &           std \\
+\midrule
+C1 & GWO &   86637.968 &   144531.927 &    144506.741 &    198351.060 &     26964.764 \\
+   & MFO &    7340.090 &   106328.590 &   1124675.968 &   9250240.578 &   2522950.045 \\
+   & WOA &     656.730 &     1127.191 &      1234.361 &      2053.439 &       410.376 \\
+\midrule
+C2 & GWO & 8000202.041 & 10000202.528 &  10056892.262 &  12850550.962 &   1560134.367 \\
+   & MFO & 3730084.479 & 46332597.325 & 111447960.555 & 591142612.604 & 151305885.831 \\
+   & WOA &     631.216 &      862.830 &       856.318 &      1238.088 &       173.525 \\
+\midrule
+C3 & GWO &     344.591 &      347.458 &       347.134 &       348.606 &         1.014 \\
+   & MFO &     326.770 &      575.035 &      1532.955 &      8342.291 &      2081.052 \\
+   & WOA &     307.309 &      309.639 &       312.286 &       325.701 &         5.485 \\
+\bottomrule
+\end{longtable}
+
+Ahora sí que podemos observar empeoramientos significativos para los
+resultados sobre las funciones simples. A excepción de WOA, que se
+comporta de forma más o menos similar a como lo hacía para la
+dimensión 30, los valores que se llegan a obtener son bastante peores
+que previamente. La función C3 parece ser la más simple de las 3
+expuestas, ya que en ella sí que se tiene un comportamiento aceptable. En
+las otras dos, sin embargo, los resultados están muy alejados del mínimo
+tanto para GWO como para MFO, especialmente.
+
+Pasamos a observar el segundo grupo de funciones.
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el segundo grupo de funciones. D = 50}\\
+\toprule
+    &     &      min &      50\% &     mean &       max &      std \\
+\midrule
+C4 & GWO &  407.137 &  407.510 &  407.773 &   409.384 &    0.670 \\
+    & MFO &  412.260 &  480.050 &  482.852 &   560.618 &   38.027 \\
+    & WOA &  400.000 &  400.000 &  400.000 &   400.000 &    0.000 \\
+\midrule
+C5 & GWO &  503.424 &  503.459 &  503.461 &   503.498 &    0.021 \\
+    & MFO &  520.000 &  520.109 &  520.117 &   520.272 &    0.095 \\
+    & WOA &  500.003 &  500.012 &  500.012 &   500.033 &    0.008 \\
+\midrule
+C6 & GWO &  600.022 &  600.030 &  600.029 &   600.037 &    0.004 \\
+    & MFO &  600.460 &  607.880 &  612.043 &   650.464 &   11.929 \\
+    & WOA &  600.000 &  600.000 &  600.000 &   600.000 &    0.000 \\
+\midrule
+C7 & GWO &  701.062 &  701.108 &  701.099 &   701.117 &    0.018 \\
+    & MFO &  700.719 &  701.364 &  702.755 &   706.755 &    2.266 \\
+    & WOA &  700.006 &  700.009 &  700.021 &   700.106 &    0.026 \\
+\midrule
+C8 & GWO &  804.125 &  805.672 &  805.572 &   806.703 &    0.733 \\
+    & MFO &  854.612 &  884.020 &  887.478 &   939.629 &   22.958 \\
+    & WOA &  800.000 &  800.001 &  800.134 &   801.997 &    0.515 \\
+\midrule
+C9 & GWO &  903.094 &  905.672 &  905.347 &   907.219 &    1.196 \\
+    & MFO &  955.744 &  985.800 &  986.026 &  1031.066 &   22.095 \\
+    & WOA &  900.000 &  900.000 &  900.267 &   902.009 &    0.705 \\
+\midrule
+C10 & GWO & 1100.050 & 1137.568 & 1138.388 &  1175.087 &   24.698 \\
+    & MFO & 4553.909 & 7625.989 & 7387.636 &  9587.502 & 1651.248 \\
+    & WOA & 1000.007 & 1000.010 & 1000.137 &  1001.696 &    0.435 \\
+\midrule
+C11 & GWO & 1175.038 & 1225.062 & 1227.315 &  1275.087 &   24.746 \\
+    & MFO & 5114.025 & 8256.555 & 7849.490 & 10382.520 & 1567.247 \\
+    & WOA & 1100.008 & 1100.011 & 1100.035 &  1100.266 &    0.066 \\
+\midrule
+C12 & GWO & 1200.005 & 1200.523 & 1200.421 &  1200.776 &    0.230 \\
+    & MFO & 1200.000 & 1200.000 & 1200.000 &  1200.000 &    0.000 \\
+    & WOA & 1200.002 & 1200.410 & 1200.452 &  1200.847 &    0.241 \\
+\midrule
+C13 & GWO & 1300.697 & 1300.767 & 1300.755 &  1300.811 &    0.036 \\
+    & MFO & 1300.320 & 1300.495 & 1300.550 &  1300.910 &    0.169 \\
+    & WOA & 1300.100 & 1300.323 & 1300.345 &  1300.736 &    0.140 \\
+\midrule
+C14 & GWO & 1400.410 & 1400.481 & 1400.469 &  1400.488 &    0.024 \\
+    & MFO & 1400.186 & 1400.292 & 1400.517 &  1401.247 &    0.424 \\
+    & WOA & 1400.145 & 1400.203 & 1400.225 &  1400.328 &    0.060 \\
+\midrule
+C15 & GWO & 1508.975 & 1509.791 & 1509.802 &  1510.588 &    0.469 \\
+    & MFO & 1515.497 & 1536.837 & 1547.235 &  1647.795 &   34.911 \\
+    & WOA & 1500.000 & 1500.025 & 1500.303 &  1501.229 &    0.434 \\
+\midrule
+C16 & GWO & 1611.027 & 1612.755 & 1613.110 &  1616.211 &    1.457 \\
+    & MFO & 1605.986 & 1610.862 & 1611.443 &  1620.944 &    4.142 \\
+    & WOA & 1600.000 & 1600.001 & 1602.348 &  1611.172 &    3.365 \\
+\bottomrule
+\end{longtable}
+
+Para este grupo de funciones seguimos teniendo un comportamiento
+bastante bueno en todos los casos. A excepción de algunas funciones
+para MFO, que ya tuvieron un comportamiento cuestionable en dimensión
+30, los resultados se han mantenido más o menos estables, por lo que
+este grupo de funciones no merece más comentario.
+
+Mostramos los resultados para el primer grupo de funciones compuestas
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el tercer grupo de funciones. D = 50}\\
+\toprule
+    &     &      min &         50\% &            mean &              max &             std \\
+\midrule
+C17 & GWO & 9696.982 &   12544.769 &       13138.131 &        17640.264 &        3243.363 \\
+    & MFO & 2361.489 &    3258.101 &        4267.238 &        12140.455 &        2549.650 \\
+    & WOA & 1781.364 &    2062.831 &        2037.476 &         2228.100 &         133.315 \\
+\midrule
+C18 & GWO & 1821.025 &    1821.048 &        1821.050 &         1821.083 &           0.018 \\
+    & MFO & 2459.413 &   11282.461 &      299061.738 &      2861149.469 &      784592.380 \\
+    & WOA & 1899.998 &    1966.835 &        2066.248 &         3331.945 &         356.092 \\
+\midrule
+C19 & GWO & 1918.992 &    1920.547 &        1921.116 &         1923.172 &           1.567 \\
+    & MFO & 1996.930 &   12055.396 &      860807.942 &     11385836.202 &     2921768.959 \\
+    & WOA & 1909.415 &    1917.663 &        1917.875 &         1928.069 &           5.855 \\
+\midrule
+C20 & GWO & 2245.087 &    2377.677 &        2391.514 &         2569.839 &          79.235 \\
+    & MFO & 8649.389 & 4676163.108 & 10645303478.337 & 155706942487.871 & 40134800763.874 \\
+    & WOA & 2076.673 &    2154.523 &        2171.026 &         2412.528 &          79.359 \\
+\midrule
+C21 & GWO & 7924.488 &    8888.413 &        9091.047 &        11072.736 &         932.708 \\
+    & MFO & 2913.483 &    4778.138 &       24397.641 &       264763.756 &       66836.222 \\
+    & WOA & 2206.822 &    2258.393 &        2269.726 &         2365.960 &          51.097 \\
+\midrule
+C22 & GWO & 2205.017 &    2205.169 &        2205.402 &         2207.913 &           0.711 \\
+    & MFO & 2225.316 &    2540.568 &        2912.796 &         6815.980 &        1155.403 \\
+    & WOA & 2212.075 &    2217.189 &        2234.946 &         2425.796 &          54.880 \\
+\bottomrule
+\end{longtable}
+
+De nuevo se nos replican los resultados que obtuvimos para el problema
+de tamaño 30, acrecentados por el aumento de dimensionalidad. MFO deja
+de ser un algoritmo competitivo que consigue acercarse a los mínimos
+relativamente en sus mejores ejecuciones, pero que rápidamente pierde
+calidad en los resultados obtenidos. Podemos observar cómo la mediana
+de sus ejecuciones se dispara en tres de las seis funciones que
+componen este conjunto, y cómo los valores obtenidos en las peores
+ejecuciones están muy alejados. Algo similar le ocurre a GWO, aunque a
+mucha menor escala. Este algoritmo es mucho más estable que el
+anterior, pero tiene la problemática de quedarse relativamente alejado
+del mínimo para las funciones C17 y C21, como ya nos ocurría en
+dimensión 30 en menor medida. WOA empieza a verse como un algoritmo de
+optimización de mucha calidad, que consigue resultados bastante
+adecuados a pesar de la dificultad de las funciones y el aumento de la
+dimensión del problema.
+
+Pasamos a ver el último grupo de funciones:
+
+\begin{longtable}{llrrrrr}
+\caption{Resultados obtenidos sobre el cuarto grupo de funciones. D = 50}\\
+\toprule
+    &     &        min &        50\% &        mean &          max &         std \\
+\midrule
+C23 & GWO &   2380.576 &   2393.953 &    2391.902 &     2397.977 &       4.657 \\
+    & MFO &   2504.427 &   2573.624 &    2569.313 &     2602.064 &      24.082 \\
+    & WOA &   2304.069 &   2304.417 &    2304.455 &     2304.847 &       0.181 \\
+\midrule
+C24 & GWO &   2593.628 &   2604.249 &    2604.844 &     2620.855 &       8.945 \\
+    & MFO &   3756.129 &   4540.210 &    4603.911 &     5131.838 &     332.079 \\
+    & WOA &   2400.613 &   2400.793 &    2407.359 &     2495.500 &      24.394 \\
+\midrule
+C25 & GWO &   2563.179 &   2575.511 &    2574.335 &     2586.101 &       7.112 \\
+    & MFO &   2700.201 &   2700.306 &    2700.357 &     2700.765 &       0.175 \\
+    & WOA &   2500.689 &   2500.886 &    2501.020 &     2501.895 &       0.380 \\
+\midrule
+C26 & GWO &   2696.951 &   2708.000 &    2705.313 &     2717.189 &       6.997 \\
+    & MFO &   3100.479 &   3349.738 &    3368.750 &     3614.933 &     133.342 \\
+    & WOA &   2601.120 &   2601.516 &    2601.530 &     2602.001 &       0.203 \\
+\midrule
+C27 & GWO &   3324.256 &   3325.981 &    3326.607 &     3331.343 &       2.007 \\
+    & MFO &   3051.057 &   3114.683 &    3125.273 &     3205.228 &      46.154 \\
+    & WOA &   2708.204 &   2709.502 &    2709.806 &     2713.706 &       1.458 \\
+\midrule
+C28 & GWO &   4638.490 &   5111.304 &    5136.920 &     5609.236 &     246.038 \\
+    & MFO &   3197.606 &   3199.854 &    3200.690 &     3206.841 &       2.612 \\
+    & WOA &   2804.550 &   2805.576 &    3183.138 &     6400.855 &    1032.203 \\
+\midrule
+C29 & GWO & 104417.400 & 181734.746 &  180738.939 &   288916.258 &   38699.696 \\
+    & MFO &   3706.090 &  33357.741 & 2776955.799 & 31453835.740 & 8092319.611 \\
+    & WOA &   3131.745 &   3899.558 &   11225.452 &   110683.719 &   27523.698 \\
+\midrule
+C30 & GWO &   5987.358 &   6985.098 &    8191.470 &    23999.954 &    4459.820 \\
+    & MFO &   3245.814 &   3792.072 &   82051.267 &  1174454.223 &  302205.218 \\
+    & WOA &   3122.934 &   3281.697 &  308671.107 &  1415625.124 &  480022.003 \\
+\bottomrule
+\end{longtable}
+
+Finalmente, tenemos los resultados para las últimas funciones
+compuestas de dimensión 50. Nos volvemos a encontrar con las mismas
+conclusiones que habíamos extraído hasta el momento. El aumento de la
+dimensión del problema. GWO y WOA consiguen acercarse relativamente al
+mínimo para muchas de las funciones contempladas (WOA se queda cerca
+del mínimo en sus mejores ejecuciones para todas las funciones hasta
+la 28, y GWO lo hace para las funciones hasta la 26). MFO queda más
+alejada en todos los casos, siendo además el menos estable de los
+algoritmos. Para las funciones 29 y 30, los resultados son bastante
+peores, especialmente para MFO. También podemos observar cómo WOA para
+la función 30 consigue unos resultados decentes en más de la mitad de
+las ejecuciones (la mediana es bastante baja), pero luego se comporta
+de forma muy poco estable, siendo el optimizador que peor valor
+consigue en su peor ejecución, y teniendo por tanto un valor medio
+también alto (lo cual indica que probablemente no sea sólo la peor
+ejecución la que ha ido mal, y haya otras en las que se queda lejos
+del mínimo).
+
+En términos generales, y a excepción de la función 30, como ya hemos
+comentado, WOA vuelve a ser el algoritmo más estable y que mejores
+resultados consigue, como hemos venido observando durante el análisis
+de resultados completo. Además, hemos podido apreciar cómo este
+algoritmo iba marcando diferencias importantes cuando el tamaño del
+problema aumentaba. En las ejecuciones para tamaño 10, no se
+apreciaban diferencias muy significativas, e incluso podría concluirse
+que este algoritmo es peor que los otros en determinadas ocasiones.
+No obstante, cuando hemos trabajado con tamaño 30 y 50, la potencia de
+este optimizador sobre los otros dos se ha ido haciendo más y más
+notable.
+
+Antes de extraer las conclusiones finales del estudio, haremos un
+pequeño análisis de la evolución del proceso de optimización de los
+algoritmos sobre la última función.
+
+# Análisis de convergencia de los algoritmos
+
+Para tratar de justificar los resultados obtenidos a través de un
+estudio de la velocidad de convergencia de los algoritmos a las
+soluciones óptimas, se han realizado tres ejecuciones de cada
+algoritmo para el problema de tamaño 50 y la función C30, y se
+han registrado los valores mínimos que había alcanzado cada algoritmo
+en dicha etapa del proceso de optimización. Mostramos a continuación
+las gráficas obtenidas. Comenzamos representando el proceso de
+optimización de GWO:
+
+![Valores obtenidos por GWO durante el proceso de optimización](imgs/GWO_convergence.png)
+
+El mejor valor obtenido en estas tres ejecuciones se consigue en la
+segunda ejecución, llegándose a 6403. Como podemos observar, el
+proceso de optimización en los tres casos ha sido muy similar, con una
+bajada muy abrupta al principio (hay que tener en cuenta que la escala
+del eje y es logarítmica, por lo que en realidad la caída es mucho más
+rápida de lo que se aprecia en la gráfica. Una caída visualmente
+lineal en una gráfica con el eje logarítmico equivale a una caída
+exponencial en una gráfica normal), que se estabiliza muy rápidamente.
+En concreto, en la medida número 50 (que equivale al 10 % del proceso
+de búsqueda) se ha llegado ya prácticamente al valor mínimo en las
+tres ejecuciones. Esto significa que esta metaheurística converge muy
+rápidamente a los valores bajos que encuentra. Otro punto a remarcar
+es que la mayoría del tiempo de búsqueda de la heurística está
+desperdiciado, ya que se gasta casi el 90 % del tiempo del algoritmo
+sin mejorar sus resultados. Esto es indicativo de que la capacidad de
+exploración del espacio de búsqueda del algoritmo puede estar un poco
+limitada. La capacidad de explotación, en cambio, parece ser adecuada
+(esta capacidad hace referencia a la mejora de soluciones buenas por
+medio de búsquedas en su entorno cercano).
+
+Pasamos a ver cómo ha evolucionado el proceso de búsqueda para MFO:
+
+![Valores obtenidos por MFO durante el proceso de optimización](imgs/MFO_convergence.png)
+
+En este caso el valor mínimo alcanzado ocurre en la primera ejecución,
+con un valor de 3526. Ahora, podemos observar también una convergencia
+rápida a buena soluciones, pero ligeramente más relajada que en el
+caso anterior. De hecho, se siguen produciendo algunas mejoras
+significativas incluso pasadas las 200 mediciones, lo cual representa
+casi la mitad del proceso de optimización. Parece que este algoritmo
+es ligeramente mejor a la hora de explorar el espacio de búsqueda y
+localizar zonas más prometedoras que el anterior, que rápidamente se
+colocaba. Aún así, hay una parte importante del tiempo en el que los
+resultados no mejoran. No obstante, debido a que nos quedamos bastante
+cerca del mínimo en dos de las tres ejecuciones, es normal que se
+produzca este comportamiento, ya que resulta muy difícil mejorar
+resultados de tanta calidad.
+
+Pasamos a ver el proceso de optimización de WOA:
+
+![Valores obtenidos por WOA durante el proceso de optimización](imgs/WOA_convergence.png)
+
+Aquí podemos apreciar un algoritmo de convergencia relativamente más
+lenta. Podemos observar claramente que para los tres casos la curva
+obtenida es menos abrupta que las obtenidas previamente. Esto suele
+ser indicativo de algoritmos que exploran en mayor profundidad las
+zonas del espacio de búsqueda. Estos algoritmos son capaces de
+encontrar zonas del espacio más prometedoras, y afinar los resultados
+en etapas posteriores del algoritmo. La segunda ejecución, a pesar de
+no haber conseguido acercarse al mínimo de la función, es un buen
+ejemplo de búsqueda de zonas del espacio. Hay varios puntos en los que
+el algoritmo sufre una estabilización de la función de coste, pero se
+encuentra una nueva zona prometedora (la cual puede distinguirse por
+un salto abrupto) y se explora dicha zona. En la ejecución tercera, la
+zona del espacio más prometedora se localiza incluso pasada la mitad
+de las ejecuciones. Tanto MFO como GWO localizaban su zona más
+prometedora en etapas muy tempranas del algoritmo, lo cual suele
+significar una convergencia prematura a un mínimo local. De hecho, la
+mejor ejecución de WOA alcanza el valor 3107, que es el más bajo de
+todos los encontrados en este apartado, por lo que es de nuevo el
+mejor de los algoritmos.
+
+# Conclusiones y trabajo futuro
+
+En este trabajo se han estudiado cómo pueden utilizarse modelos de
+metaheurísticas basados en enjambres para solucionar problemas de
+optimización numérica de funciones reales de variable real. Estos
+modelos tienen como base una población de soluciones, las cuales
+exploran el espacio por medio de mecanismos de movimiento, los cuales
+utilizan información de otros elementos del enjambre para dirigir la
+búsqueda. En particular, se ha estudiado la capacidad de obtener
+buenas soluciones de tres de estos algoritmos, los cuales tienen
+inspiración en familias de distintos animales, sobre un conjunto de
+funciones _benchmark_ empleadas en distintas competiciones de
+optimización numérica. De este estudio pueden derivarse ciertas
+conclusiones:
+
+- Esta clase de modelos parecen ser una herramienta potente para la
+optimización de funciones para las que el cálculo del gradiente no es
+posible o resulta demasiado costoso. Esto se ha puesto de manifiesto
+con los buenos resultados obtenidos por los tres algoritmos en la
+mayoría de funciones que componen el _benchmark_.
+- Es importante que los algoritmos de optimización ofrezcan mecanismos
+variados y compensados que permitan tanto explorar el espacio de
+búsqueda para localizar zonas prometedoras, como explotar el entorno
+de esas zonas y encontrar la mejor solución del entorno. Como hemos
+visto en los resultados, WOA, que era el modelo más diverso y que más
+empeño ponía en que el movimiento de los agentes estuviese compensado,
+ha sido el mejor algoritmo en términos generales.
+- La dimensionalidad del espacio de búsqueda es un factor importante a
+la hora de medir la dificultad de obtener buenas soluciones. Las
+soluciones obtenidas por los algoritmos han ido empeorando
+significativamente a medida que el tamaño del problema aumentaba, a
+pesar de permitirse procesos de búsqueda más largos.
+- Existe aún espacio para la mejora de los resultados. En el análisis
+de convergencia de los algoritmos, hemos visto que en una parte
+importante del tiempo de ejecución no se producía una mejora de los
+resultados, especialmente para GWO, que en menos del 10 % de las
+etapas de ejecución ya estaba muy cerca del valor mínimo que iba a
+encontrar finalmente.
+
+Además de estas conclusiones, se han identificado ciertas direcciones
+de trabajo futuro posibles.
+
+* En este trabajo no hemos centrado en las metaheurísticas basadas en
+enjambres, pero no hemos comparado este tipo de enfoques con otras
+metaheurísticas, como pueden ser los modelos evolutivos. Se puede
+realizar un estudio de este tipo para comprobar si el empleo de unas
+técnicas u otras ofrece resultados significativamente distintos.
+* El conjunto de funciones sobre el que se han hecho las pruebas son
+un conjunto de funciones _benchmark_ utilizadas en competiciones, las
+cuales no tienen por qué reflejar correctamente las problemáticas que
+pueden encontrarse en un problema de optimización real. La aplicación
+de estos modelos para la resolución de problemas reales es otra
+dirección de estudio interesante.
+* Hemos estudiado un problema de optimización sin restricciones. Otro
+posible estudio se deriva de la aplicación de estos procesos de
+búsqueda sobre problemas con restricciones en la entrada, o con
+codificaciones de la solución distintas.
 
 # Referencias

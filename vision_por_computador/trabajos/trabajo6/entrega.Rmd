@@ -1,0 +1,290 @@
+---
+title: "Clasificación y segmentación de peatones"
+subtitle: "Visión por computador"
+author: "Francisco Luque Sánchez"
+date: "28/05/2020"
+titlepage: true
+tables: true
+titlepage-background: "background.pdf"
+headrule-color: "435488"
+urlcolor: 'blue'
+script-font-size: \scriptsize
+nncode-block-font-size: \scriptsize
+output:
+    pdf_document:
+        number_sections: yes
+        template: eisvogel
+---
+
+# Introducción
+
+En esta práctica vamos a estudiar cómo podemos afrontar de diversas
+maneras la clasificación y segmentación de imágenes de peatones,
+utilizando tanto modelos clásicos como modelos basados en Deep
+Learning.
+
+En una primera sección, vamos a afrontar el problema de clasificación.
+En este caso, tendremos una base de datos compuesta por imágenes de
+pequeño tamaño (128x64) de dos clases distintas, unas que contendrán
+peatones, y que representarán la clase positiva, y otras que sólo
+tendrán fondo, y representarán la negativa. En este contexto, vamos a
+realizar el proceso de clasificación por dos vías distintas. Por un
+lado, utilizaremos un clasificador clásico, basado en el cálculo del
+descriptor HoG de cada imagen y el entrenamiento de una SVM sobre
+dicho conjunto de datos, y por otro utilizaremos distintas
+arquitecturas de redes neuronales convolucionales, que recibirán el
+conjunto de datos de imágenes directamente, y tratarán de aprender
+la tarea de clasificación a partir de dicha información.
+
+Más adelante, en una segunda sección, mostraremos cómo podemos
+utilizar modelos de redes neuronales para realizar la tarea de
+segmentación de peatones. Esta tarea es ligeramente distinta, ya que
+en lugar de clasificar imágenes completas, nuestra tarea será, dada
+una imagen, distinguir los peatones que se encuentran en ella. De
+esta forma, la salida de la red neuronal será, en lugar de una etiqueta
+de clase para toda la imagen, una imagen del mismo tamaño que la imagen
+de entrada, en la que cada píxel tomará el valor 0 o 1 en función de si
+la red clasifica dicho píxel como fondo o peatón.
+
+Pasamos a explicar con más profundidad la tarea de clasificación que
+hemos llevado a cabo.
+
+# Clasificación de peatones
+
+En esta sección describiremos cómo hemos llevado a cabo la tarea de
+clasificación de peatones. Como hemos descrito anteriormente, se ha
+dado solución al problema por dos vías distintas, utilizando una
+aproximación clásica basada en HoG + SVM, y una aproximación basada
+en Deep Learning, aplicando distintas arquitecturas de CNN.
+
+## Conjunto de datos proporcionado
+
+El conjunto de datos que se nos ha proporcionado consta de dos
+subconjuntos, compuestos por las imágenes de peatones y de fondo,
+respectivamente. En el caso de las imágenes de peatones, teníamos 924
+imágenes de tamaño 128x64 en formato RGB, por lo que no hemos tenido
+que realizar ningún preprocesado. Para las imágenes de fondo, por el
+contrario, se nos han proporcionado 50 imágenes de tamaño 256x256. Los
+problemas ante los que nos encontramos son, por un lado, el
+desbalanceo, y por otro, la diferencia de tamaños entre unas imágenes
+y otras. Para afrontar estos dos problemas simultáneamente, se han
+creado 924 parches a partir de las imágenes de fondo de tamaño
+128x64. Para ello, se han generado 924 tripletas (`id`, `x`, `y`)
+distintas, con `id` entre 1 y 50, `x` entre 1 y 256 - 128, e `y` entre
+1 y 256 - 64. De esta forma, para cada tripleta se coge la imagen
+número `id` de los fondos, y se recorta el parche
+`img[x:x+128,y:y+64]`. Como se puede observar, por la generación de
+números aleatorios tenemos garantizado que el parche queda
+completamente dentro de la imagen.
+
+Conseguimos de esta manera un conjunto de datos balanceado, con todas
+las imágenes de tamaño 128x64.
+
+## Evaluación de los clasificadores
+
+Para garantizar que los resultados obtenidos son robustos, hemos
+empleado una estrategia de validación cruzada estratificada en 5
+particiones. Esto significa que dividiremos el conjunto de datos
+completo en 5 partes, de forma que la proporción de elementos de cada
+clase en el conjunto original se mantiene en los subconjuntos creados.
+De esta forma, entrenaremos cada clasificador 5 veces, utilizando en
+cada caso una de las particiones como conjunto de test y el resto del
+conjunto como entrenamiento.
+
+De esta forma, los resultados obtenidos son más robustos que si
+entrenásemos los clasificadores una sola vez. Además, como todos los
+elementos del conjunto forman parte del test al menos una vez, la
+bondad de los clasificadores obtenidos es un buen indicador de su
+capacidad sobre todo el conjunto de datos
+
+## Implementación del descriptor HoG
+
+En esta práctica se ha implementado manualmente el descriptor HoG,
+utilizando para ello la librería de cálculo numérico de Python
+`numpy`. Para ello, se ha implementado una clase que recibe como
+parámetros el tamaño de celda, el tamaño de bloque, y el tamaño de las
+imágenes a procesar. Utilizando esos parámetros, se dispone de una
+función `compute`, que recibe como parámetro una imagen y devuelve el
+descriptor HoG de la misma. El procedimiento básico es el que sigue:
+
+- Se calculan los gradientes en las direcciones vertical y horizontal
+de la imagen utilizando para ello la convolución con los filtros
+de derivada horizontal y vertical ($[-1,0,1]$ y $[-1,0,1]^T$.
+- Se calculan los mapas de intensidad y dirección del gradiente por
+medio de las funciones
+  \[ I = \sqrt{G_x^2 + G_y^2} \]
+  \[ D = \arctan{\frac{G_y}{G_x}} \]
+- Se van recorriendo los bloques desde la esquina superior izquierda
+hasta la inferior derecha, con el solapamiento dictado por las celdas,
+y se calcula el histograma de gradientes sobre dicho bloque.
+
+Los histogramas se han calculado en 9 direcciones distintas,
+correspondientes a los ángulos
+[10,30,50,70,90,110,130,150,170]. Debido a que las direcciones
+calculadas no coinciden exactamente con los puntos del histograma, se
+ha realizado una interpolación lineal a la hora de establecer el peso
+de cada elemento al añadirlo al histograma. De esta forma, un píxel
+cuya dirección del gradiente sean 95 grados, contribuirá de tanto a la
+dirección 90 como a la dirección 110. No obstante, es lógico pensar
+que deberá aportar más información a la dirección 90 que a la 110, ya
+que está más cercano a dicha dirección.
+
+Para poder realizar esta operación de forma eficiente, se ha empleado
+la potencia de `numpy` para el cálculo matricial. Python es un
+lenguaje de programación bastante lento, y realizar todos estos
+cálculos empleando bucles suele repercutir muy negativamente en la
+eficiencia. Por este motivo, hemos reorganizado los cálculos de forma
+matricial de la siguiente forma. Dadas las matrices de intensidad de
+gradiente $I$ y dirección del gradiente $D$, se realizan las
+siguientes operaciones:
+
+- Se construyen dos matrices $D_{prev}$, $D_{post}$, que corresponden
+a la dirección del gradiente previa y posterior (según las 9
+direcciones definidas previamente) a las direcciones reales de la
+matriz $D$. Estas son las dos direcciones para las que contribuye
+cada píxel. Estas matrices se pueden construir como:
+```{python, eval=FALSE, indent="    "}
+# Dirección previa
+prev_direction = (np.floor(np.divide(direction - 10, 20))*20)+10
+# La dirección posterior es 20 grados más que la previa
+post_direction = prev_direction + 20
+```
+- Se construyen otras dos matrices $Dist_{prev}$, $Dist_{post}$, que
+representan para cada píxel la distancia entre la dirección previa
+(o posterior) y la dirección real del gradiente en ese píxel. Se pueden
+construir como:
+```{python, eval=FALSE, indent="    "}
+# Distancia previa y posterior
+dist_to_prev = direction - prev_direction
+dist_to_post = direction - post_direction
+```
+- Como queremos invertir dicha distancia (cuanto más cerca estemos del
+punto que nos corresponde, mejor), ponderamos la matriz de intensidad
+del gradiente que teníamos por $20 - Dist_{prev}$ para el peso con el
+que contribuimos a la dirección anterior, y con $20 - Dist_{post}$
+para el peso con el que contribuimos a la dirección siguiente.
+```{python, eval=FALSE, indent="    "}
+# Matrices de ponderación del histograma
+weight_prev = (intensity * (20-dist_to_prev)) / 20
+weight_post = (intensity * (20-dist_to_post)) / 20
+```
+- Como las direcciones -10 y 190 nos han podido aparecer, hemos
+considerado que el histograma es circular, y hemos identificado estos
+valores con el 170 y el 10 (lo cual tiene sentido pensando en la
+circunferencia goniométrica).
+- Una vez tenemos las matrices de direcciones previas y posteriores,
+así como sus matrices de ponderación, calculamos dos descriptores para
+la imagen, a partir de los histogramas sobre las direcciones previas,
+ponderadas utilizando las matrices de pesos anteriores. Esto puede hacerse
+en `numpy` de la siguiente forma:
+```{python, eval=FALSE, indent="    "}
+prev_descriptors = [
+    np.bincount(
+        prev_direction[i:i+self.bx,j:j+self.bx].flatten().astype(np.int64),
+        weights=weight_prev[i:i+self.bx,j:j+self.bx].flatten()
+    )
+            for i in range(0, self.wx - self.bx + 1, self.dx)
+            for j in range(0, self.wy - self.by + 1, self.dy)
+]
+
+post_descriptors = [
+    np.bincount(
+        post_direction[i:i+self.bx,j:j+self.bx].flatten().astype(np.int64),
+        weights=weight_post[i:i+self.bx,j:j+self.bx].flatten()
+    )
+    for i in range(0, self.wx - self.bx + 1, self.dx)
+    for j in range(0, self.wy - self.by + 1, self.dy)
+]
+```
+- Tenemos las listas de descriptores, las concatenamos una delante de otra y
+sumamos los histogramas anteriores y posteriores elemento a elemento. Dado
+que los elementos están en ambos casos recorridos en el mismo orden, sabemos
+que los elementos que se suman son los correctos.
+- Finalmente, dividimos por la norma del máximo del descriptor, para
+evitar que los valores que se obtengan sean demasiado grandes.
+
+La ventaja de la implementación que hemos dado es que la mayoría de
+los cálculos que hemos realizado se expresan como operaciones matriciales,
+lo que hace que los cálculos intensivos se hagan de forma optimizada a
+través de la librería `numpy`. El único cálculo que no puede hacerse
+de una forma tan eficiente es el último cálculo de los histogramas de
+cada bloque, pero éstos representan un porcentaje pequeño del total de
+cálculos a realizar.
+
+## Resultados obtenidos con el clasificador SVM
+
+Una vez hemos descrito el cálculo del descriptor HoG, vamos a utilizar
+esta información para resolver el problema de clasificación binaria
+empleando modelos SVM. Utilizaremos la implementación SVM disponible
+en OpenCV. Debido a que una gran parte de las aproximaciones clásicas
+a los problemas de visión por computador consisten en la utilización
+de descriptores junto con clasificadores basados en SVM, la
+implementación que incorpora OpenCV es bastante eficiente y fácil de
+utilizar.
+
+Esta implementación nos permite especificar multitud de parámetros
+para los modelos SVM. En particular, nos permite utilizar núcleos
+lineales, polinomiales y gaussianos, que son los tres tipos de núcleos
+más empleados, y para dichos núcleos se permite especificar distintas
+configuraciones paramétricas, como el grado del polinomio, o ciertos
+términos de regularización.
+
+Probaremos distintas configuraciones paramétricas para tratar de
+buscar el modelo que mejores resultados arroje. Los resultados
+obtenidos para los distintos parámetros del modelo son los que siguen
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llllllrrrr}
+\toprule
+{} &            Model &   TP &   FN &   FP &   TN &  Accuracy &  Precision &  Recall &     F1 \\
+\midrule
+0 &           Linear &  898 &   26 &   21 &  903 &    0.9746 &     0.9721 &  0.9773 & 0.9747 \\
+1 &     Poly - deg 2 &  897 &   27 &   21 &  903 &    0.9740 &     0.9711 &  0.9773 & 0.9741 \\
+2 &     Poly - deg 3 &  896 &   28 &   20 &  904 &    0.9740 &     0.9701 &  0.9784 & 0.9741 \\
+3 &     Poly - deg 4 &  896 &   28 &   19 &  905 &    0.9746 &     0.9702 &  0.9794 & 0.9747 \\
+4 &  RBF - gamma 0.1 &  902 &   22 &   35 &  889 &    0.9692 &     0.9759 &  0.9621 & 0.9689 \\
+5 &  RBF - gamma 0.2 &  909 &   15 &  108 &  816 &    0.9334 &     0.9820 &  0.8831 & 0.9298 \\
+6 &  RBF - gamma 0.3 &  910 &   14 &  203 &  721 &    0.8826 &     0.9810 &  0.7803 & 0.8691 \\
+7 &  RBF - gamma 0.5 &  912 &   12 &  289 &  635 &    0.8371 &     0.9817 &  0.6872 & 0.8078 \\
+8 &  RBF - gamma 0.7 &  272 &  652 &    9 &  915 &    0.6423 &     0.5844 &  0.9903 & 0.7349 \\
+9 &    RBF - gamma 1 &  493 &  431 &  277 &  647 &    0.6169 &     0.7357 &  0.7005 & 0.5950 \\
+\bottomrule
+\end{tabular}
+\caption{Resultados obtenidos tras la clasificación con modelos SVM}
+\end{table}
+
+Como podemos observar, más o menos independientemente del modelo
+empleado, los resultados obtenidos son bastante adecuados. Aparecen
+como excepción los dos últimos modelos, en los que se utiliza el
+núcleo gaussiano (también llamado RBF), con un gamma de 0.7 y de 1.
+Debido a los malos resultados obtenidos en estos casos, hemos decidido
+no seguir explorando esta vía aumentando todavía más el valor de
+gamma.
+
+En cuanto a los resultados obtenidos por los modelos con buen
+comportamiento, tenemos dos grupos bien diferenciados,, los modelos
+basados en polinomios (el núcleo lineal es a fin de cuentas un
+polinomio de grado 1), y los núcleos RBF. Dentro de los clasificadores
+polinómicos, encontramos poca variabilidad en los resultados
+obtenidos, a pesar de haber llegado a utilizar polinomios de grado 4.
+En todos los casos estamos hablando de sobre 25 falsos negativos y
+unos 20 falsos positivos, una tasa de acierto de cerca del 97.5 %, y
+el resto de medidas reportadas moviéndose en unos valores similares.
+
+Dentro de los clasificadores basados en núcleo gaussiano, tenemos un
+comportamiento bastante curioso. A pesar de que los resultados
+obtenidos por estos modelos son siempre peores que los obtenidos por
+los clasificadores polinómicos, estos modelos son más sensibles a la
+clase positiva, por lo que cometen menos falsos negativos y la
+precisión del modelo es más alta. En función del uso que vaya a darse
+a este clasificador, puede interesar utilizar núcleos gaussianos, si
+estamos muy interesados en detectar correctamente la presencia de un
+peatón en cualquier caso, y no estamos tan preocupados con los
+posibles falsos positivos que puedan aparecer. No obstante, si hubiera
+que decantarse por un clasificador con un buen comportamiento en
+general, probablemente es más adecuado un clasificador polinómico. En
+particular, teniendo en cuenta términos de eficiencia, el clasificador
+de núcleo lineal obtiene unos resultados bastante buenos, y es el
+clasificador más eficiente de los mostrados, por lo que parece ser el
+más adecuado en este caso.

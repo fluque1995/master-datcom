@@ -7,12 +7,10 @@ adra6 = double(imread("adra/banda6.tif"));
 
 bandas = cat(3, adra1, adra2, adra3, adra4, adra5, adra6);
 
-output = hotelling_transform(bandas);
-
-output = uint8(round(output));
+[output, ev] = hotelling_transform(bandas);
 
 subplot(2,3,1);
-imshow(output(:,:,1));
+imshow(output(:,:,1), []);
 subplot(2,3,2);
 imshow(output(:,:,2), []);
 subplot(2,3,3);
