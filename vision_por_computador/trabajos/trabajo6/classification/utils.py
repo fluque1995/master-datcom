@@ -132,7 +132,7 @@ def cross_validation_cnn(dataset, labels, model, k=5):
         predictions = model_instance.predict(test, test_labs)
 
         conf_mat = sklearn.metrics.confusion_matrix(
-            np.argmax(test_labs), np.argmax(predictions)
+            test_labs, np.round(predictions).astype(np.int32)
         )
 
         accs.append(accuracy(conf_mat))
